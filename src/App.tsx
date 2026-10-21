@@ -1,21 +1,40 @@
 /*
  * App
- * Componente radice. Contiene lo stato condiviso dell'interfaccia:
+ * Componente radice. Contiene lo stato condiviso e la regia:
  * - armadioAperto: se l'armadio è aperto (ante aperte, LED acceso).
- *   Vive qui perché in futuro servirà sia alla scena 3D sia
- *   all'interfaccia HTML (galleria dei lavori, pulsante "chiudi").
- * Il click sull'armadio inverte lo stato (apre/chiude).
+ * - cameraRef: riferimento ai controlli della camera, passato alla
+ *   Scena che lo collega a <CameraControls>. Vive qui perché anche
+ *   l'interfaccia HTML (es. pulsante "chiudi") dovrà muovere la camera.
+ *
+ * gestisciClickArmadio fa tutto nello stesso momento, senza useEffect:
+ * calcola il nuovo stato, lo salva e sposta la camera sulla vista
+ * corrispondente con una transizione animata.
  */
-import { useState } from "react"
+import { useRef, useState } from "react"
+import type { CameraControls } from "@react-three/drei"
 import { Scena } from "./components/scena/Scena"
+import { VISTE, type VistaCamera } from "./config/camera"
+
+/* Sposta la camera su una vista con transizione animata */
+function vaiAllaVista(controlli: CameraControls | null, vista: VistaCamera) {
+  controlli?.setLookAt(...vista.posizione, ...vista.obiettivo, true)
+}
 
 export default function App() {
   const [armadioAperto, setArmadioAperto] = useState(false)
+  const cameraRef = useRef<CameraControls>(null)
+
+  const gestisciClickArmadio = () => {
+    const aprire = !armadioAperto
+    setArmadioAperto(aprire)
+    vaiAllaVista(cameraRef.current, aprire ? VISTE.armadio : VISTE.panoramica)
+  }
 
   return (
     <Scena
       armadioAperto={armadioAperto}
-      onClickArmadio={() => setArmadioAperto((aperto) => !aperto)}
+      onClickArmadio={gestisciClickArmadio}
+      cameraRef={cameraRef}
     />
   )
 }
