@@ -1,23 +1,19 @@
 /*
  * Armadio
- * Carica il modello armadio.glb e tutti i PNG bakeati, e assegna
- * a ogni oggetto il suo materiale bakeato.
+ * Carica il modello armadio.glb e tutti i PNG bakeati, assegna a ogni
+ * oggetto il suo materiale bakeato e anima le luci.
  *
- * - URL_TEXTURE: costruito dalla configurazione, contiene tutti i PNG
- *   come { "anta_sx_base": "/textures/armadio/anta_sx_base.png", ... }
- * - useTexture (drei) carica tutte le texture in parallelo e, come
- *   useGLTF, sospende il componente finché non sono pronte.
- * - scene.traverse visita ogni oggetto del file: se è una mesh
- *   presente nella configurazione, riceve il materiale bakeato.
- *   Si lavora sulla scena originale, quindi la gerarchia resta
- *   intatta (lo zaino continua a seguire l'anta).
- * - useMemo esegue l'assegnazione una sola volta, durante il render,
- *   PRIMA che la scena venga mostrata: così non si vede mai il
- *   modello grigio. Con useEffect avverrebbe dopo il primo
- *   disegno, con un fotogramma grigio.
+ * - URL_TEXTURE: tutti i PNG, indicizzati per "<oggetto>_<passaggio>".
+ * - useMemo: assegna i materiali una sola volta, prima del primo
+ *   disegno (niente fotogramma grigio), e restituisce la lista dei
+ *   materiali creati per poterli animare.
+ * - useFrame: a ogni fotogramma aggiorna l'intensità del neon in tutti
+ *   i materiali. Modifica direttamente l'uniform dello shader, senza
+ *   passare dallo stato di React (nessun re-render).
  */
 import { useMemo } from "react"
 import * as THREE from "three"
+import { useFrame } from "@react-three/fiber"
 import { useGLTF, useTexture } from "@react-three/drei"
 import {
   CARTELLA_TEXTURE_ARMADIO,
@@ -27,6 +23,7 @@ import {
   creaMaterialeBake,
   preparaTextureBake,
 } from "../../materials/materialeBake"
+import { intensitaNeon } from "../../utils/sfarfallio"
 
 const PERCORSO_MODELLO = "/models/armadio.glb"
 
@@ -44,20 +41,34 @@ export function Armadio() {
   const { scene } = useGLTF(PERCORSO_MODELLO)
   const texture = useTexture(URL_TEXTURE)
 
-  useMemo(() => {
+  /* Assegna i materiali bakeati e restituisce la lista dei materiali */
+  const materiali = useMemo(() => {
     Object.values(texture).forEach(preparaTextureBake)
+    const lista: THREE.ShaderMaterial[] = []
 
     scene.traverse((oggetto) => {
       if (!(oggetto instanceof THREE.Mesh)) return
       if (!(oggetto.name in PASSAGGI_ARMADIO)) return
 
-      oggetto.material = creaMaterialeBake({
+      const materiale = creaMaterialeBake({
         base: texture[`${oggetto.name}_base`],
         led: texture[`${oggetto.name}_led`],
         neon: texture[`${oggetto.name}_neon`],
       })
+      oggetto.material = materiale
+      lista.push(materiale)
     })
+
+    return lista
   }, [scene, texture])
+
+  /* Animazione: sfarfallio del neon a ogni fotogramma */
+  useFrame(({ clock }) => {
+    const valore = intensitaNeon(clock.elapsedTime)
+    for (const materiale of materiali) {
+      materiale.uniforms.intensitaNeon.value = valore
+    }
+  })
 
   return <primitive object={scene} />
 }
