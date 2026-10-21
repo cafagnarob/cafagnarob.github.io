@@ -13,12 +13,8 @@
 import { useRef, useState } from "react"
 import type { CameraControls } from "@react-three/drei"
 import { Scena } from "./components/scena/Scena"
-import { VISTE, type VistaCamera } from "./config/camera"
-
-/* Sposta la camera su una vista con transizione animata */
-function vaiAllaVista(controlli: CameraControls | null, vista: VistaCamera) {
-  controlli?.setLookAt(...vista.posizione, ...vista.obiettivo, true)
-}
+import { VISTE } from "./config/camera"
+import { vaiAllaVista } from "./components/scena/regiaCamera"
 
 export default function App() {
   const [armadioAperto, setArmadioAperto] = useState(false)

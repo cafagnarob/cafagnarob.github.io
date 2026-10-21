@@ -27,3 +27,12 @@ export const VISTE: Record<"panoramica" | "armadio", VistaCamera> = {
     obiettivo: [-2.42, 1.1, 0],
   },
 }
+
+/*
+ * Escursione della camera
+ * Di quanti gradi l'utente può ruotare la vista attorno alla
+ * posizione di ogni vista: abbastanza per dare profondità,
+ * troppo poco per vedere dietro i muri.
+ */
+export const ESCURSIONE_ORIZZONTALE_GRADI = 10
+export const ESCURSIONE_VERTICALE_GRADI = 5

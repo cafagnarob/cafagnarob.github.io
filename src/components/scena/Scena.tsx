@@ -5,22 +5,37 @@
  * ref dei controlli della camera.
  *
  * - dpr={[1, 2]}: risoluzione adattiva, al massimo il doppio dei pixel.
- * - onCreated: tonemapping AgX, la stessa di Blender. Niente luci:
- *   l'illuminazione è nelle texture bakeate.
- * - CameraControls: rotazione con mouse/touch (per ora senza limiti)
- *   e transizioni animate tra le viste (comandate da App).
- * - collegaCamera: "callback ref" stabile (useCallback). Viene chiamata
- *   una sola volta quando CameraControls è pronto: salva l'istanza nel
- *   ref di App e posiziona la camera sulla vista iniziale, senza
- *   animazione. Essendo stabile, i re-render non la richiamano e
- *   la camera non "salta".
+ * - onCreated: tonemapping AgX, la stessa di Blender.
+ * - CameraControls: solo ROTAZIONE (tasto sinistro / un dito), entro i
+ *   limiti impostati da vaiAllaVista. Zoom, spostamento e gesti a due
+ *   dita sono disattivati. smoothTime regola la morbidezza.
+ * - collegaCamera: callback ref stabile (useCallback), chiamata una sola
+ *   volta: salva l'istanza nel ref di App e posiziona la camera sulla
+ *   vista iniziale, con i suoi limiti, senza animazione.
  */
 import { Suspense, useCallback, type RefObject } from "react"
 import * as THREE from "three"
 import { Canvas } from "@react-three/fiber"
 import { CameraControls } from "@react-three/drei"
+import CameraControlsImpl from "camera-controls"
 import { Armadio } from "../armadio/Armadio"
 import { VISTE } from "../../config/camera"
+import { vaiAllaVista } from "./regiaCamera"
+
+const { ACTION } = CameraControlsImpl
+
+/* Comandi consentiti: solo rotazione */
+const COMANDI_MOUSE = {
+  left: ACTION.ROTATE,
+  middle: ACTION.NONE,
+  right: ACTION.NONE,
+  wheel: ACTION.NONE,
+}
+const COMANDI_TOUCH = {
+  one: ACTION.TOUCH_ROTATE,
+  two: ACTION.NONE,
+  three: ACTION.NONE,
+}
 
 type ScenaProps = {
   armadioAperto: boolean
@@ -36,8 +51,7 @@ export function Scena({
   const collegaCamera = useCallback(
     (controlli: CameraControls | null) => {
       cameraRef.current = controlli
-      const { posizione, obiettivo } = VISTE.panoramica
-      controlli?.setLookAt(...posizione, ...obiettivo, false)
+      vaiAllaVista(controlli, VISTE.panoramica, false)
     },
     [cameraRef],
   )
@@ -54,7 +68,13 @@ export function Scena({
         <Armadio aperto={armadioAperto} onClick={onClickArmadio} />
       </Suspense>
 
-      <CameraControls ref={collegaCamera} makeDefault />
+      <CameraControls
+        ref={collegaCamera}
+        makeDefault
+        mouseButtons={COMANDI_MOUSE}
+        touches={COMANDI_TOUCH}
+        smoothTime={0.5}
+      />
     </Canvas>
   )
 }
