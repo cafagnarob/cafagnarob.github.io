@@ -20,16 +20,19 @@
  *    è completo, avvisa con onRitornoCompletato (una sola volta).
  * 5. ROTAZIONE: PresentationControls rende il capo ruotabile trascinando
  *    ovunque sullo schermo (global); "snap" lo riporta frontale al rilascio.
+ * “6. CLICK: un click sul capo (non un trascinamento) lo rimette nell’armadio.”
+ *
  */
 import { useMemo, useRef } from "react"
 import * as THREE from "three"
-import { useFrame, useThree } from "@react-three/fiber"
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { PresentationControls } from "@react-three/drei"
 import { CAPI_CLICCABILI } from "../../config/armadio"
 import {
   DISTANZA_ISPEZIONE,
   OCCUPAZIONE_SCHERMO,
   ROTAZIONE_FRONTALE_GRADI,
+  SOGLIA_TRASCINAMENTO_PX,
   VELOCITA_ISPEZIONE,
 } from "../../config/ispezione"
 
@@ -43,6 +46,7 @@ type IspezioneProps = {
   scene: THREE.Object3D
   idLavoro: string
   ritorno: boolean
+  onClickCapo: () => void
   onRitornoCompletato: () => void
 }
 
@@ -52,6 +56,7 @@ export function Ispezione({
   scene,
   idLavoro,
   ritorno,
+  onClickCapo,
   onRitornoCompletato,
 }: IspezioneProps) {
   const camera = useThree((stato) => stato.camera) as THREE.PerspectiveCamera
@@ -167,6 +172,14 @@ export function Ispezione({
     }
   })
 
+  /* Click sul capo: lo rimette nell'armadio, ma solo se era un click vero
+     (non la fine di un trascinamento) e se non sta già tornando */
+  const gestisciClick = (evento: ThreeEvent<MouseEvent>) => {
+    evento.stopPropagation()
+    if (evento.delta > SOGLIA_TRASCINAMENTO_PX || ritorno) return
+    onClickCapo()
+  }
+
   /* 5. Rotazione con il trascinamento */
   return (
     <primitive object={perno}>
@@ -178,7 +191,7 @@ export function Ispezione({
         polar={[-Math.PI / 4, Math.PI / 4]}
         azimuth={[-Infinity, Infinity]}
       >
-        <primitive object={contenitore} />
+        <primitive object={contenitore} onClick={gestisciClick} />
       </PresentationControls>
     </primitive>
   )

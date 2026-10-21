@@ -20,3 +20,10 @@ export const LUMINOSITA_ISPEZIONE = 0.5
 export const ROTAZIONE_FRONTALE_GRADI: Record<string, number> = {
   // capo_1: 90,
 }
+
+/*
+ * Soglia click / trascinamento (pixel)
+ * Se tra la pressione e il rilascio il puntatore si è spostato più di
+ * così, era un trascinamento (rotazione del capo) e non un click.
+ */
+export const SOGLIA_TRASCINAMENTO_PX = 6

@@ -16,7 +16,7 @@
  *     visibilità → gli originali del capo in ispezione sono nascosti
  *                  (al loro posto vola il clone)
  */
-import { useMemo, useRef } from "react"
+import { useRef } from "react"
 import * as THREE from "three"
 import { useGLTF } from "@react-three/drei"
 import { useFrame, type ThreeEvent } from "@react-three/fiber"
@@ -25,6 +25,7 @@ import { useAnte } from "./useAnte"
 import { Ispezione } from "./Ispezione"
 import { intensitaNeon } from "../../utils/sfarfallio"
 import {
+  ANTE_ARMADIO,
   CAPI_CLICCABILI,
   VELOCITA_EVIDENZIAZIONE,
   VELOCITA_LED,
@@ -38,7 +39,9 @@ type ArmadioProps = {
   capoInIspezione: string | null
   ritornoCapo: boolean
   onApri: () => void
+  onChiudi: () => void
   onSelezionaCapo: (idLavoro: string) => void
+  onRimettiCapo: () => void
   onRitornoCompletato: () => void
 }
 
@@ -47,12 +50,19 @@ function lavoroColpito(evento: ThreeEvent<PointerEvent | MouseEvent>) {
   return CAPI_CLICCABILI[evento.object.name] as string | undefined
 }
 
+/* True se l'oggetto colpito è un'anta */
+function antaColpita(evento: ThreeEvent<PointerEvent | MouseEvent>) {
+  return evento.object.name in ANTE_ARMADIO
+}
+
 export function Armadio({
   aperto,
   capoInIspezione,
   ritornoCapo,
   onApri,
+  onChiudi,
   onSelezionaCapo,
+  onRimettiCapo,
   onRitornoCompletato,
 }: ArmadioProps) {
   const { scene } = useGLTF(PERCORSO_MODELLO)
@@ -62,14 +72,11 @@ export function Armadio({
   const capoSottoMouse = useRef<string | null>(null)
   const inIspezione = capoInIspezione !== null
 
-  /* Oggetti 3D dei capi, trovati una volta per nome */
-  const oggettiCapi = useMemo(
-    () =>
-      Object.keys(CAPI_CLICCABILI)
-        .map((nome) => scene.getObjectByName(nome))
-        .filter((oggetto): oggetto is THREE.Object3D => oggetto !== undefined),
-    [scene],
-  )
+  /* Oggetti 3D dei capi: cercati per nome al primo fotogramma e poi
+     conservati in un ref. Un ref (e non useMemo) perché li modifichiamo
+     a ogni fotogramma (visibilità): sono oggetti three.js mutabili,
+     che React non deve osservare. */
+  const oggettiCapi = useRef<THREE.Object3D[] | null>(null)
 
   /* Animazioni a ogni fotogramma */
   useFrame(({ clock }, delta) => {
@@ -105,12 +112,18 @@ export function Armadio({
     }
 
     // Gli originali del capo in ispezione restano nascosti finché il clone è fuori
-    for (const oggetto of oggettiCapi) {
+    oggettiCapi.current ??= Object.keys(CAPI_CLICCABILI)
+      .map((nome) => scene.getObjectByName(nome))
+      .filter((oggetto): oggetto is THREE.Object3D => oggetto !== undefined)
+
+    for (const oggetto of oggettiCapi.current) {
       oggetto.visible = CAPI_CLICCABILI[oggetto.name] !== capoInIspezione
     }
   })
 
-  /* Click: chiuso → apre; aperto → ispeziona il capo colpito */
+  /* Click:
+     - chiuso → apre
+     - aperto → capo: ispezione / anta: chiude */
   const gestisciClick = (evento: ThreeEvent<MouseEvent>) => {
     evento.stopPropagation()
     if (inIspezione) return
@@ -119,17 +132,22 @@ export function Armadio({
       return
     }
     const lavoro = lavoroColpito(evento)
-    if (lavoro) onSelezionaCapo(lavoro)
+    if (lavoro) {
+      onSelezionaCapo(lavoro)
+      return
+    }
+    if (antaColpita(evento)) onChiudi()
   }
 
-  /* Movimento: capo sotto il mouse e forma del cursore */
+  /* Movimento: capo sotto il mouse e forma del cursore.
+     Ad armadio aperto sono cliccabili i capi e le ante. */
   const gestisciMovimento = (evento: ThreeEvent<PointerEvent>) => {
     evento.stopPropagation()
     if (inIspezione) return
     const lavoro = aperto ? lavoroColpito(evento) : undefined
     capoSottoMouse.current = lavoro ?? null
-    document.body.style.cursor =
-      !aperto || lavoro !== undefined ? "pointer" : "auto"
+    const cliccabile = !aperto || lavoro !== undefined || antaColpita(evento)
+    document.body.style.cursor = cliccabile ? "pointer" : "auto"
   }
 
   const gestisciUscita = () => {
@@ -152,6 +170,7 @@ export function Armadio({
           scene={scene}
           idLavoro={capoInIspezione}
           ritorno={ritornoCapo}
+          onClickCapo={onRimettiCapo}
           onRitornoCompletato={onRitornoCompletato}
         />
       )}

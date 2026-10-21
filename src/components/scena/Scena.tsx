@@ -42,7 +42,9 @@ type ScenaProps = {
   capoInIspezione: string | null
   ritornoCapo: boolean
   onApriArmadio: () => void
+  onChiudiArmadio: () => void
   onSelezionaCapo: (idLavoro: string) => void
+  onRimettiCapo: () => void
   onRitornoCompletato: () => void
   cameraRef: RefObject<CameraControls | null>
 }
@@ -54,6 +56,8 @@ export function Scena({
   onApriArmadio,
   onSelezionaCapo,
   onRitornoCompletato,
+  onRimettiCapo,
+  onChiudiArmadio,
   cameraRef,
 }: ScenaProps) {
   const collegaCamera = useCallback(
@@ -78,7 +82,9 @@ export function Scena({
           capoInIspezione={capoInIspezione}
           ritornoCapo={ritornoCapo}
           onApri={onApriArmadio}
+          onChiudi={onChiudiArmadio}
           onSelezionaCapo={onSelezionaCapo}
+          onRimettiCapo={onRimettiCapo}
           onRitornoCompletato={onRitornoCompletato}
         />
       </Suspense>

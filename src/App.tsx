@@ -6,21 +6,16 @@
  * - ritornoCapo: true mentre il capo torna al suo posto nell'armadio.
  * - cameraRef: controlli della camera, collegati nella Scena.
  *
- * Flusso dell'ispezione, gestito negli handler (senza useEffect):
- * - selezionaCapo: avvia l'ispezione e blocca la camera, così il
- *   trascinamento ruota il capo e non la vista
- * - rimettiCapo: avvia il ritorno del capo nell'armadio
- * - ritornoCompletato: chiamato dalla scena quando il capo è tornato
- *   al suo posto: termina l'ispezione e sblocca la camera
- *
- * Interfaccia HTML sopra la scena:
- * - "Chiudi armadio": ad armadio aperto, senza capi in ispezione
- * - "Rimetti nell'armadio": durante l'ispezione
+ * Tutte le azioni partono dai click sugli oggetti 3D (niente pulsanti):
+ * - apriArmadio / chiudiArmadio: click sull'armadio chiuso / sulle ante
+ * - selezionaCapo: click su un capo → ispezione, camera bloccata
+ * - rimettiCapo: click sul capo in ispezione → avvia il ritorno
+ * - ritornoCompletato: il capo è tornato → fine ispezione, camera sbloccata
+ * Stato e camera si aggiornano negli stessi handler, senza useEffect.
  */
 import { useRef, useState } from "react"
 import type { CameraControls } from "@react-three/drei"
 import { Scena } from "./components/scena/Scena"
-import { PulsanteChiudi } from "./components/interfaccia/PulsanteChiudi"
 import { vaiAllaVista } from "./components/scena/regiaCamera"
 import { VISTE } from "./config/camera"
 
@@ -55,27 +50,16 @@ export default function App() {
   }
 
   return (
-    <>
-      <Scena
-        armadioAperto={armadioAperto}
-        capoInIspezione={capoInIspezione}
-        ritornoCapo={ritornoCapo}
-        onApriArmadio={apriArmadio}
-        onSelezionaCapo={selezionaCapo}
-        onRitornoCompletato={ritornoCompletato}
-        cameraRef={cameraRef}
-      />
-
-      {armadioAperto && !capoInIspezione && (
-        <PulsanteChiudi etichetta="Chiudi armadio" onClick={chiudiArmadio} />
-      )}
-
-      {capoInIspezione && !ritornoCapo && (
-        <PulsanteChiudi
-          etichetta="Rimetti nell'armadio"
-          onClick={rimettiCapo}
-        />
-      )}
-    </>
+    <Scena
+      armadioAperto={armadioAperto}
+      capoInIspezione={capoInIspezione}
+      ritornoCapo={ritornoCapo}
+      onApriArmadio={apriArmadio}
+      onChiudiArmadio={chiudiArmadio}
+      onSelezionaCapo={selezionaCapo}
+      onRimettiCapo={rimettiCapo}
+      onRitornoCompletato={ritornoCompletato}
+      cameraRef={cameraRef}
+    />
   )
 }
