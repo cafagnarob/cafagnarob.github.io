@@ -39,6 +39,27 @@ export const ANTE_ARMADIO: Record<string, { direzione: 1 | -1 }> = {
   anta_dx: { direzione: 1 },
 }
 
-export const ANGOLO_APERTURA_GRADI = 90
+export const ANGOLO_APERTURA_GRADI = 115
 export const VELOCITA_ANTE = 3
 export const VELOCITA_LED = 2
+
+/*
+ * Capi cliccabili
+ * Collega ogni oggetto 3D al lavoro (scheda) che apre.
+ * Più oggetti possono aprire lo stesso lavoro: lo zaino e le sue
+ * minuterie sono due oggetti in 3D, ma un unico lavoro.
+ * La chiave è il nome dell'oggetto in Blender, il valore è l'id
+ * del lavoro in src/data/lavoriModa.ts.
+ */
+export const CAPI_CLICCABILI: Record<string, string> = {
+  capo_1: "capo_1",
+  capo_2: "capo_2",
+  capo_3: "capo_3",
+  capo_4: "capo_4",
+  capo_5: "capo_5",
+  capo_6: "capo_6",
+  capo_7: "capo_7",
+  capo_7_minuteria: "capo_7",
+}
+
+export const VELOCITA_EVIDENZIAZIONE = 8

@@ -32,12 +32,12 @@ const URL_TEXTURE: Record<string, string> = Object.fromEntries(
 
 export function useMaterialiBake(
   scene: THREE.Object3D,
-): THREE.ShaderMaterial[] {
+): Record<string, THREE.ShaderMaterial> {
   const texture = useTexture(URL_TEXTURE)
 
   return useMemo(() => {
     Object.values(texture).forEach(preparaTextureBake)
-    const lista: THREE.ShaderMaterial[] = []
+    const materiali: Record<string, THREE.ShaderMaterial> = {}
 
     scene.traverse((oggetto) => {
       if (!(oggetto instanceof THREE.Mesh)) return
@@ -50,10 +50,10 @@ export function useMaterialiBake(
       })
       materiale.uniforms.intensitaLed.value = 0 // armadio chiuso all'avvio
       oggetto.material = materiale
-      lista.push(materiale)
+      materiali[oggetto.name] = materiale
     })
 
-    return lista
+    return materiali
   }, [scene, texture])
 }
 

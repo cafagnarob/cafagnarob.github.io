@@ -39,13 +39,21 @@ const COMANDI_TOUCH = {
 
 type ScenaProps = {
   armadioAperto: boolean
-  onClickArmadio: () => void
+  capoInIspezione: string | null
+  ritornoCapo: boolean
+  onApriArmadio: () => void
+  onSelezionaCapo: (idLavoro: string) => void
+  onRitornoCompletato: () => void
   cameraRef: RefObject<CameraControls | null>
 }
 
 export function Scena({
   armadioAperto,
-  onClickArmadio,
+  capoInIspezione,
+  ritornoCapo,
+  onApriArmadio,
+  onSelezionaCapo,
+  onRitornoCompletato,
   cameraRef,
 }: ScenaProps) {
   const collegaCamera = useCallback(
@@ -65,7 +73,14 @@ export function Scena({
       }}
     >
       <Suspense fallback={null}>
-        <Armadio aperto={armadioAperto} onClick={onClickArmadio} />
+        <Armadio
+          aperto={armadioAperto}
+          capoInIspezione={capoInIspezione}
+          ritornoCapo={ritornoCapo}
+          onApri={onApriArmadio}
+          onSelezionaCapo={onSelezionaCapo}
+          onRitornoCompletato={onRitornoCompletato}
+        />
       </Suspense>
 
       <CameraControls

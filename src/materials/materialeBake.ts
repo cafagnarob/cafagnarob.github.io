@@ -27,13 +27,19 @@ const vertexShader = /* glsl */ `
   }
 `
 
-/* --- Fragment shader: somma i passaggi e applica AgX --- */
+/* --- Fragment shader: somma i passaggi, evidenzia e applica AgX --- */
 const fragmentShader = /* glsl */ `
+  // Texture bakeate
   uniform sampler2D mappaBase;
   uniform sampler2D mappaLed;
   uniform sampler2D mappaNeon;
+
+  // Valori animati da JavaScript
   uniform float intensitaLed;
   uniform float intensitaNeon;
+  uniform float evidenziazione; // 0 = normale, 1 = evidenziato
+
+  // Costanti di riconversione dell'esposizione
   uniform vec3 moltiplicatori; // x = base, y = led, z = neon
 
   varying vec2 vUv;
@@ -42,8 +48,14 @@ const fragmentShader = /* glsl */ `
     vec3 base = texture2D(mappaBase, vUv).rgb * moltiplicatori.x;
     vec3 led  = texture2D(mappaLed,  vUv).rgb * moltiplicatori.y * intensitaLed;
     vec3 neon = texture2D(mappaNeon, vUv).rgb * moltiplicatori.z * intensitaNeon;
+    vec3 colore = base + led + neon;
 
-    gl_FragColor = vec4(base + led + neon, 1.0);
+    // Evidenziazione: schiarisce il colore e aggiunge un leggero
+    // velo caldo, così si nota anche sui capi molto scuri
+    colore *= 1.0 + evidenziazione * 0.6;
+    colore += vec3(1.0, 0.85, 0.6) * 0.04 * evidenziazione;
+
+    gl_FragColor = vec4(colore, 1.0);
 
     // Pezzi di shader di three.js: applicano la tonemapping
     // impostata sul renderer (AgX) e la conversione per lo schermo
@@ -79,6 +91,7 @@ export function creaMaterialeBake(texture: TextureBake): THREE.ShaderMaterial {
       mappaNeon: { value: texture.neon ?? TEXTURE_NERA },
       intensitaLed: { value: 1 },
       intensitaNeon: { value: 1 },
+      evidenziazione: { value: 0 },
       moltiplicatori: {
         value: new THREE.Vector3(
           MOLTIPLICATORI.base,
