@@ -1,0 +1,21 @@
+/*
+ * Stili globali
+ * Il Canvas 3D occupa tutto lo spazio del suo contenitore.
+ * Per farlo diventare a schermo intero, html, body e #root
+ * devono avere altezza 100%: senza questo il canvas è alto 0px
+ * e la pagina sembra vuota.
+ * overflow: hidden evita le barre di scorrimento, soprattutto
+ * su mobile, dove il trascinamento deve muovere la scena e
+ * non la pagina.
+ */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #111;
+  overflow: hidden;
+}
