@@ -1,77 +1,64 @@
 /*
  * Armadio
- * Carica il modello armadio.glb e tutti i PNG bakeati, assegna a ogni
- * oggetto il suo materiale bakeato e anima le luci.
+ * Mostra l'armadio bakeato e gestisce la sua interazione.
  *
- * - URL_TEXTURE: tutti i PNG, indicizzati per "<oggetto>_<passaggio>".
- * - useMemo: assegna i materiali una sola volta, prima del primo
- *   disegno (niente fotogramma grigio), e restituisce la lista dei
- *   materiali creati per poterli animare.
- * - useFrame: a ogni fotogramma aggiorna l'intensità del neon in tutti
- *   i materiali. Modifica direttamente l'uniform dello shader, senza
- *   passare dallo stato di React (nessun re-render).
+ * - useMaterialiBake: assegna i materiali con i PNG bakeati.
+ * - useAnte: anima l'apertura/chiusura delle ante.
+ * - useFrame: anima le luci a ogni fotogramma:
+ *     neon → sfarfallio continuo
+ *     LED  → si accende quando l'armadio è aperto, si spegne quando
+ *            è chiuso, con smorzamento indipendente dal frame rate.
+ * - Click su qualsiasi parte dell'armadio → onClick (gestito in App).
+ *   stopPropagation evita che il click "attraversi" l'armadio e
+ *   arrivi anche agli oggetti dietro.
+ * - Il cursore diventa una mano al passaggio, anche se l'armadio è
+ *   cliccabile su mobile senza hover (il tocco genera il click).
  */
-import { useMemo } from "react"
-import * as THREE from "three"
-import { useFrame } from "@react-three/fiber"
-import { useGLTF, useTexture } from "@react-three/drei"
-import {
-  CARTELLA_TEXTURE_ARMADIO,
-  PASSAGGI_ARMADIO,
-} from "../../config/armadio"
-import {
-  creaMaterialeBake,
-  preparaTextureBake,
-} from "../../materials/materialeBake"
+import { useGLTF } from "@react-three/drei"
+import { useFrame, type ThreeEvent } from "@react-three/fiber"
+import { useMaterialiBake } from "./useMaterialiBake"
+import { useAnte } from "./useAnte"
 import { intensitaNeon } from "../../utils/sfarfallio"
+import { VELOCITA_LED } from "../../config/armadio"
 
 const PERCORSO_MODELLO = "/models/armadio.glb"
 
-/* Tutti i PNG dell'armadio, indicizzati per "<oggetto>_<passaggio>" */
-const URL_TEXTURE: Record<string, string> = Object.fromEntries(
-  Object.entries(PASSAGGI_ARMADIO).flatMap(([oggetto, passaggi]) =>
-    passaggi.map((passaggio) => [
-      `${oggetto}_${passaggio}`,
-      `${CARTELLA_TEXTURE_ARMADIO}/${oggetto}_${passaggio}.png`,
-    ]),
-  ),
-)
+type ArmadioProps = {
+  aperto: boolean
+  onClick: () => void
+}
 
-export function Armadio() {
+export function Armadio({ aperto, onClick }: ArmadioProps) {
   const { scene } = useGLTF(PERCORSO_MODELLO)
-  const texture = useTexture(URL_TEXTURE)
+  const materiali = useMaterialiBake(scene)
+  useAnte(scene, aperto)
 
-  /* Assegna i materiali bakeati e restituisce la lista dei materiali */
-  const materiali = useMemo(() => {
-    Object.values(texture).forEach(preparaTextureBake)
-    const lista: THREE.ShaderMaterial[] = []
+  /* Animazione delle luci a ogni fotogramma */
+  useFrame(({ clock }, delta) => {
+    const neon = intensitaNeon(clock.elapsedTime)
+    const frazioneLed = 1 - Math.exp(-VELOCITA_LED * delta)
+    const obiettivoLed = aperto ? 1 : 0
 
-    scene.traverse((oggetto) => {
-      if (!(oggetto instanceof THREE.Mesh)) return
-      if (!(oggetto.name in PASSAGGI_ARMADIO)) return
-
-      const materiale = creaMaterialeBake({
-        base: texture[`${oggetto.name}_base`],
-        led: texture[`${oggetto.name}_led`],
-        neon: texture[`${oggetto.name}_neon`],
-      })
-      oggetto.material = materiale
-      lista.push(materiale)
-    })
-
-    return lista
-  }, [scene, texture])
-
-  /* Animazione: sfarfallio del neon a ogni fotogramma */
-  useFrame(({ clock }) => {
-    const valore = intensitaNeon(clock.elapsedTime)
     for (const materiale of materiali) {
-      materiale.uniforms.intensitaNeon.value = valore
+      const { intensitaLed, intensitaNeon: uniformNeon } = materiale.uniforms
+      uniformNeon.value = neon
+      intensitaLed.value += (obiettivoLed - intensitaLed.value) * frazioneLed
     }
   })
 
-  return <primitive object={scene} />
+  const gestisciClick = (evento: ThreeEvent<MouseEvent>) => {
+    evento.stopPropagation()
+    onClick()
+  }
+
+  return (
+    <primitive
+      object={scene}
+      onClick={gestisciClick}
+      onPointerOver={() => (document.body.style.cursor = "pointer")}
+      onPointerOut={() => (document.body.style.cursor = "auto")}
+    />
+  )
 }
 
 useGLTF.preload(PERCORSO_MODELLO)
-useTexture.preload(Object.values(URL_TEXTURE))

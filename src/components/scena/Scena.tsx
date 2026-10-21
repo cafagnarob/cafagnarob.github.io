@@ -21,7 +21,12 @@ import { Armadio } from "../armadio/Armadio"
 
 const CENTRO_ARMADIO: [number, number, number] = [-2.42, 1, 0]
 
-export function Scena() {
+type ScenaProps = {
+  armadioAperto: boolean
+  onClickArmadio: () => void
+}
+
+export function Scena({ armadioAperto, onClickArmadio }: ScenaProps) {
   return (
     <Canvas
       dpr={[1, 2]}
@@ -31,7 +36,7 @@ export function Scena() {
       }}
     >
       <Suspense fallback={null}>
-        <Armadio />
+        <Armadio aperto={armadioAperto} onClick={onClickArmadio} />
       </Suspense>
 
       <OrbitControls target={CENTRO_ARMADIO} makeDefault />

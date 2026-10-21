@@ -25,3 +25,20 @@ export const PASSAGGI_ARMADIO: Record<string, Passaggio[]> = {
   capo_7_minuteria: ["base", "led"],
   grucce: ["base", "led"],
 }
+
+/*
+ * Ante dell'armadio
+ * direzione: verso di apertura (+1 / -1), ricavato da Blender:
+ *   anta_sx si apriva verso angoli negativi, anta_dx verso positivi.
+ * ANGOLO_APERTURA: di quanto si aprono (gradi). "Leggermente aperte"
+ *   come da progetto: abbastanza da vedere dentro, non spalancate.
+ * Velocità: più alto = più veloce (vedi formula di smorzamento).
+ */
+export const ANTE_ARMADIO: Record<string, { direzione: 1 | -1 }> = {
+  anta_sx: { direzione: -1 },
+  anta_dx: { direzione: 1 },
+}
+
+export const ANGOLO_APERTURA_GRADI = 90
+export const VELOCITA_ANTE = 3
+export const VELOCITA_LED = 2
