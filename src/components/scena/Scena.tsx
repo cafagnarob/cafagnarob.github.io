@@ -1,28 +1,36 @@
 /*
  * Scena
  * Contenitore della scena 3D: Canvas (renderer + camera), controlli
- * della camera e armadio. Riceve da App lo stato dell'armadio e il
- * ref dei controlli della camera.
+ * della camera, stanza e armadio. Legge lo stato dallo store Redux e lo
+ * passa all'armadio; i clic diventano azioni (thunk di azioniScena.ts).
  *
  * - dpr={[1, 2]}: risoluzione adattiva, al massimo il doppio dei pixel.
  * - onCreated: tonemapping AgX, la stessa di Blender.
  * - CameraControls: solo ROTAZIONE (tasto sinistro / un dito), entro i
  *   limiti impostati da vaiAllaVista. Zoom, spostamento e gesti a due
  *   dita sono disattivati. smoothTime regola la morbidezza.
- * - collegaCamera: callback ref stabile (useCallback), chiamata una sola
- *   volta: salva l'istanza nel ref di App e posiziona la camera sulla
- *   vista iniziale, con i suoi limiti, senza animazione.
+ * - collegaCamera: callback ref definita fuori dal componente (quindi
+ *   sempre la stessa funzione): registra i controlli per i thunk e
+ *   posiziona la camera sulla vista iniziale, senza animazione.
  */
-import { Suspense, useCallback, type RefObject } from "react"
+import { Suspense } from "react"
 import * as THREE from "three"
 import { Canvas } from "@react-three/fiber"
 import { CameraControls } from "@react-three/drei"
 import CameraControlsImpl from "camera-controls"
 import { Armadio } from "../armadio/Armadio"
+import { Stanza } from "../stanza/Stanza"
 import { VISTE } from "../../config/camera"
 import { vaiAllaVista } from "./regiaCamera"
-import type { Rettangolo } from "../../utils/rettangoloSchermo"
-import { Stanza } from "../stanza/Stanza"
+import { registraControlliCamera } from "./controlliCamera"
+import { useAppDispatch, useAppSelector } from "../../store/hooks"
+import {
+  apriArmadio,
+  chiudiArmadio,
+  completaRitornoCapo,
+  rimettiCapo,
+  selezionaCapo,
+} from "../../store/azioniScena"
 
 const { ACTION } = CameraControlsImpl
 
@@ -39,36 +47,17 @@ const COMANDI_TOUCH = {
   three: ACTION.NONE,
 }
 
-type ScenaProps = {
-  armadioAperto: boolean
-  capoInIspezione: string | null
-  ritornoCapo: boolean
-  onApriArmadio: () => void
-  onChiudiArmadio: () => void
-  onSelezionaCapo: (idLavoro: string, rettangolo: Rettangolo) => void
-  onRimettiCapo: () => void
-  onRitornoCompletato: () => void
-  cameraRef: RefObject<CameraControls | null>
+/* Chiamata al montaggio (istanza) e allo smontaggio (null) */
+function collegaCamera(controlli: CameraControls | null) {
+  registraControlliCamera(controlli)
+  vaiAllaVista(controlli, VISTE.panoramica, false)
 }
 
-export function Scena({
-  armadioAperto,
-  capoInIspezione,
-  ritornoCapo,
-  onApriArmadio,
-  onSelezionaCapo,
-  onRitornoCompletato,
-  onRimettiCapo,
-  onChiudiArmadio,
-  cameraRef,
-}: ScenaProps) {
-  const collegaCamera = useCallback(
-    (controlli: CameraControls | null) => {
-      cameraRef.current = controlli
-      vaiAllaVista(controlli, VISTE.panoramica, false)
-    },
-    [cameraRef],
-  )
+export function Scena() {
+  const dispatch = useAppDispatch()
+  const armadioAperto = useAppSelector((s) => s.scena.armadioAperto)
+  const capoInIspezione = useAppSelector((s) => s.scena.capoInIspezione)
+  const ritornoCapo = useAppSelector((s) => s.scena.ritornoCapo)
 
   return (
     <Canvas
@@ -84,11 +73,13 @@ export function Scena({
           aperto={armadioAperto}
           capoInIspezione={capoInIspezione}
           ritornoCapo={ritornoCapo}
-          onApri={onApriArmadio}
-          onChiudi={onChiudiArmadio}
-          onSelezionaCapo={onSelezionaCapo}
-          onRimettiCapo={onRimettiCapo}
-          onRitornoCompletato={onRitornoCompletato}
+          onApri={() => dispatch(apriArmadio())}
+          onChiudi={() => dispatch(chiudiArmadio())}
+          onSelezionaCapo={(id, rettangolo) =>
+            dispatch(selezionaCapo(id, rettangolo))
+          }
+          onRimettiCapo={() => dispatch(rimettiCapo())}
+          onRitornoCompletato={() => dispatch(completaRitornoCapo())}
         />
       </Suspense>
 

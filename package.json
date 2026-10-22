@@ -12,9 +12,11 @@
   "dependencies": {
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
+    "@reduxjs/toolkit": "^2.13.0",
     "camera-controls": "^3.1.2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-redux": "^9.3.0",
     "three": "^0.186.1"
   },
   "devDependencies": {
