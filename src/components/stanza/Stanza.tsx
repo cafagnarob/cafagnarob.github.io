@@ -30,6 +30,7 @@ import {
   OGGETTI_SPECIALI,
   PERCORSO_MODELLO_STANZA,
 } from "../../config/stanza"
+import { registraVisteDaScena } from "../scena/viste"
 
 /* three.js "pulisce" i nomi degli oggetti glTF: gli spazi diventano "_"
    e i punti vengono tolti ("neon insegna" → "neon_insegna",
@@ -89,7 +90,10 @@ export function Stanza() {
         if (opzioni.doppiaFaccia) materiale.side = THREE.DoubleSide
         if (opzioni.neon) luceNeon.push(materiale)
         oggetto.material = materiale
-        return
+
+        registraVisteDaScena(scene)
+
+        return { insegna: speciali.neon, luceNeon }
       }
 
       // Oggetti speciali (nomi convertiti come fa three.js)

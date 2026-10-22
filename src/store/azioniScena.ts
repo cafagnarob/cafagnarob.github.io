@@ -13,7 +13,7 @@
  *                      chiudiVetrina: il capo 3D riappare lì
  * Capo SENZA turntable: ispezione 3D (click sul capo per riporlo).
  */
-import { VISTE } from "../config/camera"
+import { type NomeVista } from "../config/camera"
 import { LAVORI_MODA } from "../data/lavoriModa"
 import { precaricaTurntable } from "../utils/turntable"
 import { vaiAllaVista } from "../components/scena/regiaCamera"
@@ -23,29 +23,40 @@ import {
 } from "../components/scena/controlliCamera"
 import type { Rettangolo } from "../utils/rettangoloSchermo"
 import {
-  aperturaArmadio,
-  chiusuraArmadio,
+  cambioVista,
   chiusuraVetrina,
   fineRitornoCapo,
   inizioRitornoCapo,
   selezioneCapo,
 } from "./sliceScena"
 import type { AppThunk } from "./store"
+import { vistaPer } from "../components/scena/viste"
+
+/* --- Viste --- */
+/* Sposta la camera su una vista e la rende attiva.
+   Una vista senza coordinate non cambia nulla (avviso in console). */
+export const vaiA =
+  (nome: NomeVista): AppThunk =>
+  (dispatch) => {
+    const vista = vistaPer(nome)
+    if (!vista) {
+      console.warn(`Vista "${nome}" non trovata: mancano gli empty in Blender?`)
+      return
+    }
+    dispatch(cambioVista(nome))
+    vaiAllaVista(controlliCamera(), vista)
+  }
 
 /* --- Armadio --- */
 export const apriArmadio = (): AppThunk => (dispatch) => {
-  dispatch(aperturaArmadio())
-  vaiAllaVista(controlliCamera(), VISTE.armadio)
+  dispatch(vaiA("armadio"))
   // Il primo fotogramma serve nell'istante del click: si scaricano ora
   for (const { turntable } of Object.values(LAVORI_MODA)) {
     if (turntable) precaricaTurntable(turntable)
   }
 }
 
-export const chiudiArmadio = (): AppThunk => (dispatch) => {
-  dispatch(chiusuraArmadio())
-  vaiAllaVista(controlliCamera(), VISTE.panoramica)
-}
+export const chiudiArmadio = (): AppThunk => vaiA("panoramica")
 
 /* --- Capo --- */
 export const selezionaCapo =

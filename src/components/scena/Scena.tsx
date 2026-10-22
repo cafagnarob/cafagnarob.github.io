@@ -20,7 +20,7 @@ import { CameraControls } from "@react-three/drei"
 import CameraControlsImpl from "camera-controls"
 import { Armadio } from "../armadio/Armadio"
 import { Stanza } from "../stanza/Stanza"
-import { VISTE } from "../../config/camera"
+import { VISTE_PREDEFINITE } from "../../config/camera"
 import { vaiAllaVista } from "./regiaCamera"
 import { registraControlliCamera } from "./controlliCamera"
 import { useAppDispatch, useAppSelector } from "../../store/hooks"
@@ -50,12 +50,12 @@ const COMANDI_TOUCH = {
 /* Chiamata al montaggio (istanza) e allo smontaggio (null) */
 function collegaCamera(controlli: CameraControls | null) {
   registraControlliCamera(controlli)
-  vaiAllaVista(controlli, VISTE.panoramica, false)
+  vaiAllaVista(controlli, VISTE_PREDEFINITE.panoramica, false)
 }
 
 export function Scena() {
   const dispatch = useAppDispatch()
-  const armadioAperto = useAppSelector((s) => s.scena.armadioAperto)
+  const armadioAperto = useAppSelector((s) => s.scena.vista === "armadio")
   const capoInIspezione = useAppSelector((s) => s.scena.capoInIspezione)
   const ritornoCapo = useAppSelector((s) => s.scena.ritornoCapo)
 

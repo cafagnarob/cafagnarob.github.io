@@ -19,16 +19,17 @@
  */
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { Rettangolo } from "../utils/rettangoloSchermo"
+import type { NomeVista } from "../config/camera"
 
 type StatoScena = {
-  armadioAperto: boolean
+  vista: NomeVista // vista attiva (armadio aperto = vista "armadio")
   capoInIspezione: string | null
   ritornoCapo: boolean
   partenzaVetrina: Rettangolo | null
 }
 
 const statoIniziale: StatoScena = {
-  armadioAperto: false,
+  vista: "panoramica",
   capoInIspezione: null,
   ritornoCapo: false,
   partenzaVetrina: null,
@@ -38,11 +39,8 @@ const sliceScena = createSlice({
   name: "scena",
   initialState: statoIniziale,
   reducers: {
-    aperturaArmadio(stato) {
-      stato.armadioAperto = true
-    },
-    chiusuraArmadio(stato) {
-      stato.armadioAperto = false
+    cambioVista(stato, azione: PayloadAction<NomeVista>) {
+      stato.vista = azione.payload
     },
 
     /* partenzaVetrina è null per i capi senza turntable (ispezione 3D) */
@@ -76,8 +74,7 @@ const sliceScena = createSlice({
 })
 
 export const {
-  aperturaArmadio,
-  chiusuraArmadio,
+  cambioVista,
   selezioneCapo,
   inizioRitornoCapo,
   fineRitornoCapo,
