@@ -69,6 +69,11 @@ export const LAVORI_MODA: Record<string, LavoroModa> = {
     anno: "2022",
     descrizione: SEGNAPOSTO,
     immagini: [],
+    turntable: {
+      cartella: "/images/moda/capo_4/turntable",
+      fotogrammi: 32,
+      fotogrammaArmadio: 17,
+    },
   },
   capo_5: {
     titolo: "Pantalone in gabardine",
