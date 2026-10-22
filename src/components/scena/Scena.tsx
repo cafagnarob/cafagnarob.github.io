@@ -21,6 +21,7 @@ import CameraControlsImpl from "camera-controls"
 import { Armadio } from "../armadio/Armadio"
 import { VISTE } from "../../config/camera"
 import { vaiAllaVista } from "./regiaCamera"
+import type { Rettangolo } from "../../utils/rettangoloSchermo"
 
 const { ACTION } = CameraControlsImpl
 
@@ -43,7 +44,7 @@ type ScenaProps = {
   ritornoCapo: boolean
   onApriArmadio: () => void
   onChiudiArmadio: () => void
-  onSelezionaCapo: (idLavoro: string) => void
+  onSelezionaCapo: (idLavoro: string, rettangolo: Rettangolo) => void
   onRimettiCapo: () => void
   onRitornoCompletato: () => void
   cameraRef: RefObject<CameraControls | null>

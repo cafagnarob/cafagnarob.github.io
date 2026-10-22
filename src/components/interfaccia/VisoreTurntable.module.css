@@ -1,0 +1,129 @@
+/*
+ * Stili della vetrina
+ * - .vetrina: livello trasparente che riceve trascinamento e click.
+ *   touch-action: none → su mobile il dito ruota il capo, non scorre.
+ * - .sfondo: scurisce e sfoca la stanza (non la copre), in dissolvenza.
+ * - .palco: contiene il render. È centrato nello schermo e alto
+ *   --occupazione del lato corto, come il capo 3D in ispezione.
+ *   Posizione, scala e luminosità durante il volo le scrive il codice
+ *   (useVoloTurntable) direttamente nello stile.
+ */
+.vetrina {
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+  outline: none;
+}
+
+.vetrina:active {
+  cursor: grabbing;
+}
+
+.sfondo {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(10, 8, 6, 0.35),
+    rgba(10, 8, 6, 0.8)
+  );
+  backdrop-filter: blur(4px);
+  animation: entra 0.6s ease-out both;
+}
+
+.uscita {
+  animation: esce 0.6s ease-in both;
+}
+
+.palco {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: calc(var(--occupazione) * 100vmin);
+  will-change: transform, filter; /* avvisa il browser: animazione fluida */
+}
+
+.immagine {
+  display: block;
+  height: 100%;
+  width: auto;
+  pointer-events: none;
+}
+
+.suggerimento {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  margin: 0;
+  text-align: center;
+  font:
+    500 0.85rem system-ui,
+    sans-serif;
+  letter-spacing: 0.04em;
+  color: rgba(242, 237, 230, 0.6);
+  animation: suggerimento 4s ease-in-out 0.9s both;
+}
+
+@keyframes entra {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes esce {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes suggerimento {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/*
+ * Livello dello zoom: dentro il palco, così volo (palco) e zoom
+ * (questo elemento) non interferiscono. La trasformazione la scrive
+ * useZoom. position: relative serve a sovrapporre la versione HD.
+ */
+.zoom {
+  position: relative;
+  height: 100%;
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* Versione HD: sovrapposta a quella normale, invisibile finché non
+   è caricata (la classe .pronta la aggiunge onLoad) */
+.immagineHd {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+
+.pronta {
+  opacity: 1;
+}

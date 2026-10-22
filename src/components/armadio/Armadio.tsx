@@ -3,28 +3,39 @@
  * Mostra l'armadio bakeato e gestisce tutta la sua interazione.
  *
  * - useMaterialiBake / useAnte: materiali bakeati e apertura delle ante.
- * - Armadio CHIUSO: un click ovunque lo apre (onApri).
- *   Armadio APERTO: passando sopra un capo lo si evidenzia, con un
- *   click lo si porta in ispezione (onSelezionaCapo).
- *   Durante l'ISPEZIONE hover e click vengono ignorati.
- * - capoSottoMouse è un ref: cambia a ogni movimento senza re-render.
+ * - Armadio CHIUSO: passando sopra si accende l'alone su tutto l'armadio
+ *   (ALONE_ARMADIO); un click ovunque lo apre (onApri).
+ * - Armadio APERTO: passando sopra un capo si accende il suo alone; un
+ *   click su un capo calcola il suo rettangolo a schermo e lo porta in
+ *   primo piano (onSelezionaCapo); un click su un'anta chiude (onChiudi).
+ * - Durante l'ISPEZIONE hover e click sull'armadio vengono ignorati.
+ *   I capi con turntable vengono mostrati dal VisoreTurntable (HTML);
+ *   quelli senza, dal clone 3D di Ispezione.
+ * - capoSottoMouse e armadioSottoMouse sono ref: cambiano a ogni
+ *   movimento del mouse senza causare re-render.
  * - useFrame, a ogni fotogramma:
  *     neon → sfarfallio continuo
  *     LED  → acceso se aperto, spento se chiuso
- *     evidenziazione → hover, oppure LUMINOSITA_ISPEZIONE per il capo
- *                      in ispezione (il clone condivide il materiale)
+ *     evidenziazione → alone dell'armadio o del capo sotto il mouse,
+ *                      LUMINOSITA_ISPEZIONE per il capo in ispezione 3D
  *     visibilità → gli originali del capo in ispezione sono nascosti
- *                  (al loro posto vola il clone)
  */
+
 import { useRef } from "react"
 import * as THREE from "three"
 import { useGLTF } from "@react-three/drei"
-import { useFrame, type ThreeEvent } from "@react-three/fiber"
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { useMaterialiBake } from "./useMaterialiBake"
 import { useAnte } from "./useAnte"
 import { Ispezione } from "./Ispezione"
 import { intensitaNeon } from "../../utils/sfarfallio"
 import {
+  rettangoloSchermo,
+  type Rettangolo,
+} from "../../utils/rettangoloSchermo"
+import { LAVORI_MODA } from "../../data/lavoriModa"
+import {
+  ALONE_ARMADIO,
   ANTE_ARMADIO,
   CAPI_CLICCABILI,
   VELOCITA_EVIDENZIAZIONE,
@@ -40,7 +51,7 @@ type ArmadioProps = {
   ritornoCapo: boolean
   onApri: () => void
   onChiudi: () => void
-  onSelezionaCapo: (idLavoro: string) => void
+  onSelezionaCapo: (idLavoro: string, rettangolo: Rettangolo) => void
   onRimettiCapo: () => void
   onRitornoCompletato: () => void
 }
@@ -69,7 +80,11 @@ export function Armadio({
   const materiali = useMaterialiBake(scene)
   useAnte(scene, aperto)
 
+  const canvas = useThree((stato) => stato.gl.domElement)
   const capoSottoMouse = useRef<string | null>(null)
+
+  // Il mouse è sopra l'armadio? (serve all'alone dell'armadio chiuso)
+  const armadioSottoMouse = useRef(false)
   const inIspezione = capoInIspezione !== null
 
   /* Oggetti 3D dei capi: cercati per nome al primo fotogramma e poi
@@ -98,13 +113,18 @@ export function Armadio({
       const lavoro = CAPI_CLICCABILI[nomeOggetto]
       let obiettivo = 0
       if (lavoro !== undefined && lavoro === capoInIspezione) {
+        // Capo in ispezione 3D: più luminoso
         obiettivo = LUMINOSITA_ISPEZIONE
+      } else if (!aperto && armadioSottoMouse.current) {
+        // Armadio CHIUSO sotto il mouse: alone su tutto l'armadio
+        obiettivo = ALONE_ARMADIO
       } else if (
         aperto &&
         !inIspezione &&
         lavoro !== undefined &&
         lavoro === capoSottoMouse.current
       ) {
+        // Armadio APERTO: alone sul solo capo sotto il mouse
         obiettivo = 1
       }
       evidenziazione.value +=
@@ -133,7 +153,13 @@ export function Armadio({
     }
     const lavoro = lavoroColpito(evento)
     if (lavoro) {
-      onSelezionaCapo(lavoro)
+      // Tutti gli oggetti del lavoro (es. zaino + minuterie) e il loro
+      // rettangolo sullo schermo: è il punto di partenza del render
+      const oggetti: THREE.Object3D[] = []
+      scene.traverse((o) => {
+        if (CAPI_CLICCABILI[o.name] === lavoro) oggetti.push(o)
+      })
+      onSelezionaCapo(lavoro, rettangoloSchermo(oggetti, evento.camera, canvas))
       return
     }
     if (antaColpita(evento)) onChiudi()
@@ -144,6 +170,7 @@ export function Armadio({
   const gestisciMovimento = (evento: ThreeEvent<PointerEvent>) => {
     evento.stopPropagation()
     if (inIspezione) return
+    armadioSottoMouse.current = true
     const lavoro = aperto ? lavoroColpito(evento) : undefined
     capoSottoMouse.current = lavoro ?? null
     const cliccabile = !aperto || lavoro !== undefined || antaColpita(evento)
@@ -151,6 +178,7 @@ export function Armadio({
   }
 
   const gestisciUscita = () => {
+    armadioSottoMouse.current = false
     capoSottoMouse.current = null
     if (!inIspezione) document.body.style.cursor = "auto"
   }
@@ -164,7 +192,7 @@ export function Armadio({
         onPointerOut={gestisciUscita}
       />
 
-      {capoInIspezione && (
+      {capoInIspezione && !LAVORI_MODA[capoInIspezione]?.turntable && (
         <Ispezione
           key={capoInIspezione}
           scene={scene}

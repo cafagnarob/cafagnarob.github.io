@@ -63,3 +63,14 @@ export const CAPI_CLICCABILI: Record<string, string> = {
 }
 
 export const VELOCITA_EVIDENZIAZIONE = 8
+
+/*
+ * Alone di selezione
+ * - ALONE_ARMADIO: intensità dell'evidenziazione dell'armadio CHIUSO
+ *   al passaggio del mouse (0–1). Più bassa di quella dei capi (1),
+ *   perché l'armadio è grande e un alone pieno sarebbe invadente.
+ * - COLORE_ALONE: colore della luce sui bordi (RGB 0–1), caldo come
+ *   i LED dell'armadio.
+ */
+export const ALONE_ARMADIO = 0.7
+export const COLORE_ALONE: [number, number, number] = [1.0, 0.78, 0.5]

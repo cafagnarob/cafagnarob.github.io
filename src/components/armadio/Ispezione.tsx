@@ -144,7 +144,8 @@ export function Ispezione({
       altezzaVisibile * (dimensioniSchermo.width / dimensioniSchermo.height)
     const spazio =
       Math.min(altezzaVisibile, larghezzaVisibile) * OCCUPAZIONE_SCHERMO
-    const lato = Math.max(ingombro.x, ingombro.y, ingombro.z)
+    // Solo larghezza e altezza: è ciò che si vede di fronte (come nel render)
+    const lato = Math.max(ingombro.x, ingombro.y)
 
     return {
       posizione,
@@ -158,6 +159,7 @@ export function Ispezione({
     const obiettivo = ritorno ? partenza : arrivo
     const frazione = 1 - Math.exp(-VELOCITA_ISPEZIONE * delta)
 
+    // Nascosto mentre il render di CLO è completamente visibile sopra di lui
     perno.position.lerp(obiettivo.posizione, frazione)
     perno.quaternion.slerp(obiettivo.rotazione, frazione)
     perno.scale.setScalar(
