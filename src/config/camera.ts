@@ -19,8 +19,8 @@ export type VistaCamera = {
 
 export const VISTE: Record<"panoramica" | "armadio", VistaCamera> = {
   panoramica: {
-    posizione: [9, 5.5, 8.5],
-    obiettivo: [-2.42, 1, 0],
+    posizione: [4, 4.2, 3.6],
+    obiettivo: [-0.3, 1.2, -0.45],
   },
   armadio: {
     posizione: [0.7, 1.15, 0],

@@ -22,6 +22,7 @@ import { Armadio } from "../armadio/Armadio"
 import { VISTE } from "../../config/camera"
 import { vaiAllaVista } from "./regiaCamera"
 import type { Rettangolo } from "../../utils/rettangoloSchermo"
+import { Stanza } from "../stanza/Stanza"
 
 const { ACTION } = CameraControlsImpl
 
@@ -78,6 +79,7 @@ export function Scena({
       }}
     >
       <Suspense fallback={null}>
+        <Stanza />
         <Armadio
           aperto={armadioAperto}
           capoInIspezione={capoInIspezione}

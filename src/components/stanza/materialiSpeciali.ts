@@ -1,0 +1,37 @@
+/*
+ * Materiali degli oggetti speciali della stanza (non bakeati).
+ * Per ora sono PROVVISORI, semplici e leggeri: ognuno verrà sostituito
+ * dalla sua funzione vera (pioggia sul vetro, foto cambiabile,
+ * interfaccia del PC e del telefono).
+ *
+ * - MeshBasicMaterial non usa le luci della scena: mostra il colore
+ *   così com'è. Va bene, perché nella stanza non ci sono luci reali.
+ * - Il neon ha un colore "più luminoso del bianco" (valori > 1): dopo
+ *   la tonemapping AgX appare come una luce accesa, satura al centro.
+ *   La sua intensità viene animata con lo sfarfallio (vedi Stanza.tsx).
+ */
+import * as THREE from "three"
+
+/* Colore del neon a piena intensità (lineare, oltre 1 = "luce") */
+export const COLORE_NEON = new THREE.Color(6, 0.6, 0.45)
+
+export function creaMaterialiSpeciali(texturecitta: THREE.Texture) {
+  return {
+    vetroFinestra: new THREE.MeshBasicMaterial({
+      color: "#9fb4c8",
+      transparent: true,
+      opacity: 0.12,
+      depthWrite: false, // il vetro non deve "nascondere" ciò che sta dietro
+    }),
+    vetroFoto: new THREE.MeshBasicMaterial({
+      color: "#ffffff",
+      transparent: true,
+      opacity: 0.06,
+      depthWrite: false,
+    }),
+    foto: new THREE.MeshBasicMaterial({ color: "#2a2622" }),
+    neon: new THREE.MeshBasicMaterial({ color: COLORE_NEON.clone() }),
+    citta: new THREE.MeshBasicMaterial({ map: texturecitta }),
+    schermo: new THREE.MeshBasicMaterial({ color: "#0d1424" }),
+  }
+}

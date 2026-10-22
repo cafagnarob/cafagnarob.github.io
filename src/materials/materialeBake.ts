@@ -101,8 +101,13 @@ export function preparaTextureBake(texture: THREE.Texture): THREE.Texture {
   return texture
 }
 
-/* --- Crea il materiale per un oggetto --- */
-export function creaMaterialeBake(texture: TextureBake): THREE.ShaderMaterial {
+/* --- Crea il materiale per un oggetto ---
+ * moltiplicatoreBase: per gli oggetti salvati con un'esposizione diversa
+ * da quella standard (es. -2 → ×4). Se manca, si usa MOLTIPLICATORI.base. */
+export function creaMaterialeBake(
+  texture: TextureBake,
+  moltiplicatoreBase: number = MOLTIPLICATORI.base,
+): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     uniforms: {
       mappaBase: { value: texture.base },
@@ -114,7 +119,7 @@ export function creaMaterialeBake(texture: TextureBake): THREE.ShaderMaterial {
       evidenziazione: { value: 0 },
       moltiplicatori: {
         value: new THREE.Vector3(
-          MOLTIPLICATORI.base,
+          moltiplicatoreBase,
           MOLTIPLICATORI.led,
           MOLTIPLICATORI.neon,
         ),

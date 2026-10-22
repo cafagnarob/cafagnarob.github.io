@@ -1,0 +1,40 @@
+/*
+ * Configurazione della stanza
+ * - PERCORSO_MODELLO_STANZA / CARTELLA_TEXTURE_STANZA: dove sono i file
+ * - OGGETTI_BAKEATI: un gruppo per ogni PNG bakeato in Blender.
+ *     esposizione  → stessa dello script di bake (moltiplicatore 2^-esposizione)
+ *     neon         → esiste anche <nome>_neon.png (luce dell'insegna, sfarfalla)
+ *     doppiaFaccia → superfici sottili visibili da entrambi i lati (foglie, tessuti)
+ * - OGGETTI_SPECIALI: oggetti con materiali creati nel codice (nomi come in Blender)
+ */
+export const PERCORSO_MODELLO_STANZA = "/models/stanza_V2.glb"
+export const CARTELLA_TEXTURE_STANZA = "/textures/stanza"
+
+export type OggettoBakeato = {
+  esposizione: number
+  neon?: boolean
+  doppiaFaccia?: boolean
+}
+
+export const OGGETTI_BAKEATI: Record<string, OggettoBakeato> = {
+  stanza: { esposizione: -1, neon: true },
+  finestra: { esposizione: -1 },
+  armadio_fisso: { esposizione: -1 },
+  letto: { esposizione: -2 },
+  scrivania: { esposizione: -1 },
+  pc: { esposizione: -2 },
+  arredi: { esposizione: -2, neon: true },
+  piante: { esposizione: -1 },
+  giradischi: { esposizione: -1 },
+  braccio: { esposizione: -1 },
+  vinile: { esposizione: -1 },
+}
+
+export const OGGETTI_SPECIALI = {
+  vetroFinestra: "vetro",
+  vetroFoto: "vetro_foto",
+  foto: "foto",
+  neon: "neon insegna",
+  citta: "citta notte",
+  schermi: ["screen", "screen.001", "schermo_telefono"],
+} as const
