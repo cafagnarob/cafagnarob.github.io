@@ -72,7 +72,7 @@ export const LAVORI_MODA: Record<string, LavoroModa> = {
     turntable: {
       cartella: "/images/moda/capo_4/turntable",
       fotogrammi: 32,
-      fotogrammaArmadio: 17,
+      fotogrammaArmadio: 1,
     },
   },
   capo_5: {

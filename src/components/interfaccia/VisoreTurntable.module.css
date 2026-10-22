@@ -42,7 +42,6 @@
   left: 50%;
   top: 50%;
   height: calc(var(--occupazione) * 100vmin);
-  will-change: transform, filter; /* avvisa il browser: animazione fluida */
 }
 
 .immagine {
@@ -109,7 +108,6 @@
   position: relative;
   height: 100%;
   transform-origin: center;
-  will-change: transform;
 }
 
 /* Versione HD: sovrapposta a quella normale, invisibile finché non

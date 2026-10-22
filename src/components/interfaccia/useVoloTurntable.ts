@@ -112,11 +112,17 @@ export function useVoloTurntable(
           setFotogramma(fotogramma)
         }
 
-        if (t < 1) idAnimazione.current = requestAnimationFrame(passo)
-        else alTermine()
+        if (t < 1) {
+          idAnimazione.current = requestAnimationFrame(passo)
+        } else {
+          // Volo finito: il browser ridisegna il palco a piena risoluzione
+          elemento.style.willChange = "auto"
+          alTermine()
+        }
       }
 
       cancelAnimationFrame(idAnimazione.current)
+      if (palco.current) palco.current.style.willChange = "transform, filter"
       idAnimazione.current = requestAnimationFrame(passo)
     },
     [turntable, setFotogramma],

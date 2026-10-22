@@ -17,7 +17,7 @@
  *   cambiano): si possono usare in listener nativi e callback ref.
  */
 import { useCallback, useRef, useState } from "react"
-import { SOGLIA_HD, ZOOM_MASSIMO } from "../../config/vetrina"
+import { ALTEZZA_NORMALE, ZOOM_MASSIMO } from "../../config/vetrina"
 
 type StatoZoom = { scala: number; x: number; y: number }
 
@@ -36,7 +36,10 @@ export function useZoom() {
     const { scala, x, y } = stato.current
     el.style.transition = animato ? "transform 0.3s ease-out" : "none"
     el.style.transform = `translate(${x}px, ${y}px) scale(${scala})`
-    setHd(scala > SOGLIA_HD)
+    // Pixel reali occupati dal capo: altezza a schermo × zoom × densità.
+    // Oltre l'altezza della versione normale, serve la versione HD.
+    const pixelReali = el.offsetHeight * scala * window.devicePixelRatio
+    setHd(pixelReali > ALTEZZA_NORMALE)
   }, [])
 
   /* I bordi dell'immagine ingrandita non possono entrare nella sua area.

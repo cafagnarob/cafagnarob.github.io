@@ -26,5 +26,8 @@ export const MARGINE_RITAGLIO = 0.03
  */
 export const ZOOM_MASSIMO = 3
 export const SENSIBILITA_ROTELLA = 0.0015
-export const SOGLIA_HD = 1.3
+/* Altezza (px) della versione normale dei fotogrammi: DEVE essere
+   uguale ad ALTEZZA_NORMALE nello script converti-turntable.mjs.
+   Quando il capo occupa più pixel reali di così, serve la versione HD. */
+export const ALTEZZA_NORMALE = 1100
 export const PASSO_TASTIERA = 1.25
