@@ -31,6 +31,15 @@ import {
   rimettiCapo,
   selezionaCapo,
 } from "../../store/azioniScena"
+import { eTouch } from "../../utils/dispositivo"
+import { Effetti } from "./Effetti"
+
+/* Con il mouse la scena passa dal composer (sfocatura nella vista PC) e
+   la tonemapping AgX la applica il composer; su touch niente effetti
+   (troppo pesanti) e AgX la applica il renderer, come prima.
+   Deciso una volta all'avvio: cambiare la tonemapping del renderer a
+   metà ricompilerebbe tutti i materiali. */
+const CON_EFFETTI = !eTouch()
 
 const { ACTION } = CameraControlsImpl
 
@@ -64,7 +73,9 @@ export function Scena() {
       dpr={[1, 2]}
       camera={{ fov: 40 }}
       onCreated={({ gl }) => {
-        gl.toneMapping = THREE.AgXToneMapping
+        gl.toneMapping = CON_EFFETTI
+          ? THREE.NoToneMapping
+          : THREE.AgXToneMapping
       }}
     >
       <Suspense fallback={null}>
@@ -81,6 +92,7 @@ export function Scena() {
           onRimettiCapo={() => dispatch(rimettiCapo())}
           onRitornoCompletato={() => dispatch(completaRitornoCapo())}
         />
+        {CON_EFFETTI && <Effetti />}
       </Suspense>
 
       <CameraControls
