@@ -28,8 +28,6 @@ export const OGGETTI_BAKEATI: Record<string, OggettoBakeato> = {
   arredi: { esposizione: -2, neon: true },
   piante: { esposizione: -1 },
   giradischi: { esposizione: -1 },
-  braccio: { esposizione: -1 },
-  vinile: { esposizione: -1 },
 }
 
 export const OGGETTI_SPECIALI = {
@@ -38,6 +36,8 @@ export const OGGETTI_SPECIALI = {
   foto: "foto",
   neon: "neon insegna",
   citta: "citta notte",
+  vinile: "vinile",
+  braccio: "braccio",
   schermi: ["screen", "screen.001", "schermo_telefono"],
 } as const
 

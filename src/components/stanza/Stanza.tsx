@@ -3,23 +3,23 @@
  * Carica stanza.glb e assegna i materiali a ogni oggetto:
  * - gruppi bakeati → materiale bakeato con il PNG base (e il PNG neon
  *   se in config c'è neon: true) e il moltiplicatore della loro esposizione
- * - oggetti speciali → materiali provvisori (materialiSpeciali.ts)
+ * - oggetti speciali → materiali provvisori (materialiSpeciali.ts);
+ *   il vinile usa un'immagine propria con UV proiettate dall'alto
  *
  * - useMemo assegna i materiali una sola volta, prima del primo
- *   disegno (niente fotogramma grigio).
+ *   disegno (niente fotogramma grigio), e registra viste e schermi
+ *   leggendoli dal modello (empty vista_… / guarda_…, mesh degli schermi).
  * - useFrame calcola lo sfarfallio una volta per fotogramma e lo applica
- *   all'insegna E alla sua luce bakeata (muro, sedia): si muovono insieme.
- *   Usa la stessa funzione e lo stesso orologio dell'armadio, quindi anche
- *   il riflesso sul fianco dell'armadio resta sincronizzato.
- * - I segnaposto (vista_…, guarda_…, fumo_tazza) sono vuoti: non si
- *   vedono, li leggeremo più avanti per le viste della camera e il fumo.
- *
- *  * - registraVisteDaScena legge gli empty vista_… / guarda_… (viste della
- *   camera). fumo_tazza resta un segnaposto per il fumo, più avanti.
- * - Oggetti cliccabili (config OGGETTI_CLICCABILI): nella panoramica il
- *   gruppo sotto il mouse si illumina (uniform evidenziazione, smorzata
- *   in useFrame) e il clic porta alla sua vista con il thunk vaiA.
+ *   all'insegna E alla sua luce bakeata (muro, sedia): si muovono insieme,
+ *   sincronizzati anche con il riflesso sul fianco dell'armadio.
+ * - useGiradischi anima braccio e vinile in base allo stato del disco.
+ * - Oggetti cliccabili (config OGGETTI_CLICCABILI):
+ *     panoramica → il gruppo sotto il mouse si illumina, il clic porta
+ *                  alla sua vista (vaiA)
+ *     in una vista → clic sull'oggetto: play/stop (giradischi) o
+ *                  accensione dello schermo; clic altrove: esci
  *   Conta solo l'oggetto PIÙ VICINO alla camera (vistaColpita).
+ * - fumo_tazza resta un segnaposto per il fumo, più avanti.
  */
 import { useMemo, useRef } from "react"
 import * as THREE from "three"
@@ -29,7 +29,12 @@ import {
   creaMaterialeBake,
   preparaTextureBake,
 } from "../../materials/materialeBake"
-import { COLORE_NEON, creaMaterialiSpeciali } from "./materialiSpeciali"
+import {
+  COLORE_NEON,
+  creaMaterialeBraccio,
+  creaMaterialeVinile,
+  creaMaterialiSpeciali,
+} from "./materialiSpeciali"
 import { intensitaNeon } from "../../utils/sfarfallio"
 import {
   ALONE_STANZA,
@@ -47,6 +52,12 @@ import { VELOCITA_EVIDENZIAZIONE } from "../../config/armadio"
 import { accendiSchermo, esci, vaiA } from "../../store/azioniScena"
 import { SOGLIA_TRASCINAMENTO_PX } from "../../config/ispezione"
 import { registraSchermi, schermoDi } from "../scena/schermi"
+import { useGiradischi } from "./useGiradischi"
+import { alternaDisco } from "../../store/azioniAudio"
+import { PERCORSO_ETICHETTA_VINILE } from "../../config/giradischi"
+import { proiettaUvDallAlto } from "../../utils/uvDallAlto"
+import { useAudioAmbiente } from "./useAudioAmbiente"
+import { FuoriFinestra } from "./FuoriFinestra"
 
 const NOMI = {
   vetroFinestra: nomeGltf(OGGETTI_SPECIALI.vetroFinestra),
@@ -54,6 +65,8 @@ const NOMI = {
   foto: nomeGltf(OGGETTI_SPECIALI.foto),
   neon: nomeGltf(OGGETTI_SPECIALI.neon),
   citta: nomeGltf(OGGETTI_SPECIALI.citta),
+  vinile: nomeGltf(OGGETTI_SPECIALI.vinile),
+  braccio: nomeGltf(OGGETTI_SPECIALI.braccio),
   schermi: OGGETTI_SPECIALI.schermi.map(nomeGltf),
 }
 
@@ -81,7 +94,7 @@ const chiaveNeon = (nome: string) => `${nome}_neon`
 
 /* URL dei PNG: base per ogni gruppo, neon solo dove serve, più la città */
 const URL_TEXTURE: Record<string, string> = {
-  citta: `${CARTELLA_TEXTURE_STANZA}/citta_notte.png`,
+  citta: `${CARTELLA_TEXTURE_STANZA}/citta_vista.png`,
 }
 for (const [nome, opzioni] of Object.entries(OGGETTI_BAKEATI)) {
   URL_TEXTURE[nome] = `${CARTELLA_TEXTURE_STANZA}/${nome}_base.png`
@@ -90,6 +103,8 @@ for (const [nome, opzioni] of Object.entries(OGGETTI_BAKEATI)) {
       `${CARTELLA_TEXTURE_STANZA}/${nome}_neon.png`
   }
 }
+
+URL_TEXTURE.etichettaVinile = PERCORSO_ETICHETTA_VINILE
 
 export function Stanza() {
   const { scene } = useGLTF(PERCORSO_MODELLO_STANZA)
@@ -129,7 +144,7 @@ export function Stanza() {
           evidenziabili.set(vistaOggetto, lista)
         }
         oggetto.material = materiale
-        oggetto.material = materiale
+
         return
       }
 
@@ -140,6 +155,11 @@ export function Stanza() {
       else if (nome === NOMI.neon) oggetto.material = speciali.neon
       else if (nome === NOMI.citta) oggetto.material = speciali.citta
       else if (NOMI.schermi.includes(nome)) oggetto.material = speciali.schermo
+      else if (nome === NOMI.vinile) {
+        proiettaUvDallAlto(oggetto.geometry)
+        oggetto.material = creaMaterialeVinile(texture.etichettaVinile)
+      } else if (nome === NOMI.braccio)
+        oggetto.material = creaMaterialeBraccio()
     })
 
     registraVisteDaScena(scene)
@@ -147,6 +167,9 @@ export function Stanza() {
 
     return { insegna: speciali.neon, luceNeon, evidenziabili }
   }, [scene, texture])
+
+  useGiradischi(scene)
+  useAudioAmbiente(scene)
 
   /* Sfarfallio: un solo valore per fotogramma, per insegna e luce */
   useFrame(({ clock }, delta) => {
@@ -171,49 +194,58 @@ export function Stanza() {
   })
 
   return (
-    <primitive
-      object={scene}
-      onPointerMove={(e: ThreeEvent<PointerEvent>) => {
-        sottoMouse.current = vistaColpita(e)
-        document.body.style.cursor =
-          vista === "panoramica" && sottoMouse.current ? "pointer" : ""
-      }}
-      onPointerOut={() => {
-        sottoMouse.current = undefined
-        document.body.style.cursor = ""
-      }}
-      onClick={(e: ThreeEvent<MouseEvent>) => {
-        // Trascinamento per ruotare la camera: non è un clic
-        if (e.delta > SOGLIA_TRASCINAMENTO_PX) return
-        // Conta solo l'oggetto più vicino (anche l'armadio, che ha i suoi clic)
-        if (e.intersections[0]?.object !== e.object) return
-
-        const colpita = vistaColpita(e)
-
-        // Panoramica: clic su un oggetto cliccabile → la sua vista
-        if (vista === "panoramica") {
-          if (!colpita) return
-          e.stopPropagation()
+    <>
+      <primitive
+        object={scene}
+        onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+          sottoMouse.current = vistaColpita(e)
+          document.body.style.cursor =
+            vista === "panoramica" && sottoMouse.current ? "pointer" : ""
+        }}
+        onPointerOut={() => {
           sottoMouse.current = undefined
-          dispatch(vaiA(colpita))
-          return
-        }
+          document.body.style.cursor = ""
+        }}
+        onClick={(e: ThreeEvent<MouseEvent>) => {
+          // Trascinamento per ruotare la camera: non è un clic
+          if (e.delta > SOGLIA_TRASCINAMENTO_PX) return
+          // Conta solo l'oggetto più vicino (anche l'armadio, che ha i suoi clic)
+          if (e.intersections[0]?.object !== e.object) return
 
-        // In una vista: clic sull'oggetto stesso
-        if (colpita && vistaPerDispositivo(colpita) === vista) {
-          // Lo schermo interattivo di QUESTA vista → si accende
-          if (schermoDi(e.object.name) === vista) {
+          const colpita = vistaColpita(e)
+
+          // Panoramica: clic su un oggetto cliccabile → la sua vista
+          if (vista === "panoramica") {
+            if (!colpita) return
             e.stopPropagation()
-            dispatch(accendiSchermo(vista))
+            sottoMouse.current = undefined
+            dispatch(vaiA(colpita))
+            return
           }
-          return
-        }
 
-        // Clic su qualsiasi altra cosa della stanza → esci
-        e.stopPropagation()
-        dispatch(esci())
-      }}
-    />
+          // In una vista: clic sull'oggetto stesso
+          if (colpita && vistaPerDispositivo(colpita) === vista) {
+            // Giradischi: play / stop
+            if (vista === "giradischi") {
+              e.stopPropagation()
+              dispatch(alternaDisco())
+              return
+            }
+            // Lo schermo interattivo di QUESTA vista → si accende
+            if (schermoDi(e.object.name) === vista) {
+              e.stopPropagation()
+              dispatch(accendiSchermo(vista))
+            }
+            return
+          }
+
+          // Clic su qualsiasi altra cosa della stanza → esci
+          e.stopPropagation()
+          dispatch(esci())
+        }}
+      />
+      <FuoriFinestra />
+    </>
   )
 }
 

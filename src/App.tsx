@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from "./store/hooks"
 import { chiudiVetrina } from "./store/azioniScena"
 import { PulsanteIndietro } from "./components/interfaccia/PulsanteIndietro"
 import { InterfacciaSchermo } from "./components/interfaccia/InterfacciaSchermo"
+import { ControlliAudio } from "./components/interfaccia/ControlliAudio"
 
 export default function App() {
   const dispatch = useAppDispatch()
@@ -28,6 +29,7 @@ export default function App() {
     <>
       <Scena />
       <PulsanteIndietro />
+      <ControlliAudio />
       <InterfacciaSchermo />
 
       {lavoro?.turntable && partenzaVetrina && (

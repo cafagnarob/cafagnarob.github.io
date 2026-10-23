@@ -11,6 +11,7 @@
  *   La sua intensità viene animata con lo sfarfallio (vedi Stanza.tsx).
  */
 import * as THREE from "three"
+import { COLORE_BRACCIO, LUMINOSITA_VINILE } from "../../config/giradischi"
 
 /* Colore del neon a piena intensità (lineare, oltre 1 = "luce") */
 export const COLORE_NEON = new THREE.Color(6, 0.6, 0.45)
@@ -34,4 +35,23 @@ export function creaMaterialiSpeciali(texturecitta: THREE.Texture) {
     citta: new THREE.MeshBasicMaterial({ map: texturecitta }),
     schermo: new THREE.MeshBasicMaterial({ color: "#0d1424" }),
   }
+}
+
+/* Vinile: immagine propria (non bakeata, quella in Blender era quasi
+   nera), scurita con LUMINOSITA_VINILE per stare nella penombra.
+   MeshBasicMaterial non calcola luci: la "luce" è il colore che
+   moltiplica l'immagine. Passa comunque dalla tonemapping AgX. */
+export function creaMaterialeVinile(etichetta: THREE.Texture) {
+  return new THREE.MeshBasicMaterial({
+    map: etichetta,
+    color: new THREE.Color().setScalar(LUMINOSITA_VINILE),
+  })
+}
+
+/* Braccio del giradischi: colore uniforme con un leggero volume.
+   MeshMatcapMaterial SENZA immagine usa una sfumatura interna (chiaro
+   in alto, scuro in basso) moltiplicata per il colore: non servono
+   luci (la scena non ne ha, la luce è nei bake). */
+export function creaMaterialeBraccio() {
+  return new THREE.MeshMatcapMaterial({ color: COLORE_BRACCIO })
 }
