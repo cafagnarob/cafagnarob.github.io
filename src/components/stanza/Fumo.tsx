@@ -22,9 +22,10 @@ import {
 } from "../../config/fumo"
 import { nomeGltf } from "../../utils/nomiGltf"
 import { creaMaterialeFumo } from "../../materials/materialeFumo"
+import { PERCORSO_DRACO } from "../../config/texture"
 
 export function Fumo() {
-  const { scene } = useGLTF(PERCORSO_MODELLO_STANZA)
+  const { scene } = useGLTF(PERCORSO_MODELLO_STANZA, PERCORSO_DRACO)
 
   const fumo = useMemo(() => {
     const geometria = new THREE.PlaneGeometry(LARGHEZZA_FUMO_M, ALTEZZA_FUMO_M)

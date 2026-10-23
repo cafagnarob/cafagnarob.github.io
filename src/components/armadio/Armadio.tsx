@@ -42,7 +42,6 @@ import {
   VELOCITA_LED,
 } from "../../config/armadio"
 import { LUMINOSITA_ISPEZIONE } from "../../config/ispezione"
-
 import { PERCORSO_DRACO } from "../../config/texture"
 
 const PERCORSO_MODELLO = "/models/armadio.glb"
