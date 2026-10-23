@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "postinstall": "node -e \"const fs=require('fs');fs.mkdirSync('public/basis',{recursive:true});for(const f of ['basis_transcoder.js','basis_transcoder.wasm'])fs.copyFileSync('node_modules/three/examples/jsm/libs/basis/'+f,'public/basis/'+f)\""
+    "postinstall": "node scripts/copia-decodificatori.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

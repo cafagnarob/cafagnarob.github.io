@@ -31,9 +31,10 @@ import {
   precaricaTextureBake,
   useTextureBake,
 } from "../../utils/useTextureBake"
+import { PERCORSO_DRACO } from "../../config/texture"
 
 export function Stanza() {
-  const { scene } = useGLTF(PERCORSO_MODELLO_STANZA)
+  const { scene } = useGLTF(PERCORSO_MODELLO_STANZA, PERCORSO_DRACO)
 
   const texture = useTextureBake(URL_TEXTURE)
 
@@ -59,5 +60,5 @@ export function Stanza() {
   )
 }
 
-useGLTF.preload(PERCORSO_MODELLO_STANZA)
+useGLTF.preload(PERCORSO_MODELLO_STANZA, PERCORSO_DRACO)
 precaricaTextureBake(URL_TEXTURE)

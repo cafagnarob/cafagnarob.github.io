@@ -43,6 +43,8 @@ import {
 } from "../../config/armadio"
 import { LUMINOSITA_ISPEZIONE } from "../../config/ispezione"
 
+import { PERCORSO_DRACO } from "../../config/texture"
+
 const PERCORSO_MODELLO = "/models/armadio.glb"
 
 type ArmadioProps = {
@@ -76,7 +78,7 @@ export function Armadio({
   onRimettiCapo,
   onRitornoCompletato,
 }: ArmadioProps) {
-  const { scene } = useGLTF(PERCORSO_MODELLO)
+  const { scene } = useGLTF(PERCORSO_MODELLO, PERCORSO_DRACO)
   const materiali = useMaterialiBake(scene)
   useAnte(scene, aperto)
 
@@ -206,4 +208,4 @@ export function Armadio({
   )
 }
 
-useGLTF.preload(PERCORSO_MODELLO)
+useGLTF.preload(PERCORSO_MODELLO, PERCORSO_DRACO)

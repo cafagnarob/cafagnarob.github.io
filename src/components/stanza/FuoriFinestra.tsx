@@ -32,6 +32,7 @@ import {
   VELOCITA_AUTO,
 } from "../../config/fuoriFinestra"
 import { registraLuminoso } from "../scena/oggettiLuminosi"
+import { PERCORSO_DRACO } from "../../config/texture"
 
 /* Una luce è accesa (1) o spenta (0) in un certo periodo del suo ciclo.
    Il risultato dipende solo da (luce, periodo): sempre uguale, senza
@@ -96,7 +97,7 @@ const posizione = new THREE.Vector3()
 const colore = new THREE.Color()
 
 export function FuoriFinestra() {
-  const { scene } = useGLTF(PERCORSO_MODELLO_STANZA)
+  const { scene } = useGLTF(PERCORSO_MODELLO_STANZA, PERCORSO_DRACO)
 
   const { luci, piano } = useMemo(() => {
     const citta = scene.getObjectByName(nomeGltf(OGGETTI_SPECIALI.citta))
