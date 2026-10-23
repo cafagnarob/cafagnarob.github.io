@@ -1,3 +1,5 @@
+import type { NomeVista } from "./camera"
+
 /*
  * Configurazione della stanza
  * - PERCORSO_MODELLO_STANZA / CARTELLA_TEXTURE_STANZA: dove sono i file
@@ -38,3 +40,24 @@ export const OGGETTI_SPECIALI = {
   citta: "citta notte",
   schermi: ["screen", "screen.001", "schermo_telefono"],
 } as const
+
+/*
+ * Oggetti cliccabili dalla panoramica → vista che aprono.
+ * Nomi come in Blender. Più oggetti possono aprire la stessa vista:
+ * passando sopra uno qualsiasi si illumina tutto il gruppo.
+ */
+export const OGGETTI_CLICCABILI: Record<string, NomeVista> = {
+  letto: "letto",
+  foto: "letto",
+  vetro_foto: "letto",
+  pc: "pc",
+  screen: "pc",
+  "screen.001": "pc",
+  schermo_telefono: "pc",
+  giradischi: "giradischi",
+  braccio: "giradischi",
+  vinile: "giradischi",
+}
+
+/* Intensità dell'alone al passaggio del mouse (come l'armadio chiuso) */
+export const ALONE_STANZA = 0.7
