@@ -1,16 +1,18 @@
 /*
  * useMaterialiBake
- * Carica tutti i PNG bakeati dell'armadio e assegna a ogni oggetto
- * della scena il suo materiale. Restituisce la lista dei materiali
- * creati, così il componente può animarne le uniform (LED, neon).
+ * Carica tutte le texture bakeate dell'armadio (KTX2 o PNG, vedi
+ * config/texture.ts) e assegna a ogni oggetto della scena il suo
+ * materiale. Restituisce la lista dei materiali creati, così il
+ * componente può animarne le uniform (LED, neon).
  *
+ * - useTextureBake: con USA_KTX2 attivo legge i .ktx2 con lo stesso nome
+ *   dei PNG; restituisce lo stesso oggetto "<oggetto>_<passaggio>" → texture.
  * - useMemo: l'assegnazione avviene una sola volta, durante il
  *   render, prima del primo disegno (niente fotogramma grigio).
  * - Il LED parte a 0: l'armadio all'inizio è chiuso.
  */
 import { useMemo } from "react"
 import * as THREE from "three"
-import { useTexture } from "@react-three/drei"
 import {
   CARTELLA_TEXTURE_ARMADIO,
   PASSAGGI_ARMADIO,
@@ -19,8 +21,13 @@ import {
   creaMaterialeBake,
   preparaTextureBake,
 } from "../../materials/materialeBake"
+import {
+  precaricaTextureBake,
+  useTextureBake,
+} from "../../utils/useTextureBake"
 
-/* Tutti i PNG dell'armadio, indicizzati per "<oggetto>_<passaggio>" */
+/* Tutte le texture dell'armadio, indicizzate per "<oggetto>_<passaggio>".
+   I percorsi restano .png: useTextureBake li converte in .ktx2 se serve */
 const URL_TEXTURE: Record<string, string> = Object.fromEntries(
   Object.entries(PASSAGGI_ARMADIO).flatMap(([oggetto, passaggi]) =>
     passaggi.map((passaggio) => [
@@ -33,7 +40,7 @@ const URL_TEXTURE: Record<string, string> = Object.fromEntries(
 export function useMaterialiBake(
   scene: THREE.Object3D,
 ): Record<string, THREE.ShaderMaterial> {
-  const texture = useTexture(URL_TEXTURE)
+  const texture = useTextureBake(URL_TEXTURE)
 
   return useMemo(() => {
     Object.values(texture).forEach(preparaTextureBake)
@@ -57,4 +64,4 @@ export function useMaterialiBake(
   }, [scene, texture])
 }
 
-useTexture.preload(Object.values(URL_TEXTURE))
+precaricaTextureBake(URL_TEXTURE)

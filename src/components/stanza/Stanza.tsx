@@ -14,7 +14,7 @@
  * fumo_tazza resta un segnaposto per il fumo, più avanti.
  */
 import { useMemo } from "react"
-import { useGLTF, useTexture } from "@react-three/drei"
+import { useGLTF } from "@react-three/drei"
 import { PERCORSO_MODELLO_STANZA } from "../../config/stanza"
 import { registraVisteDaScena } from "../scena/viste"
 import { registraSchermi } from "../scena/schermi"
@@ -27,10 +27,15 @@ import { useAudioAmbiente } from "./useAudioAmbiente"
 import { FuoriFinestra } from "./FuoriFinestra"
 import { Fumo } from "./Fumo"
 import { usePioggia } from "./usePioggia"
+import {
+  precaricaTextureBake,
+  useTextureBake,
+} from "../../utils/useTextureBake"
 
 export function Stanza() {
   const { scene } = useGLTF(PERCORSO_MODELLO_STANZA)
-  const texture = useTexture(URL_TEXTURE)
+
+  const texture = useTextureBake(URL_TEXTURE)
 
   const materiali = useMemo(() => {
     const animati = assegnaMaterialiStanza(scene, texture)
@@ -55,4 +60,4 @@ export function Stanza() {
 }
 
 useGLTF.preload(PERCORSO_MODELLO_STANZA)
-useTexture.preload(Object.values(URL_TEXTURE))
+precaricaTextureBake(URL_TEXTURE)

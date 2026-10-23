@@ -34,7 +34,12 @@ import {
 import { eTouch } from "../../utils/dispositivo"
 import { Effetti } from "./Effetti"
 import { adattaAlloSchermo } from "./adattamento"
-import { Perf } from "r3f-perf"
+import { lazy } from "react"
+
+/* Caricato solo se serve: non finisce nel pacchetto del sito pubblicato */
+const Perf = lazy(() =>
+  import("r3f-perf").then((modulo) => ({ default: modulo.Perf })),
+)
 
 /* Pannello prestazioni: solo in sviluppo e con ?perf nell'indirizzo
    (es. http://192.168.1.23:5173/?perf), così non disturba il lavoro normale */
