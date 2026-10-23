@@ -41,6 +41,7 @@ import type { NomeSchermo } from "../config/schermi"
 import { meshSchermo, posaPerSchermo } from "../components/scena/schermi"
 
 import { avviaAmbiente } from "../audio/ambiente"
+import { adattaAlloSchermo } from "../components/scena/adattamento"
 
 /* --- Ingresso --- */
 /* Clic su "Entra": è un gesto dell'utente, quindi qui si può sbloccare
@@ -65,7 +66,7 @@ export const vaiA =
       return
     }
     dispatch(cambioVista(effettiva))
-    vaiAllaVista(controlliCamera(), vista)
+    vaiAllaVista(controlliCamera(), adattaAlloSchermo(vista, effettiva))
   }
 
 /* --- Armadio --- */
@@ -131,6 +132,29 @@ export const esci = (): AppThunk => (dispatch, getState) => {
   // 2° livello: dalla vista alla panoramica
   if (vista === "panoramica" || capoInIspezione) return
   dispatch(vaiA("panoramica"))
+}
+
+/* --- Ridimensionamento --- */
+/* Lo schermo ha cambiato forma (rotazione del telefono, finestra
+   ridimensionata): ricolloca la camera sulla vista attiva, senza
+   animazione. Con lo schermo acceso ricalcola la posa dello schermo,
+   perché la distanza "cover" dipende dalle proporzioni. */
+export const riadatta = (): AppThunk => (_, getState) => {
+  const controlli = controlliCamera()
+  if (!controlli) return
+  const { vista, schermo } = getState().scena
+
+  if (schermo) {
+    const m = meshSchermo(schermo.nome)
+    if (!m || !(controlli.camera instanceof THREE.PerspectiveCamera)) return
+    const posa = posaPerSchermo(schermo.nome, m, controlli.camera)
+    void controlli.setLookAt(...posa.posizione, ...posa.obiettivo, false)
+    return
+  }
+
+  const datiVista = vistaPer(vista)
+  if (datiVista)
+    vaiAllaVista(controlli, adattaAlloSchermo(datiVista, vista), false)
 }
 
 /* --- Schermi --- */

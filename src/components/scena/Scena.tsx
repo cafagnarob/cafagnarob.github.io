@@ -33,6 +33,7 @@ import {
 } from "../../store/azioniScena"
 import { eTouch } from "../../utils/dispositivo"
 import { Effetti } from "./Effetti"
+import { adattaAlloSchermo } from "./adattamento"
 
 /* Con il mouse la scena passa dal composer (sfocatura nella vista PC) e
    la tonemapping AgX la applica il composer; su touch niente effetti
@@ -59,7 +60,11 @@ const COMANDI_TOUCH = {
 /* Chiamata al montaggio (istanza) e allo smontaggio (null) */
 function collegaCamera(controlli: CameraControls | null) {
   registraControlliCamera(controlli)
-  vaiAllaVista(controlli, VISTE_PREDEFINITE.panoramica, false)
+  vaiAllaVista(
+    controlli,
+    adattaAlloSchermo(VISTE_PREDEFINITE.panoramica, "panoramica"),
+    false,
+  )
 }
 
 export function Scena() {

@@ -60,3 +60,42 @@ export const ESCURSIONE_VERTICALE_GRADI = 5
 
 /* Sfondo della scena 3D: uguale a quello della pagina (index.css) */
 export const COLORE_SFONDO = "#1b1b1d"
+
+/*
+ * Adattamento agli schermi stretti (telefono in verticale)
+ * Le viste sono regolate su ASPETTO_RIFERIMENTO (16:9). Su uno schermo più
+ * stretto la camera arretra lungo la stessa direzione:
+ *   fattore = (ASPETTO_RIFERIMENTO / aspetto) ^ esponente, al massimo "massimo"
+ * esponente 1 = conserva tutta la larghezza (stanza piccola),
+ * 0 = nessun adattamento (stanza tagliata ai lati).
+ * ADATTAMENTO_PER_VISTA: eccezioni per le singole viste.
+ */
+export const ASPETTO_RIFERIMENTO = 16 / 9
+
+/*
+ * spostamento (metri): sposta camera e punto guardato insieme lungo gli
+ * assi della camera, senza cambiare la prospettiva.
+ *   destra > 0 → la stanza va a SINISTRA nello schermo (e viceversa)
+ *   alto   > 0 → la stanza SCENDE nello schermo
+ * Cresce da 0 (schermo 16:9) al valore pieno (ASPETTO_TELEFONO e più stretti).
+ */
+export const ASPETTO_TELEFONO = 9 / 19.5
+
+export type Adattamento = {
+  esponente: number
+  massimo: number
+  spostamento: { destra: number; alto: number }
+}
+
+export const ADATTAMENTO_STRETTO: Adattamento = {
+  esponente: 0.7,
+  massimo: 2.2,
+  spostamento: { destra: 0, alto: 0 },
+}
+
+export const ADATTAMENTO_PER_VISTA: Partial<
+  Record<NomeVista, Partial<Adattamento>>
+> = {
+  panoramica: { spostamento: { destra: -0.4, alto: 1.4 } },
+  telefono: { esponente: 0 },
+}

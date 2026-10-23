@@ -6,7 +6,9 @@ import { store } from "./store/store.ts"
 
 import { attivaScorciatoie } from "./utils/scorciatoie"
 import { inizializzaAudio } from "./store/azioniAudio.ts"
+import { attivaRiadattamento } from "./utils/ridimensionamento.ts"
 
+attivaRiadattamento()
 attivaScorciatoie()
 store.dispatch(inizializzaAudio())
 createRoot(document.getElementById("root")!).render(
