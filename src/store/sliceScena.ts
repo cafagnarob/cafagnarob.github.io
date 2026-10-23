@@ -16,6 +16,8 @@
  *   di azioniScena.ts, perché i reducer devono restare puri.
  * - Nei reducer si "modifica" lo stato direttamente: Redux Toolkit usa
  *   Immer, che crea dietro le quinte una copia nuova.
+ *
+ * * - entrato: superata la pagina iniziale.
  */
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { Rettangolo } from "../utils/rettangoloSchermo"
@@ -28,6 +30,7 @@ type StatoScena = {
   capoInIspezione: string | null
   ritornoCapo: boolean
   partenzaVetrina: Rettangolo | null
+  entrato: boolean // l'utente ha cliccato "Entra" (audio sbloccato)
 }
 
 const statoIniziale: StatoScena = {
@@ -36,6 +39,7 @@ const statoIniziale: StatoScena = {
   ritornoCapo: false,
   partenzaVetrina: null,
   schermo: null,
+  entrato: false, // l'utente ha cliccato "Entra" (audio sbloccato)
 }
 
 const sliceScena = createSlice({
@@ -83,6 +87,9 @@ const sliceScena = createSlice({
     spegnimentoSchermo(stato) {
       stato.schermo = null
     },
+    ingresso(stato) {
+      stato.entrato = true
+    },
   },
 })
 
@@ -95,6 +102,7 @@ export const {
   spegnimentoSchermo,
   accensioneSchermo,
   ingressoSchermo,
+  ingresso,
 } = sliceScena.actions
 
 export default sliceScena.reducer

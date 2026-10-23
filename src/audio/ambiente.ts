@@ -72,13 +72,12 @@ function crea() {
   }
 }
 
-export function avviaAmbienteAlPrimoGesto() {
-  const avvia = () => {
-    sbloccaAudio()
-    crea()
-  }
-  window.addEventListener("pointerdown", avvia, { once: true })
-  window.addEventListener("keydown", avvia, { once: true })
+/* Avvia l'ambiente. Va chiamata dentro un gesto dell'utente (il clic su
+   "Entra"): solo così il browser sblocca l'audio. Chiamarla di nuovo
+   non fa nulla. */
+export function avviaAmbiente() {
+  sbloccaAudio()
+  crea()
 }
 
 export function impostaVicinanza(valore: number) {

@@ -1,0 +1,116 @@
+/* Pagina iniziale: sfondo scuro come la stanza, insegna al centro */
+.ingresso {
+  position: fixed;
+  inset: 0;
+  z-index: 20; /* sopra tutto: pulsanti, controlli audio, interfacce */
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #1b1b1d; /* = COLORE_SFONDO della scena */
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  text-align: center;
+  transition: opacity 0.9s ease; /* = DURATA_USCITA_MS */
+}
+
+.uscita {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Insegna: testo trasparente con il contorno (il tubo) + alone */
+.insegna {
+  margin-bottom: 24px;
+  padding: 0.1em 0.4em;
+  border: 0.06em solid rgb(255 255 255 / 0.12); /* cornice, come l'Exit */
+  border-radius: 0.08em;
+  background: none;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 700;
+  font-size: clamp(56px, 16vw, 168px);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 0.025em #4a4a4f; /* tubo spento */
+  cursor: default;
+}
+
+.accesa {
+  -webkit-text-stroke-color: #ffe4de;
+  border-color: #ffd0c8;
+  text-shadow:
+    0 0 0.04em #fff,
+    0 0 0.12em #ff5a4a,
+    0 0 0.3em #ff2a1a,
+    0 0 0.6em #c4100a;
+  box-shadow:
+    0 0 0.12em #ff5a4a,
+    0 0 0.4em #c4100a,
+    inset 0 0 0.12em #ff5a4a;
+  cursor: pointer;
+  animation:
+    accensione 1.4s steps(1, end) both,
+    ronzio 5s ease-in-out 1.4s infinite;
+}
+
+.accesa:focus-visible {
+  outline: 2px solid #ffd0c8;
+  outline-offset: 8px;
+}
+
+.titolo {
+  margin: 0;
+  font-size: clamp(16px, 4vw, 22px);
+  letter-spacing: 0.08em;
+}
+
+.sottotitolo {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums; /* la percentuale non "balla" */
+}
+
+/* Accensione a scatti: tubo che fatica a partire */
+@keyframes accensione {
+  0% {
+    opacity: 0.15;
+  }
+  10% {
+    opacity: 1;
+  }
+  14% {
+    opacity: 0.2;
+  }
+  22% {
+    opacity: 1;
+  }
+  26% {
+    opacity: 0.3;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Dopo l'accensione: ronzio quasi impercettibile */
+@keyframes ronzio {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.92;
+  }
+}
+
+/* Riduci movimento: accesa subito, senza sfarfallio */
+@media (prefers-reduced-motion: reduce) {
+  .accesa {
+    animation: none;
+  }
+}

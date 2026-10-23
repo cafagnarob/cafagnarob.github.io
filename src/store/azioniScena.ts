@@ -29,6 +29,7 @@ import {
   cambioVista,
   chiusuraVetrina,
   fineRitornoCapo,
+  ingresso,
   ingressoSchermo,
   inizioRitornoCapo,
   selezioneCapo,
@@ -38,6 +39,16 @@ import type { AppThunk } from "./store"
 import { vistaPer, vistaPerDispositivo } from "../components/scena/viste"
 import type { NomeSchermo } from "../config/schermi"
 import { meshSchermo, posaPerSchermo } from "../components/scena/schermi"
+
+import { avviaAmbiente } from "../audio/ambiente"
+
+/* --- Ingresso --- */
+/* Clic su "Entra": è un gesto dell'utente, quindi qui si può sbloccare
+   l'audio e far partire l'ambiente (pioggia e città) */
+export const entra = (): AppThunk => (dispatch) => {
+  dispatch(ingresso())
+  avviaAmbiente()
+}
 
 /* --- Viste --- */
 /* Sposta la camera su una vista e la rende attiva.
