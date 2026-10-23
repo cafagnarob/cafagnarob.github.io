@@ -39,12 +39,14 @@ import {
   OGGETTI_SPECIALI,
   PERCORSO_MODELLO_STANZA,
 } from "../../config/stanza"
-import { registraVisteDaScena } from "../scena/viste"
+import { registraVisteDaScena, vistaPerDispositivo } from "../scena/viste"
 import { nomeGltf } from "../../utils/nomiGltf"
 import { useAppDispatch, useAppSelector } from "../../store/hooks"
 import type { NomeVista } from "../../config/camera"
 import { VELOCITA_EVIDENZIAZIONE } from "../../config/armadio"
-import { vaiA } from "../../store/azioniScena"
+import { accendiSchermo, esci, vaiA } from "../../store/azioniScena"
+import { SOGLIA_TRASCINAMENTO_PX } from "../../config/ispezione"
+import { registraSchermi, schermoDi } from "../scena/schermi"
 
 const NOMI = {
   vetroFinestra: nomeGltf(OGGETTI_SPECIALI.vetroFinestra),
@@ -63,12 +65,15 @@ const VISTA_DI = new Map(
   ]),
 )
 
-/* Vista dell'oggetto colpito, ma solo se è il PIÙ VICINO alla camera:
-   R3F chiama l'handler per ogni oggetto attraversato dal raggio, anche
-   quelli dietro; così un muro davanti non lascia passare il clic. */
+/* Vista dell'oggetto PIÙ VICINO alla camera (o undefined).
+   R3F chiama l'handler una volta per ogni oggetto attraversato dal
+   raggio (dal più vicino al più lontano): leggendo sempre il primo di
+   e.intersections, tutte le chiamate danno lo stesso risultato e
+   l'ultima non sovrascrive la prima. Se il più vicino è l'armadio
+   (che non è nella mappa) il risultato è undefined: niente alone. */
 function vistaColpita(evento: ThreeEvent<PointerEvent | MouseEvent>) {
-  if (evento.intersections[0]?.object !== evento.object) return undefined
-  return VISTA_DI.get(evento.object.name)
+  const primo = evento.intersections[0]?.object
+  return primo ? VISTA_DI.get(primo.name) : undefined
 }
 
 /* Chiave della texture neon di un gruppo (es. "stanza_neon") */
@@ -138,6 +143,7 @@ export function Stanza() {
     })
 
     registraVisteDaScena(scene)
+    registraSchermi(scene)
 
     return { insegna: speciali.neon, luceNeon, evidenziabili }
   }, [scene, texture])
@@ -177,12 +183,35 @@ export function Stanza() {
         document.body.style.cursor = ""
       }}
       onClick={(e: ThreeEvent<MouseEvent>) => {
-        if (vista !== "panoramica") return
-        const destinazione = vistaColpita(e)
-        if (!destinazione) return
+        // Trascinamento per ruotare la camera: non è un clic
+        if (e.delta > SOGLIA_TRASCINAMENTO_PX) return
+        // Conta solo l'oggetto più vicino (anche l'armadio, che ha i suoi clic)
+        if (e.intersections[0]?.object !== e.object) return
+
+        const colpita = vistaColpita(e)
+
+        // Panoramica: clic su un oggetto cliccabile → la sua vista
+        if (vista === "panoramica") {
+          if (!colpita) return
+          e.stopPropagation()
+          sottoMouse.current = undefined
+          dispatch(vaiA(colpita))
+          return
+        }
+
+        // In una vista: clic sull'oggetto stesso
+        if (colpita && vistaPerDispositivo(colpita) === vista) {
+          // Lo schermo interattivo di QUESTA vista → si accende
+          if (schermoDi(e.object.name) === vista) {
+            e.stopPropagation()
+            dispatch(accendiSchermo(vista))
+          }
+          return
+        }
+
+        // Clic su qualsiasi altra cosa della stanza → esci
         e.stopPropagation()
-        sottoMouse.current = undefined
-        dispatch(vaiA(destinazione))
+        dispatch(esci())
       }}
     />
   )

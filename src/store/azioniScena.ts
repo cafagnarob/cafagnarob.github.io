@@ -13,24 +13,31 @@
  *                      chiudiVetrina: il capo 3D riappare lì
  * Capo SENZA turntable: ispezione 3D (click sul capo per riporlo).
  */
+
+import * as THREE from "three"
 import { type NomeVista } from "../config/camera"
 import { LAVORI_MODA } from "../data/lavoriModa"
 import { precaricaTurntable } from "../utils/turntable"
-import { vaiAllaVista } from "../components/scena/regiaCamera"
+import { liberaLimiti, vaiAllaVista } from "../components/scena/regiaCamera"
 import {
   bloccaCamera,
   controlliCamera,
 } from "../components/scena/controlliCamera"
 import type { Rettangolo } from "../utils/rettangoloSchermo"
 import {
+  accensioneSchermo,
   cambioVista,
   chiusuraVetrina,
   fineRitornoCapo,
+  ingressoSchermo,
   inizioRitornoCapo,
   selezioneCapo,
+  spegnimentoSchermo,
 } from "./sliceScena"
 import type { AppThunk } from "./store"
-import { vistaPer } from "../components/scena/viste"
+import { vistaPer, vistaPerDispositivo } from "../components/scena/viste"
+import type { NomeSchermo } from "../config/schermi"
+import { meshSchermo, posaPerSchermo } from "../components/scena/schermi"
 
 /* --- Viste --- */
 /* Sposta la camera su una vista e la rende attiva.
@@ -38,17 +45,25 @@ import { vistaPer } from "../components/scena/viste"
 export const vaiA =
   (nome: NomeVista): AppThunk =>
   (dispatch) => {
-    const vista = vistaPer(nome)
+    const effettiva = vistaPerDispositivo(nome)
+    const vista = vistaPer(effettiva)
     if (!vista) {
-      console.warn(`Vista "${nome}" non trovata: mancano gli empty in Blender?`)
+      console.warn(
+        `Vista "${effettiva}" non trovata: mancano gli empty in Blender?`,
+      )
       return
     }
-    dispatch(cambioVista(nome))
+    dispatch(cambioVista(effettiva))
     vaiAllaVista(controlliCamera(), vista)
   }
 
 /* --- Armadio --- */
-export const apriArmadio = (): AppThunk => (dispatch) => {
+export const apriArmadio = (): AppThunk => (dispatch, getState) => {
+  // Da un'altra vista il clic sull'armadio vale come "clic fuori"
+  if (getState().scena.vista !== "panoramica") {
+    dispatch(esci())
+    return
+  }
   dispatch(vaiA("armadio"))
   // Il primo fotogramma serve nell'istante del click: si scaricano ora
   for (const { turntable } of Object.values(LAVORI_MODA)) {
@@ -56,7 +71,7 @@ export const apriArmadio = (): AppThunk => (dispatch) => {
   }
 }
 
-export const chiudiArmadio = (): AppThunk => vaiA("panoramica")
+export const chiudiArmadio = (): AppThunk => esci()
 
 /* --- Capo --- */
 export const selezionaCapo =
@@ -87,3 +102,47 @@ export const chiudiVetrina = (): AppThunk => (dispatch) => {
   dispatch(chiusuraVetrina())
   bloccaCamera(false)
 }
+
+/* --- Uscita --- */
+/* Torna alla panoramica da qualsiasi vista (Esc, clic fuori, "←").
+   Con un capo in ispezione non fa nulla: lì si esce dal capo. */
+export const esci = (): AppThunk => (dispatch, getState) => {
+  const { vista, schermo, capoInIspezione } = getState().scena
+
+  // 1° livello: dallo schermo si torna alla vista pc / telefono
+  if (schermo) {
+    dispatch(spegnimentoSchermo())
+    bloccaCamera(false)
+    dispatch(vaiA(vista))
+    return
+  }
+
+  // 2° livello: dalla vista alla panoramica
+  if (vista === "panoramica" || capoInIspezione) return
+  dispatch(vaiA("panoramica"))
+}
+
+/* --- Schermi --- */
+/* La camera entra nello schermo; a fine movimento si accende l'interfaccia.
+   setLookAt restituisce una Promise che si risolve a movimento finito. */
+export const accendiSchermo =
+  (nome: NomeSchermo): AppThunk =>
+  async (dispatch, getState) => {
+    const controlli = controlliCamera()
+    const m = meshSchermo(nome)
+    if (
+      !controlli ||
+      !m ||
+      !(controlli.camera instanceof THREE.PerspectiveCamera)
+    )
+      return
+
+    const posa = posaPerSchermo(nome, m, controlli.camera)
+    dispatch(ingressoSchermo(nome))
+    bloccaCamera(true)
+    liberaLimiti(controlli)
+    await controlli.setLookAt(...posa.posizione, ...posa.obiettivo, true)
+
+    // L'utente potrebbe essere uscito durante il movimento (Esc)
+    if (getState().scena.schermo?.nome === nome) dispatch(accensioneSchermo())
+  }

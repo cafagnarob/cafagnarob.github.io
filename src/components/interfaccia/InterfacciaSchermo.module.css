@@ -1,0 +1,35 @@
+/* Segnaposto a tutto schermo con dissolvenza d'ingresso */
+.interfaccia {
+  position: fixed;
+  inset: 0;
+  z-index: 5; /* sotto il pulsante "←" (z-index 10) */
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  text-align: center;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  animation: accensione 0.25s ease-out;
+}
+
+.pc {
+  background: #0d1424; /* stesso colore provvisorio dello schermo 3D */
+}
+
+.telefono {
+  background: #0d1424;
+}
+
+.aiuto {
+  opacity: 0.5;
+  font-size: 14px;
+}
+
+@keyframes accensione {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

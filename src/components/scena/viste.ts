@@ -20,9 +20,11 @@ import {
   PREFISSO_OBIETTIVO,
   PREFISSO_POSIZIONE,
   VISTE_PREDEFINITE,
+  VISTE_TOUCH,
   type NomeVista,
   type VistaCamera,
 } from "../../config/camera"
+import { eTouch } from "../../utils/dispositivo"
 
 type Punto = VistaCamera["posizione"]
 
@@ -74,4 +76,9 @@ export function registraVisteDaScena(scena: THREE.Object3D) {
 
 export function vistaPer(nome: NomeVista): VistaCamera | undefined {
   return viste[nome]
+}
+
+/* Vista da usare davvero su questo dispositivo (es. "pc" → "telefono" su touch) */
+export function vistaPerDispositivo(nome: NomeVista): NomeVista {
+  return (eTouch() && VISTE_TOUCH[nome]) || nome
 }

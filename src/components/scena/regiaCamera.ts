@@ -53,3 +53,14 @@ export function vaiAllaVista(
   applicaLimiti(controlli, vista)
   void controlli.setLookAt(...vista.posizione, ...vista.obiettivo, animata)
 }
+
+/* Toglie limiti di angolo e distanza (zoom nello schermo):
+   vaiAllaVista li reimposta quando si torna a una vista */
+export function liberaLimiti(controlli: CameraControls) {
+  controlli.minAzimuthAngle = -Infinity
+  controlli.maxAzimuthAngle = Infinity
+  controlli.minPolarAngle = 0
+  controlli.maxPolarAngle = Math.PI
+  controlli.minDistance = 0
+  controlli.maxDistance = Infinity
+}

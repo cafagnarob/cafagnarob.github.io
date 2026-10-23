@@ -28,6 +28,11 @@ export const NOMI_VISTE = [
 ] as const
 export type NomeVista = (typeof NOMI_VISTE)[number]
 
+/* Viste sostituite sui dispositivi touch: il PC si usa dal telefono */
+export const VISTE_TOUCH: Partial<Record<NomeVista, NomeVista>> = {
+  pc: "telefono",
+}
+
 /* Prefissi dei nomi degli empty in Blender */
 export const PREFISSO_POSIZIONE = "vista_"
 export const PREFISSO_OBIETTIVO = "guarda_"

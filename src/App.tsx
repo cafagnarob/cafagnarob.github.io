@@ -14,6 +14,8 @@ import { VisoreTurntable } from "./components/interfaccia/VisoreTurntable"
 import { LAVORI_MODA } from "./data/lavoriModa"
 import { useAppDispatch, useAppSelector } from "./store/hooks"
 import { chiudiVetrina } from "./store/azioniScena"
+import { PulsanteIndietro } from "./components/interfaccia/PulsanteIndietro"
+import { InterfacciaSchermo } from "./components/interfaccia/InterfacciaSchermo"
 
 export default function App() {
   const dispatch = useAppDispatch()
@@ -25,6 +27,8 @@ export default function App() {
   return (
     <>
       <Scena />
+      <PulsanteIndietro />
+      <InterfacciaSchermo />
 
       {lavoro?.turntable && partenzaVetrina && (
         <VisoreTurntable
