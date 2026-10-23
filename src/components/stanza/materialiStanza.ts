@@ -28,11 +28,13 @@ import { proiettaUvDallAlto } from "../../utils/uvDallAlto"
 import { NOMI, VISTA_DI } from "./nomiStanza"
 import { chiaveNeon } from "./textureStanza"
 import { registraLuminoso } from "../scena/oggettiLuminosi"
+import { preparaPioggia } from "./pioggiaVetro"
 
 export type MaterialiAnimati = {
   insegna: THREE.MeshBasicMaterial
   luceNeon: THREE.ShaderMaterial[]
   evidenziabili: Map<NomeVista, THREE.ShaderMaterial[]>
+  pioggia: THREE.ShaderMaterial | null
 }
 
 export function assegnaMaterialiStanza(
@@ -88,5 +90,8 @@ export function assegnaMaterialiStanza(
     }
   })
 
-  return { insegna: speciali.neon, luceNeon, evidenziabili }
+  // Vetro della finestra: pioggia (sostituisce il materiale semplice)
+  const pioggia = preparaPioggia(scena, texture.citta)
+
+  return { insegna: speciali.neon, luceNeon, evidenziabili, pioggia }
 }

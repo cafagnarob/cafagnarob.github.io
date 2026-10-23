@@ -26,6 +26,7 @@ import { useGiradischi } from "./useGiradischi"
 import { useAudioAmbiente } from "./useAudioAmbiente"
 import { FuoriFinestra } from "./FuoriFinestra"
 import { Fumo } from "./Fumo"
+import { usePioggia } from "./usePioggia"
 
 export function Stanza() {
   const { scene } = useGLTF(PERCORSO_MODELLO_STANZA)
@@ -42,6 +43,7 @@ export function Stanza() {
   useLuciStanza(materiali, sottoMouse)
   useGiradischi(scene)
   useAudioAmbiente(scene)
+  usePioggia(materiali.pioggia)
 
   return (
     <>

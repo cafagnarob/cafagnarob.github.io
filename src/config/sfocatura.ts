@@ -13,5 +13,5 @@ import type { NomeSchermo } from "./schermi"
 export const VISTA_SFOCATA: NomeVista = "pc"
 export const SCHERMO_A_FUOCO: NomeSchermo = "pc"
 export const SCALA_BOKEH = 3
-export const PROFONDITA_A_FUOCO_M = 0.1
+export const PROFONDITA_A_FUOCO_M = 0.5
 export const VELOCITA_SFOCATURA = 3
