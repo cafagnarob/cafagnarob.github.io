@@ -57,3 +57,6 @@ export const VISTE_PREDEFINITE: Record<"panoramica" | "armadio", VistaCamera> =
  */
 export const ESCURSIONE_ORIZZONTALE_GRADI = 10
 export const ESCURSIONE_VERTICALE_GRADI = 5
+
+/* Sfondo della scena 3D: uguale a quello della pagina (index.css) */
+export const COLORE_SFONDO = "#1b1b1d"

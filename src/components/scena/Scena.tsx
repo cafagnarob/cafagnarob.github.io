@@ -20,7 +20,7 @@ import { CameraControls } from "@react-three/drei"
 import CameraControlsImpl from "camera-controls"
 import { Armadio } from "../armadio/Armadio"
 import { Stanza } from "../stanza/Stanza"
-import { VISTE_PREDEFINITE } from "../../config/camera"
+import { COLORE_SFONDO, VISTE_PREDEFINITE } from "../../config/camera"
 import { vaiAllaVista } from "./regiaCamera"
 import { registraControlliCamera } from "./controlliCamera"
 import { useAppDispatch, useAppSelector } from "../../store/hooks"
@@ -78,6 +78,10 @@ export function Scena() {
           : THREE.AgXToneMapping
       }}
     >
+      {/* Sfondo opaco: il bloom che esce dalla stanza si somma a questo
+          colore invece che a pixel trasparenti (che darebbero una velatura
+          grigia). Stesso colore dello sfondo della pagina. */}
+      <color attach="background" args={[COLORE_SFONDO]} />
       <Suspense fallback={null}>
         <Stanza />
         <Armadio

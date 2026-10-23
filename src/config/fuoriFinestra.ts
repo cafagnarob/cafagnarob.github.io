@@ -37,3 +37,28 @@ export const LAMPEGGIANTE = {
   periodo: 1.6, // secondi tra un lampo e l'altro
   durata: 0.35, // durata del lampo
 }
+
+/*
+ * Luci della città: bokeh fermi sui palazzi
+ * - area: zona dell'immagine in cui compaiono (frazioni, come sopra)
+ * - colori: tavolozza da cui ogni luce pesca il suo (caldi, freddi, insegne)
+ * - ciclo: ogni quanti secondi una luce "decide" se restare accesa
+ *   (probabilitaAccesa); il passaggio è una dissolvenza di durataCambio s
+ * - respiro: piccola pulsazione continua, per non sembrare dipinte
+ */
+export const LUCI_CITTA = {
+  numero: 40,
+  area: { xMin: 0.02, xMax: 0.98, yMin: 0.3, yMax: 0.95 },
+  diametro: { minimo: 0.012, massimo: 0.035 },
+  colori: [
+    [1.6, 1.1, 0.6], // finestra calda
+    [1.3, 1.25, 1.1], // bianco neutro
+    [0.6, 0.9, 1.6], // azzurro (schermi, insegne)
+    [1.8, 0.5, 0.3], // arancio
+  ] as Colore[],
+  intensita: { minima: 0.4, massima: 1.1 },
+  ciclo: { minimo: 6, massimo: 18 },
+  probabilitaAccesa: 0.75,
+  durataCambio: 1.2,
+  respiro: 0.12,
+}

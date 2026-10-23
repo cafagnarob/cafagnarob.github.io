@@ -27,6 +27,7 @@ import type { NomeVista } from "../../config/camera"
 import { proiettaUvDallAlto } from "../../utils/uvDallAlto"
 import { NOMI, VISTA_DI } from "./nomiStanza"
 import { chiaveNeon } from "./textureStanza"
+import { registraLuminoso } from "../scena/oggettiLuminosi"
 
 export type MaterialiAnimati = {
   insegna: THREE.MeshBasicMaterial
@@ -75,8 +76,10 @@ export function assegnaMaterialiStanza(
     if (nome === NOMI.vetroFinestra) oggetto.material = speciali.vetroFinestra
     else if (nome === NOMI.vetroFoto) oggetto.material = speciali.vetroFoto
     else if (nome === NOMI.foto) oggetto.material = speciali.foto
-    else if (nome === NOMI.neon) oggetto.material = speciali.neon
-    else if (nome === NOMI.citta) oggetto.material = speciali.citta
+    else if (nome === NOMI.neon) {
+      oggetto.material = speciali.neon
+      registraLuminoso(oggetto)
+    } else if (nome === NOMI.citta) oggetto.material = speciali.citta
     else if (NOMI.schermi.includes(nome)) oggetto.material = speciali.schermo
     else if (nome === NOMI.braccio) oggetto.material = creaMaterialeBraccio()
     else if (nome === NOMI.vinile) {

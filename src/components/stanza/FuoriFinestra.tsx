@@ -26,10 +26,31 @@ import {
   DIAMETRO_LUCE_AUTO,
   DISTANZA_LUCI_AUTO,
   LAMPEGGIANTE,
+  LUCI_CITTA,
   SCOSTAMENTO_M,
   SFUMATURA_BORDI,
   VELOCITA_AUTO,
 } from "../../config/fuoriFinestra"
+import { registraLuminoso } from "../scena/oggettiLuminosi"
+
+/* Una luce è accesa (1) o spenta (0) in un certo periodo del suo ciclo.
+   Il risultato dipende solo da (luce, periodo): sempre uguale, senza
+   memorizzare nulla. Verso la fine del periodo sfuma verso lo stato
+   del periodo successivo. */
+function accensione(indice: number, tempo: number, ciclo: number) {
+  const periodo = Math.floor(tempo / ciclo)
+  const stato = (p: number) =>
+    casuale(indice * 1000 + p) < LUCI_CITTA.probabilitaAccesa ? 1 : 0
+  const attuale = stato(periodo)
+  const prossimo = stato(periodo + 1)
+  const tempoAlCambio = ciclo - (tempo % ciclo)
+  const miscela = THREE.MathUtils.smoothstep(
+    LUCI_CITTA.durataCambio - tempoAlCambio,
+    0,
+    LUCI_CITTA.durataCambio,
+  )
+  return attuale + (prossimo - attuale) * miscela
+}
 
 /* Numero pseudo-casuale stabile tra 0 e 1 a partire da un intero */
 const casuale = (seme: number) => {
@@ -47,7 +68,26 @@ const AUTO = CORSIE.flatMap((corsia, c) =>
     partenza: casuale(c * 10 + i + 100),
   })),
 )
-const NUMERO_LUCI = AUTO.length * 2 + 1 // due per auto + il lampeggiante
+
+/* Luci della città: posizione, dimensione, colore e ritmo fissi
+   (pseudo-casuali da un seme, come le auto) */
+const LUCI_FERME = Array.from({ length: LUCI_CITTA.numero }, (_, i) => {
+  const { area, diametro, colori, intensita, ciclo } = LUCI_CITTA
+  const tra = (min: number, max: number, seme: number) =>
+    min + (max - min) * casuale(seme)
+  return {
+    x: tra(area.xMin, area.xMax, i + 200),
+    y: tra(area.yMin, area.yMax, i + 300),
+    diametro: tra(diametro.minimo, diametro.massimo, i + 400),
+    colore: colori[Math.floor(casuale(i + 500) * colori.length)],
+    intensita: tra(intensita.minima, intensita.massima, i + 600),
+    ciclo: tra(ciclo.minimo, ciclo.massimo, i + 700),
+    fase: casuale(i + 800) * Math.PI * 2,
+  }
+})
+
+const INIZIO_LUCI_FERME = AUTO.length * 2
+const NUMERO_LUCI = INIZIO_LUCI_FERME + LUCI_FERME.length + 1 // auto + città + lampeggiante
 const INDICE_LAMPEGGIANTE = NUMERO_LUCI - 1
 
 /* Oggetti riutilizzati a ogni fotogramma */
@@ -66,6 +106,8 @@ export function FuoriFinestra() {
       creaMaterialeBokeh(),
       NUMERO_LUCI,
     )
+    luci.frustumCulled = false
+    registraLuminoso(luci)
     luci.frustumCulled = false // le istanze si muovono: il riquadro di partenza non vale
     if (!(citta instanceof THREE.Mesh) || !vista) {
       console.warn("Fuori finestra: immagine della città non trovata")
@@ -123,6 +165,15 @@ export function FuoriFinestra() {
       const meta = DISTANZA_LUCI_AUTO / 2
       posiziona(i * 2, x - meta, corsia.y, DIAMETRO_LUCE_AUTO, colore)
       posiziona(i * 2 + 1, x + meta, corsia.y, DIAMETRO_LUCE_AUTO, colore)
+    })
+
+    // Luci della città: ferme, respirano piano, ogni tanto cambiano stato
+    LUCI_FERME.forEach((luce, i) => {
+      const respiro = 1 + LUCI_CITTA.respiro * Math.sin(t * 0.8 + luce.fase)
+      const livello =
+        luce.intensita * respiro * accensione(i, t + luce.fase, luce.ciclo)
+      colore.setRGB(...luce.colore).multiplyScalar(livello)
+      posiziona(INIZIO_LUCI_FERME + i, luce.x, luce.y, luce.diametro, colore)
     })
 
     // Lampeggiante: lampo breve ogni "periodo" secondi, con dissolvenza

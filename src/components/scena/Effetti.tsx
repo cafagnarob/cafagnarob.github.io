@@ -19,9 +19,14 @@ import { useFrame } from "@react-three/fiber"
 import {
   DepthOfField,
   EffectComposer,
+  SelectiveBloom,
   ToneMapping,
 } from "@react-three/postprocessing"
-import { ToneMappingMode, type DepthOfFieldEffect } from "postprocessing"
+import {
+  SelectiveBloomEffect,
+  ToneMappingMode,
+  type DepthOfFieldEffect,
+} from "postprocessing"
 import { store } from "../../store/store"
 import { meshSchermo } from "./schermi"
 import {
@@ -31,10 +36,13 @@ import {
   VELOCITA_SFOCATURA,
   VISTA_SFOCATA,
 } from "../../config/sfocatura"
+import { oggettiLuminosi } from "./oggettiLuminosi"
+import { INTENSITA_BLOOM, RAGGIO_BLOOM } from "../../config/bloom"
 
 export function Effetti() {
   const profondita = useRef<DepthOfFieldEffect>(null)
   const puntoAFuoco = useRef<THREE.Vector3 | null>(null)
+  const bloom = useRef<SelectiveBloomEffect>(null)
 
   useFrame((_, delta) => {
     const effetto = profondita.current
@@ -48,6 +56,15 @@ export function Effetti() {
         .setFromObject(schermo)
         .getCenter(new THREE.Vector3())
       effetto.target = puntoAFuoco.current
+    }
+
+    // Bloom: aggiunge alla selezione gli oggetti luminosi registrati
+    // (nascono nella stanza, quindi possono arrivare dopo il primo fotogramma)
+    const selezione = bloom.current?.selection
+    if (selezione) {
+      for (const oggetto of oggettiLuminosi()) {
+        if (!selezione.has(oggetto)) selezione.add(oggetto)
+      }
     }
 
     // Sfocatura solo nella vista del PC (non a schermo acceso: lo copre tutto)
@@ -65,6 +82,15 @@ export function Effetti() {
         ref={profondita}
         focusRange={PROFONDITA_A_FUOCO_M}
         bokehScale={0}
+      />
+      <SelectiveBloom
+        ref={bloom}
+        lights={[]}
+        luminanceThreshold={0}
+        luminanceSmoothing={0}
+        intensity={INTENSITA_BLOOM}
+        radius={RAGGIO_BLOOM}
+        mipmapBlur
       />
       <ToneMapping mode={ToneMappingMode.AGX} />
     </EffectComposer>
