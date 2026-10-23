@@ -34,6 +34,12 @@ import {
 import { eTouch } from "../../utils/dispositivo"
 import { Effetti } from "./Effetti"
 import { adattaAlloSchermo } from "./adattamento"
+import { Perf } from "r3f-perf"
+
+/* Pannello prestazioni: solo in sviluppo e con ?perf nell'indirizzo
+   (es. http://192.168.1.23:5173/?perf), così non disturba il lavoro normale */
+const MOSTRA_PRESTAZIONI =
+  import.meta.env.DEV && new URLSearchParams(window.location.search).has("perf")
 
 /* Con il mouse la scena passa dal composer (sfocatura nella vista PC) e
    la tonemapping AgX la applica il composer; su touch niente effetti
@@ -83,6 +89,8 @@ export function Scena() {
           : THREE.AgXToneMapping
       }}
     >
+      {MOSTRA_PRESTAZIONI && <Perf position="top-left" />}
+
       {/* Sfondo opaco: il bloom che esce dalla stanza si somma a questo
           colore invece che a pixel trasparenti (che darebbero una velatura
           grigia). Stesso colore dello sfondo della pagina. */}
