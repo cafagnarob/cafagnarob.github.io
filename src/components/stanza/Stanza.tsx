@@ -25,6 +25,7 @@ import { useLuciStanza } from "./useLuciStanza"
 import { useGiradischi } from "./useGiradischi"
 import { useAudioAmbiente } from "./useAudioAmbiente"
 import { FuoriFinestra } from "./FuoriFinestra"
+import { Fumo } from "./Fumo"
 
 export function Stanza() {
   const { scene } = useGLTF(PERCORSO_MODELLO_STANZA)
@@ -46,6 +47,7 @@ export function Stanza() {
     <>
       <primitive object={scene} {...gestori} />
       <FuoriFinestra />
+      <Fumo />
     </>
   )
 }
