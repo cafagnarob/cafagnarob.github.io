@@ -1,9 +1,14 @@
 /*
  * Azioni della scena (thunk)
  * Le azioni "complete" che i componenti chiamano: aggiornano lo stato
- * con le azioni dello slice e poi eseguono gli effetti (camera,
+ * con le azioni dello slice e poi eseguono gli effetti (camera, audio,
  * precaricamento dei render). Un thunk è una funzione che riceve
  * dispatch: si usa con dispatch(apriArmadio()).
+ *
+ * Ingresso e uscita:
+ *   "Entra" → dentro la stanza, l'ambiente parte (o risale)
+ *   "Exit"  → di nuovo davanti alla porta: camera in panoramica, disco
+ *             fermo, ambiente che sfuma
  *
  * Capo CON turntable (nessun modello 3D in volo):
  *   apertura armadio → precarica i render di tutti i capi
@@ -13,17 +18,21 @@
  *                      chiudiVetrina: il capo 3D riappare lì
  * Capo SENZA turntable: ispezione 3D (click sul capo per riporlo).
  */
-
 import * as THREE from "three"
-import { type NomeVista } from "../config/camera"
+import type { NomeVista } from "../config/camera"
+import type { NomeSchermo } from "../config/schermi"
 import { LAVORI_MODA } from "../data/lavoriModa"
 import { precaricaTurntable } from "../utils/turntable"
+import type { Rettangolo } from "../utils/rettangoloSchermo"
+import { avviaAmbiente, impostaPresenzaAmbiente } from "../audio/ambiente"
 import { liberaLimiti, vaiAllaVista } from "../components/scena/regiaCamera"
 import {
   bloccaCamera,
   controlliCamera,
 } from "../components/scena/controlliCamera"
-import type { Rettangolo } from "../utils/rettangoloSchermo"
+import { vistaPer, vistaPerDispositivo } from "../components/scena/viste"
+import { meshSchermo, posaPerSchermo } from "../components/scena/schermi"
+import { adattaAlloSchermo } from "../components/scena/adattamento"
 import {
   accensioneSchermo,
   cambioVista,
@@ -34,21 +43,28 @@ import {
   inizioRitornoCapo,
   selezioneCapo,
   spegnimentoSchermo,
+  uscitaDallaStanza,
 } from "./sliceScena"
+import { alternaDisco } from "./azioniAudio"
 import type { AppThunk } from "./store"
-import { vistaPer, vistaPerDispositivo } from "../components/scena/viste"
-import type { NomeSchermo } from "../config/schermi"
-import { meshSchermo, posaPerSchermo } from "../components/scena/schermi"
 
-import { avviaAmbiente } from "../audio/ambiente"
-import { adattaAlloSchermo } from "../components/scena/adattamento"
-
-/* --- Ingresso --- */
+/* --- Ingresso e uscita --- */
 /* Clic su "Entra": è un gesto dell'utente, quindi qui si può sbloccare
-   l'audio e far partire l'ambiente (pioggia e città) */
+   l'audio. La prima volta avvia l'ambiente, le volte dopo lo riporta su. */
 export const entra = (): AppThunk => (dispatch) => {
   dispatch(ingresso())
   avviaAmbiente()
+  impostaPresenzaAmbiente(true)
+}
+
+/* Clic sull'Exit: si torna davanti alla porta. La camera torna alla
+   panoramica, il disco si ferma, l'ambiente si abbassa piano. */
+export const esciDallaStanza = (): AppThunk => (dispatch, getState) => {
+  const { scena, audio } = getState()
+  if (scena.vista !== "panoramica") dispatch(vaiA("panoramica"))
+  if (audio.discoInRiproduzione) dispatch(alternaDisco())
+  impostaPresenzaAmbiente(false)
+  dispatch(uscitaDallaStanza())
 }
 
 /* --- Viste --- */
@@ -115,7 +131,7 @@ export const chiudiVetrina = (): AppThunk => (dispatch) => {
   bloccaCamera(false)
 }
 
-/* --- Uscita --- */
+/* --- Uscita dalle viste --- */
 /* Torna alla panoramica da qualsiasi vista (Esc, clic fuori, "←").
    Con un capo in ispezione non fa nulla: lì si esce dal capo. */
 export const esci = (): AppThunk => (dispatch, getState) => {

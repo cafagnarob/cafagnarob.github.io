@@ -90,6 +90,9 @@ const sliceScena = createSlice({
     ingresso(stato) {
       stato.entrato = true
     },
+    uscitaDallaStanza(stato) {
+      stato.entrato = false
+    },
   },
 })
 
@@ -103,6 +106,7 @@ export const {
   accensioneSchermo,
   ingressoSchermo,
   ingresso,
+  uscitaDallaStanza,
 } = sliceScena.actions
 
 export default sliceScena.reducer

@@ -1,12 +1,15 @@
 /*
  * Audio d'ambiente
  * Catena: tracce (ognuna con il suo volume) → filtro passa-basso →
- * volume di vicinanza → uscita principale (muto / volume del sito).
+ * volume di vicinanza → presenza (dentro / fuori dalla stanza) →
+ * uscita principale (muto / volume del sito).
  *
  * - Le tracce sono decodificate in memoria (AudioBuffer) e ripetute
  *   con loop = true: a differenza di <audio>, il loop non ha pause.
- * - avviaAmbienteAlPrimoGesto: i browser sbloccano l'audio solo dopo
- *   un'azione dell'utente; l'ambiente parte al primo clic o tasto.
+ * - avviaAmbiente: da chiamare nel clic su "Entra" (i browser sbloccano
+ *   l'audio solo dopo un'azione dell'utente). La seconda volta non fa nulla.
+ * - impostaPresenzaAmbiente: l'ambiente sale entrando e si spegne piano
+ *   uscendo dalla stanza (insegna Exit).
  * - impostaVicinanza(0–1): chiamata a ogni fotogramma da
  *   useAudioAmbiente; ignora le variazioni minime per non
  *   programmare cambi inutili.
@@ -23,7 +26,13 @@ import {
   TRACCE_AMBIENTE,
 } from "../config/ambiente"
 
-type NodiAmbiente = { vicinanza: GainNode; filtro: BiquadFilterNode }
+type NodiAmbiente = {
+  filtro: BiquadFilterNode
+  vicinanza: GainNode
+  presenza: GainNode
+}
+
+const DISSOLVENZA_PRESENZA_S = 1.5
 
 let nodi: NodiAmbiente | null = null
 let ultimaVicinanza = -1
@@ -58,14 +67,22 @@ async function avviaTraccia(
 function crea() {
   if (nodi) return
   const { contesto, uscita } = contestoAudio()
+
+  // Filtro passa-basso: ovattato da lontano, nitido vicino alla finestra
   const filtro = contesto.createBiquadFilter()
   filtro.type = "lowpass"
   filtro.frequency.value = FREQUENZA_LONTANO
   filtro.Q.value = 0.5 // taglio morbido, senza enfasi sulla frequenza di taglio
+
   const vicinanza = contesto.createGain()
   vicinanza.gain.value = LIVELLO_LONTANO
-  filtro.connect(vicinanza).connect(uscita)
-  nodi = { vicinanza, filtro }
+
+  const presenza = contesto.createGain()
+  presenza.gain.value = 1
+
+  // Una sola catena: filtro → vicinanza → presenza → uscita
+  filtro.connect(vicinanza).connect(presenza).connect(uscita)
+  nodi = { filtro, vicinanza, presenza }
 
   for (const { percorso, volume } of TRACCE_AMBIENTE) {
     void avviaTraccia(percorso, volume, filtro)
@@ -78,6 +95,18 @@ function crea() {
 export function avviaAmbiente() {
   sbloccaAudio()
   crea()
+}
+
+/* Dentro (true) o fuori (false) dalla stanza: l'ambiente sale o si
+   spegne piano. Prima che l'ambiente esista non fa nulla. */
+export function impostaPresenzaAmbiente(dentro: boolean) {
+  if (!nodi) return
+  const { contesto } = contestoAudio()
+  nodi.presenza.gain.setTargetAtTime(
+    dentro ? 1 : 0,
+    contesto.currentTime,
+    DISSOLVENZA_PRESENZA_S / 3,
+  )
 }
 
 export function impostaVicinanza(valore: number) {

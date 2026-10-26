@@ -12,6 +12,11 @@ import type { NomeVista } from "./camera"
 export const PERCORSO_MODELLO_STANZA = "/models/stanza_V2.glb"
 export const CARTELLA_TEXTURE_STANZA = "/textures/stanza"
 
+/* Insegna "Exit": cliccata nella panoramica riporta alla pagina iniziale.
+   INTENSIFICAZIONE_USCITA: quanto si accende di più al passaggio del mouse */
+export const OGGETTO_USCITA = "neon insegna"
+export const INTENSIFICAZIONE_USCITA = 0.5
+
 export type OggettoBakeato = {
   esposizione: number
   neon?: boolean
