@@ -25,7 +25,11 @@ import { LAVORI_MODA } from "../data/lavoriModa"
 import { precaricaTurntable } from "../utils/turntable"
 import type { Rettangolo } from "../utils/rettangoloSchermo"
 import { avviaAmbiente, impostaPresenzaAmbiente } from "../audio/ambiente"
-import { liberaLimiti, vaiAllaVista } from "../components/scena/regiaCamera"
+import {
+  impostaSpazioModale,
+  liberaLimiti,
+  vaiAllaVista,
+} from "../components/scena/regiaCamera"
 import {
   bloccaCamera,
   controlliCamera,
@@ -35,6 +39,7 @@ import { meshSchermo, posaPerSchermo } from "../components/scena/schermi"
 import { adattaAlloSchermo } from "../components/scena/adattamento"
 import {
   accensioneSchermo,
+  arrivoVista,
   cambioVista,
   chiusuraVetrina,
   fineRitornoCapo,
@@ -47,6 +52,8 @@ import {
 } from "./sliceScena"
 import { alternaDisco } from "./azioniAudio"
 import type { AppThunk } from "./store"
+import { VISTA_PROFILO } from "../config/profilo"
+import { puntoFoto } from "../components/stanza/puntoFoto"
 
 /* --- Ingresso e uscita --- */
 /* Clic su "Entra": è un gesto dell'utente, quindi qui si può sbloccare
@@ -68,7 +75,9 @@ export const esciDallaStanza = (): AppThunk => (dispatch, getState) => {
 }
 
 /* --- Viste --- */
-/* Sposta la camera su una vista e la rende attiva.
+/* Sposta la camera su una vista e la rende attiva. A movimento finito
+   (camera e spostamento per il modale) segna la vista come raggiunta
+   (arrivoVista): da lì, per esempio, si apre il modale del profilo.
    Una vista senza coordinate non cambia nulla (avviso in console). */
 export const vaiA =
   (nome: NomeVista): AppThunk =>
@@ -82,7 +91,20 @@ export const vaiA =
       return
     }
     dispatch(cambioVista(effettiva))
-    vaiAllaVista(controlliCamera(), adattaAlloSchermo(vista, effettiva))
+    const adattata = adattaAlloSchermo(vista, effettiva)
+    const controlli = controlliCamera()
+
+    // Camera e spostamento per il modale partono insieme; quando sono
+    // finiti entrambi, la vista è raggiunta (si apre, per esempio, il modale)
+    void Promise.all([
+      vaiAllaVista(controlli, adattata),
+      impostaSpazioModale(
+        controlli,
+        effettiva === VISTA_PROFILO,
+        adattata,
+        puntoFoto(),
+      ),
+    ]).then(() => dispatch(arrivoVista(effettiva)))
   }
 
 /* --- Armadio --- */
@@ -169,8 +191,17 @@ export const riadatta = (): AppThunk => (_, getState) => {
   }
 
   const datiVista = vistaPer(vista)
-  if (datiVista)
-    vaiAllaVista(controlli, adattaAlloSchermo(datiVista, vista), false)
+  if (!datiVista) return
+  const adattata = adattaAlloSchermo(datiVista, vista)
+  // Senza animazione: la camera è subito al suo posto, nulla da aspettare
+  void vaiAllaVista(controlli, adattata, false)
+  void impostaSpazioModale(
+    controlli,
+    vista === VISTA_PROFILO,
+    adattata,
+    puntoFoto(),
+    false,
+  )
 }
 
 /* --- Schermi --- */

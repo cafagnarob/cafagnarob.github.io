@@ -19,6 +19,8 @@ import { InterfacciaSchermo } from "./components/interfaccia/InterfacciaSchermo"
 import { ControlliAudio } from "./components/interfaccia/ControlliAudio"
 import { Ingresso } from "./components/interfaccia/Ingresso"
 
+import { ModaleProfilo } from "./components/interfaccia/profilo/ModaleProfilo"
+
 export default function App() {
   const dispatch = useAppDispatch()
   const capoInIspezione = useAppSelector((s) => s.scena.capoInIspezione)
@@ -32,6 +34,8 @@ export default function App() {
       <PulsanteIndietro />
       <ControlliAudio />
       <InterfacciaSchermo />
+
+      <ModaleProfilo />
 
       {lavoro?.turntable && partenzaVetrina && (
         <VisoreTurntable

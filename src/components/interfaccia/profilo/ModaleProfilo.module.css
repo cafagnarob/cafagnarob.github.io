@@ -1,0 +1,400 @@
+/*
+ * Modale del profilo
+ * - .sfondo: contenitore a tutto schermo, posiziona la finestra e riceve
+ *   il clic per chiudere (non ha sfondo proprio).
+ * - .velo: dietro la finestra, sfoca e scurisce la stanza tranne il
+ *   rettangolo della foto. Separato dalla finestra: la maschera non tocca
+ *   il testo.
+ * - .finestra: intestazione, schede, contenuto scorrevole e piede.
+ *   Larghezza e altezza le decidono SOLO le media query (in fondo):
+ *   devono coincidere con config/profilo.ts, che le usa per spostare
+ *   l'inquadratura della foto.
+ * Accenti nel rosso del neon.
+ */
+
+/* --- Struttura --- */
+
+.sfondo {
+  position: fixed;
+  inset: 0;
+  z-index: 8; /* sopra la scena, sotto "←" e i controlli audio */
+  display: grid;
+  padding: 16px;
+}
+
+/* Velo: sfoca e scurisce la stanza, TRANNE un rettangolo attorno alla
+   foto (bordi da TracciaFoto). Due livelli di maschera che si sommano:
+   - orizzontale: copre a sinistra e a destra della foto
+   - verticale:   copre sopra e sotto
+   Solo dentro il rettangolo entrambi sono trasparenti → foto nitida.
+   Sporge oltre lo schermo (--sporgenza): così la sfocatura non lascia
+   bordi nitidi; le posizioni della maschera sono spostate di conseguenza.
+   Prima che la posizione della foto sia nota, il rettangolo è fuori
+   dallo schermo. pointer-events: none → i clic arrivano al contenitore. */
+.velo {
+  --sporgenza: 40px;
+  --sfumatura: 18px;
+  --sx: calc(var(--foto-sinistra, -999px) + var(--sporgenza));
+  --dx: calc(var(--foto-destra, -999px) + var(--sporgenza));
+  --al: calc(var(--foto-alto, -999px) + var(--sporgenza));
+  --ba: calc(var(--foto-basso, -999px) + var(--sporgenza));
+  --orizzontale: linear-gradient(
+    to right,
+    #000 var(--sx),
+    transparent calc(var(--sx) + var(--sfumatura)),
+    transparent calc(var(--dx) - var(--sfumatura)),
+    #000 var(--dx)
+  );
+  --verticale: linear-gradient(
+    to bottom,
+    #000 var(--al),
+    transparent calc(var(--al) + var(--sfumatura)),
+    transparent calc(var(--ba) - var(--sfumatura)),
+    #000 var(--ba)
+  );
+  position: absolute;
+  inset: calc(-1 * var(--sporgenza));
+  background: rgb(10 10 14 / 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-mask-image: var(--orizzontale), var(--verticale);
+  mask-image: var(--orizzontale), var(--verticale);
+  pointer-events: none;
+  animation: sfocatura 0.6s ease-out both;
+}
+
+/* Finestra: sopra il velo. Niente larghezza qui: vedi le media query */
+.finestra {
+  --rosso: #ff6b5a;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto; /* intestazione, schede, contenuto, piede */
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 18px;
+  background: rgb(20 20 24 / 0.92);
+  color: #f2f0ee;
+  font-family: system-ui, sans-serif;
+  line-height: 1.55;
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.5);
+  overflow: hidden;
+  animation: entrata 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+/* --- Intestazione --- */
+
+.intestazione {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 12px;
+}
+
+.nome {
+  margin: 0;
+  font-size: clamp(20px, 4vw, 26px);
+  letter-spacing: 0.04em;
+}
+
+.ruolo {
+  margin: 4px 0 0;
+  color: var(--rosso);
+  font-size: 14px;
+}
+
+.chiudi {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.06);
+  color: inherit;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.chiudi:hover,
+.chiudi:focus-visible {
+  background: rgb(255 255 255 / 0.14);
+}
+
+/* --- Schede: scorrono in orizzontale se non ci stanno --- */
+
+.schede {
+  display: flex;
+  gap: 4px;
+  padding: 0 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.scheda {
+  flex: none;
+  padding: 12px 12px 10px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: inherit;
+  font-size: 14px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.scheda:hover {
+  opacity: 0.9;
+}
+
+.scheda:focus-visible {
+  outline: 2px solid var(--rosso);
+  outline-offset: -4px;
+  border-radius: 6px;
+}
+
+.attiva {
+  opacity: 1;
+  border-bottom-color: var(--rosso);
+}
+
+/* --- Contenuto e piede --- */
+
+.contenuto {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 24px;
+  animation: dissolvenza 0.25s ease-out;
+}
+
+.contenuto:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgb(255 107 90 / 0.5);
+}
+
+.piede {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.passo {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font-size: 13px;
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+.passo:hover,
+.passo:focus-visible {
+  opacity: 1;
+  background: rgb(255 255 255 / 0.06);
+}
+
+.indicatore {
+  font-size: 12px;
+  opacity: 0.5;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Sezioni --- */
+
+.testo {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+
+/* Percorso: linea verticale con un punto per tappa */
+.lineaTempo {
+  margin: 0;
+  padding: 0 0 0 18px;
+  list-style: none;
+  border-left: 1px solid rgb(255 255 255 / 0.15);
+}
+
+.tappa {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  margin-bottom: 20px;
+}
+
+.tappa::before {
+  content: "";
+  position: absolute;
+  left: -23px;
+  top: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--rosso);
+  box-shadow: 0 0 8px var(--rosso);
+}
+
+.periodo {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.ruoloTappa {
+  font-weight: 600;
+}
+
+.luogo {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Competenze: etichette */
+.gruppo {
+  margin-bottom: 18px;
+}
+
+.titoloGruppo {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.etichette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.etichetta {
+  padding: 4px 10px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+/* Contatti */
+.contatti {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.contatto {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.contatto:hover span:last-child,
+.contatto:focus-visible span:last-child {
+  color: var(--rosso);
+}
+
+.etichettaContatto {
+  opacity: 0.6;
+  font-size: 14px;
+}
+
+.cv {
+  display: inline-block;
+  padding: 10px 18px;
+  border: 1px solid var(--rosso);
+  border-radius: 999px;
+  color: var(--rosso);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.cv:hover,
+.cv:focus-visible {
+  background: var(--rosso);
+  color: #1b1b1d;
+}
+
+/* --- Dimensioni e posizione (in fondo: vincono sulle regole sopra) --- */
+
+/* Largo: finestra a destra, la parte sinistra resta per la foto.
+   = LARGHEZZA_MODALE_PX / _VW e MARGINE_DESTRO in config/profilo.ts */
+@media (min-width: 900px) {
+  .sfondo {
+    align-items: center;
+    justify-items: end;
+    padding-right: clamp(16px, 5vw, 80px);
+  }
+
+  .finestra {
+    width: min(560px, 48vw);
+    max-height: min(80vh, 760px);
+  }
+}
+
+/* Stretto: foglio in basso, la foto resta visibile in alto.
+   = ALTEZZA_FOGLIO in config/profilo.ts.
+   z-index sopra i controlli audio e "←": coprirebbero il piede del
+   foglio (il pulsante "successiva"); la × chiude comunque. */
+@media (max-width: 899px) {
+  .sfondo {
+    z-index: 12;
+    align-items: end;
+    padding: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .finestra {
+    width: 100%;
+    height: 62vh;
+  }
+}
+
+/* --- Animazioni --- */
+
+/* Sfocatura e oscuramento entrano insieme, partendo dalla stanza nitida */
+@keyframes sfocatura {
+  from {
+    background: rgb(10 10 14 / 0);
+    backdrop-filter: blur(0);
+  }
+  to {
+    background: rgb(10 10 14 / 0.55);
+    backdrop-filter: blur(6px);
+  }
+}
+
+@keyframes dissolvenza {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes entrata {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .velo,
+  .finestra,
+  .contenuto {
+    animation: none;
+  }
+}

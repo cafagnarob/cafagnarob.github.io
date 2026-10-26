@@ -31,6 +31,7 @@ type StatoScena = {
   ritornoCapo: boolean
   partenzaVetrina: Rettangolo | null
   entrato: boolean // l'utente ha cliccato "Entra" (audio sbloccato)
+  vistaRaggiunta: boolean // la camera è arrivata sulla vista attiva (movimento finito)
 }
 
 const statoIniziale: StatoScena = {
@@ -40,6 +41,7 @@ const statoIniziale: StatoScena = {
   partenzaVetrina: null,
   schermo: null,
   entrato: false, // l'utente ha cliccato "Entra" (audio sbloccato)
+  vistaRaggiunta: true, // la panoramica iniziale è impostata senza animazione
 }
 
 const sliceScena = createSlice({
@@ -48,6 +50,7 @@ const sliceScena = createSlice({
   reducers: {
     cambioVista(stato, azione: PayloadAction<NomeVista>) {
       stato.vista = azione.payload
+      stato.vistaRaggiunta = false
       stato.schermo = null
     },
     /* partenzaVetrina è null per i capi senza turntable (ispezione 3D) */
@@ -61,6 +64,12 @@ const sliceScena = createSlice({
       stato.capoInIspezione = azione.payload.idLavoro
       stato.ritornoCapo = false
       stato.partenzaVetrina = azione.payload.partenzaVetrina
+    },
+
+    /* La camera si è fermata sulla vista. Ignorato se nel frattempo la
+       vista è cambiata (Esc o clic fuori durante il movimento). */
+    arrivoVista(stato, azione: PayloadAction<NomeVista>) {
+      if (stato.vista === azione.payload) stato.vistaRaggiunta = true
     },
 
     /* Ispezione 3D: il capo inizia a tornare / è tornato al suo posto */
@@ -107,6 +116,7 @@ export const {
   ingressoSchermo,
   ingresso,
   uscitaDallaStanza,
+  arrivoVista,
 } = sliceScena.actions
 
 export default sliceScena.reducer

@@ -32,6 +32,7 @@ import {
   useTextureBake,
 } from "../../utils/useTextureBake"
 import { PERCORSO_DRACO } from "../../config/texture"
+import { TracciaFoto } from "./TracciaFoto"
 
 export function Stanza() {
   const { scene } = useGLTF(PERCORSO_MODELLO_STANZA, PERCORSO_DRACO)
@@ -56,6 +57,7 @@ export function Stanza() {
       <primitive object={scene} {...gestori} />
       <FuoriFinestra />
       <Fumo />
+      <TracciaFoto />
     </>
   )
 }
