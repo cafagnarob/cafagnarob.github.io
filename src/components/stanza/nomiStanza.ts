@@ -6,13 +6,14 @@
  *
  * - NOMI: oggetti con materiali creati nel codice (vetri, foto, neon,
  *   città, vinile, braccio, schermi).
+ *   schermiConSfondo: nome glTF dello schermo → chiave in SFONDI_SCHERMI
  * - VISTA_DI: oggetto cliccabile → vista che apre (es. "screen001" → "pc").
  *   La usano sia i materiali (alone per gruppo) sia i clic.
  */
 import { OGGETTI_CLICCABILI, OGGETTI_SPECIALI } from "../../config/stanza"
+import { SFONDI_SCHERMI, type ChiaveSchermo } from "../../config/sfondiSchermi"
 import type { NomeVista } from "../../config/camera"
 import { nomeGltf } from "../../utils/nomiGltf"
-import { NOME_SCHERMO_PC } from "../../config/schermoPc"
 
 export const NOMI = {
   vetroFinestra: nomeGltf(OGGETTI_SPECIALI.vetroFinestra),
@@ -23,7 +24,12 @@ export const NOMI = {
   vinile: nomeGltf(OGGETTI_SPECIALI.vinile),
   braccio: nomeGltf(OGGETTI_SPECIALI.braccio),
   schermi: OGGETTI_SPECIALI.schermi.map(nomeGltf),
-  schermoPc: nomeGltf(NOME_SCHERMO_PC), // "screen001": ha lo sfondo
+  schermiConSfondo: new Map<string, ChiaveSchermo>(
+    Object.entries(SFONDI_SCHERMI).map(([chiave, s]) => [
+      nomeGltf(s.schermo),
+      chiave as ChiaveSchermo,
+    ]),
+  ),
 }
 
 export const VISTA_DI = new Map<string, NomeVista>(

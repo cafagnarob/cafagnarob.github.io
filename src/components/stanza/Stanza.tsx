@@ -34,21 +34,21 @@ import {
 import { PERCORSO_DRACO } from "../../config/texture"
 import { TracciaFoto } from "./TracciaFoto"
 import { FotoProfilo } from "./FotoProfilo"
-import { PERCORSO_SFONDO_PC } from "../../config/schermoPc"
+
+import { PERCORSI_SFONDI } from "../../config/sfondiSchermi"
 
 export function Stanza() {
   const { scene } = useGLTF(PERCORSO_MODELLO_STANZA, PERCORSO_DRACO)
 
   const texture = useTextureBake(URL_TEXTURE)
-
-  const sfondoPc = useTexture(PERCORSO_SFONDO_PC)
+  const sfondi = useTexture(PERCORSI_SFONDI)
 
   const materiali = useMemo(() => {
-    const animati = assegnaMaterialiStanza(scene, texture, sfondoPc)
+    const animati = assegnaMaterialiStanza(scene, texture, sfondi)
     registraVisteDaScena(scene)
     registraSchermi(scene)
     return animati
-  }, [scene, texture, sfondoPc])
+  }, [scene, texture, sfondi])
 
   const { sottoMouse, gestori } = useInterazioniStanza()
   useLuciStanza(materiali, sottoMouse)
@@ -70,4 +70,4 @@ export function Stanza() {
 
 useGLTF.preload(PERCORSO_MODELLO_STANZA, PERCORSO_DRACO)
 precaricaTextureBake(URL_TEXTURE)
-useTexture.preload(PERCORSO_SFONDO_PC)
+useTexture.preload(Object.values(PERCORSI_SFONDI))

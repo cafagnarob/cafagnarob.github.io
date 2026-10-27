@@ -12,7 +12,8 @@
  */
 import * as THREE from "three"
 import { COLORE_BRACCIO, LUMINOSITA_VINILE } from "../../config/giradischi"
-import { LUMINOSITA_SCHERMO_PC } from "../../config/schermoPc"
+
+import { LUMINOSITA_SCHERMI } from "../../config/sfondiSchermi"
 
 /* Colore del neon a piena intensità (lineare, oltre 1 = "luce") */
 export const COLORE_NEON = new THREE.Color(6, 0.6, 0.45)
@@ -57,17 +58,16 @@ export function creaMaterialeBraccio() {
   return new THREE.MeshMatcapMaterial({ color: COLORE_BRACCIO })
 }
 
-/* Schermo del PC: lo sfondo come immagine "accesa".
-   MeshBasicMaterial ignora le luci: il monitor mostra l'immagine con
-   la sua luminosità, come uno schermo vero nella penombra.
-   - colorSpace sRGB: la WebP è salvata in sRGB, la scheda video la
-     riporta in luce lineare prima della tonemapping
+/* Schermi (monitor, telefono): l'immagine come schermo "acceso".
+   MeshBasicMaterial ignora le luci: mostra l'immagine con la sua
+   luminosità, come uno schermo vero nella penombra.
+   - colorSpace sRGB: le WebP sono salvate in sRGB
    - flipY resta true (valore di useTexture): le UV di uvSulPiano hanno
      v = 1 in alto, come un'immagine normale */
-export function creaMaterialeSchermoPc(sfondo: THREE.Texture) {
-  sfondo.colorSpace = THREE.SRGBColorSpace
+export function creaMaterialeSchermo(immagine: THREE.Texture) {
+  immagine.colorSpace = THREE.SRGBColorSpace
   return new THREE.MeshBasicMaterial({
-    map: sfondo,
-    color: new THREE.Color().setScalar(LUMINOSITA_SCHERMO_PC),
+    map: immagine,
+    color: new THREE.Color().setScalar(LUMINOSITA_SCHERMI),
   })
 }

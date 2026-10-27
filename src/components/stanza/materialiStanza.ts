@@ -5,6 +5,8 @@
  *   previsto) e il moltiplicatore della loro esposizione (2^-esposizione)
  * - oggetti speciali → materiali creati nel codice (materialiSpeciali.ts);
  *   il vinile riceve UV proiettate dall'alto per la sua immagine
+ * - schermi → la loro immagine (sfondoSchermo.ts); senza immagine, o se
+ *   manca l'empty della vista, il colore provvisorio
  *
  * Restituisce i materiali da animare a ogni fotogramma:
  * - insegna: il materiale del tubo al neon (sfarfallio)
@@ -19,21 +21,18 @@ import {
 } from "../../materials/materialeBake"
 import {
   creaMaterialeBraccio,
-  creaMaterialeSchermoPc,
   creaMaterialeVinile,
   creaMaterialiSpeciali,
 } from "./materialiSpeciali"
 import { OGGETTI_BAKEATI } from "../../config/stanza"
 import type { NomeVista } from "../../config/camera"
+import type { ChiaveSchermo } from "../../config/sfondiSchermi"
 import { proiettaUvDallAlto } from "../../utils/uvDallAlto"
 import { NOMI, VISTA_DI } from "./nomiStanza"
 import { chiaveNeon } from "./textureStanza"
 import { registraLuminoso } from "../scena/oggettiLuminosi"
 import { preparaPioggia } from "./pioggiaVetro"
-import { uvSulPiano } from "../../utils/uvSulPiano"
-import { analizzaPiano } from "../../utils/piano"
-import { ASPETTO_SFONDO_PC, VUOTO_VISTA_PC } from "../../config/schermoPc"
-import { nomeGltf } from "../../utils/nomiGltf"
+import { applicaSfondoSchermo } from "./sfondoSchermo"
 
 export type MaterialiAnimati = {
   insegna: THREE.MeshBasicMaterial
@@ -45,7 +44,7 @@ export type MaterialiAnimati = {
 export function assegnaMaterialiStanza(
   scena: THREE.Object3D,
   texture: Record<string, THREE.Texture>,
-  sfondoPc: THREE.Texture,
+  sfondi: Record<ChiaveSchermo, THREE.Texture>,
 ): MaterialiAnimati {
   Object.values(texture).forEach(preparaTextureBake)
   const speciali = creaMaterialiSpeciali(texture.citta)
@@ -88,20 +87,13 @@ export function assegnaMaterialiStanza(
       oggetto.material = speciali.neon
       registraLuminoso(oggetto)
     } else if (nome === NOMI.citta) oggetto.material = speciali.citta
-    else if (nome === NOMI.schermoPc) {
-      // Faccia davanti del monitor: quella rivolta verso la vista PC
-      const vuoto = scena.getObjectByName(nomeGltf(VUOTO_VISTA_PC))
-      if (vuoto) {
-        const punto = vuoto.getWorldPosition(new THREE.Vector3())
-        // UV "cover": lo sfondo 16:10 copre il monitor senza deformarsi
-        uvSulPiano(oggetto, analizzaPiano(oggetto, punto), ASPETTO_SFONDO_PC)
-        oggetto.material = creaMaterialeSchermoPc(sfondoPc)
-      } else {
-        console.warn(`Schermo PC: empty "${VUOTO_VISTA_PC}" non trovato`)
-        oggetto.material = speciali.schermo
-      }
-    } else if (NOMI.schermi.includes(nome)) oggetto.material = speciali.schermo
-    else if (nome === NOMI.braccio) oggetto.material = creaMaterialeBraccio()
+    else if (NOMI.schermi.includes(nome)) {
+      // Schermo con immagine; senza (o se manca l'empty) resta il provvisorio
+      const chiave = NOMI.schermiConSfondo.get(nome)
+      const fatto =
+        chiave && applicaSfondoSchermo(oggetto, scena, chiave, sfondi[chiave])
+      if (!fatto) oggetto.material = speciali.schermo
+    } else if (nome === NOMI.braccio) oggetto.material = creaMaterialeBraccio()
     else if (nome === NOMI.vinile) {
       proiettaUvDallAlto(oggetto.geometry)
       oggetto.material = creaMaterialeVinile(texture.etichettaVinile)
