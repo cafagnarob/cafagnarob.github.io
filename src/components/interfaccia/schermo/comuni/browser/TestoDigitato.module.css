@@ -1,0 +1,26 @@
+/* Due animazioni con lo stesso ritardo:
+   - scrivi: rende visibile la lettera e la lascia così (forwards)
+   - cursore: per un passo, un'ombra di 2px a destra fa da cursore.
+     box-shadow si disegna solo FUORI dal riquadro: si vede la
+     striscia sottile, non una copia della lettera. */
+.lettera {
+  visibility: hidden;
+  white-space: pre;
+  animation:
+    scrivi 1ms forwards,
+    cursore var(--passo) steps(1);
+  animation-delay: calc(var(--inizio) + var(--i) * var(--passo));
+}
+
+@keyframes scrivi {
+  to {
+    visibility: visible;
+  }
+}
+
+@keyframes cursore {
+  from,
+  to {
+    box-shadow: 2px 0 0 currentColor;
+  }
+}

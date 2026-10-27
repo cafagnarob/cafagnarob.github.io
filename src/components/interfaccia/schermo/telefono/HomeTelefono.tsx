@@ -4,27 +4,38 @@
  * - sfondo verticale (lo stesso del telefono 3D)
  * - barra di stato in alto: ora, segnale, batteria
  * - griglia di app a 4 colonne, una per progetto
- * Le app partono sotto la scritta "TUESDAY" dello sfondo, che fa da
- * "widget" dell'orologio.
- * Prossimo passo: onApri aprirà l'app del progetto a tutto schermo.
+ * - toccando un'app si apre il browser a tutto schermo sul progetto;
+ *   "‹" in basso torna alla home (la barra di stato resta visibile)
  */
-import { PROGETTI } from "../../../../data/progetti"
+import { useState } from "react"
+import { PROGETTI, type Progetto } from "../../../../data/progetti"
 import { BarraStato } from "./BarraStato"
-
-import stili from "./HomeTelefono.module.css"
 import { IconaApp } from "./IconaApp"
+import { Browser } from "../comuni/browser/Browser"
+import stili from "./HomeTelefono.module.css"
 
 export function HomeTelefono() {
+  const [aperto, setAperto] = useState<Progetto | null>(null)
+
   return (
     <div className={stili.home}>
       <BarraStato />
       <ul className={stili.griglia} aria-label="Progetti">
         {PROGETTI.map((progetto) => (
           <li key={progetto.id}>
-            <IconaApp progetto={progetto} />
+            <IconaApp progetto={progetto} onApri={setAperto} />
           </li>
         ))}
       </ul>
+
+      {aperto && (
+        <Browser
+          key={aperto.id}
+          progetto={aperto}
+          variante="telefono"
+          onChiudi={() => setAperto(null)}
+        />
+      )}
     </div>
   )
 }

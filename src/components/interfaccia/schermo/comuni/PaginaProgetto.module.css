@@ -1,0 +1,123 @@
+.pagina {
+  min-height: 100%;
+  background: #f6f4ef;
+  color: #1d1d1f;
+  font-family: system-ui, sans-serif;
+}
+
+/* color-mix scurisce il colore del progetto per la sfumatura */
+.copertina {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 40px 6% 32px;
+  background: linear-gradient(
+    160deg,
+    var(--colore),
+    color-mix(in srgb, var(--colore), #000 45%)
+  );
+  color: #fff;
+}
+
+.icona {
+  flex: none;
+  width: 72px;
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+}
+
+.titolo {
+  margin: 0;
+  font-size: clamp(24px, 5cqi, 40px);
+  line-height: 1.1;
+}
+
+.sottotitolo {
+  margin: 6px 0 0;
+  opacity: 0.85;
+}
+
+.stato {
+  align-self: flex-start;
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.18);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.corpo {
+  display: grid;
+  gap: 24px;
+  max-width: 720px;
+  padding: 28px 6% 40px;
+}
+
+.descrizione p {
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.etichetta {
+  margin: 0 0 10px;
+  color: #6b6b70;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tecnologie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tecnologie li {
+  padding: 5px 12px;
+  border: 1px solid #e2ded5;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+}
+
+.azioni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pulsante {
+  padding: 10px 18px;
+  border: 1.5px solid var(--colore);
+  border-radius: 8px;
+  background: var(--colore);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.secondario {
+  background: none;
+  color: var(--colore);
+}
+
+/* Browser stretto (finestra piccola, telefono) */
+@container (max-width: 520px) {
+  .copertina {
+    flex-wrap: wrap;
+    padding: 28px 20px 24px;
+  }
+  .stato {
+    margin-left: 0;
+  }
+  .corpo {
+    padding: 24px 20px 32px;
+  }
+}

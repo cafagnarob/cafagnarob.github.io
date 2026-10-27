@@ -29,6 +29,7 @@ export type Progetto = {
   stato: StatoProgetto
   link?: { demo?: string; codice?: string }
   colore: string
+  indirizzo: string // indirizzo mostrato e digitato nel browser (senza https://)
 }
 
 /* Percorsi delle immagini, ricavati dall'id: nessun percorso scritto a mano */
@@ -66,5 +67,6 @@ export const PROGETTI: Progetto[] = [
       // codice: "https://github.com/…",
     },
     colore: "#1f3a34", // DA CONFERMARE: prendilo dall'icona
+    indirizzo: "mumagin.it", // DA CONFERMARE
   },
 ]

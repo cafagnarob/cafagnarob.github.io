@@ -8,6 +8,7 @@
   background: rgb(28 28 32 / 0.82);
   backdrop-filter: blur(24px) saturate(1.4);
   border-top: 1px solid rgb(255 255 255 / 0.08);
+  z-index: 3;
 }
 
 .centro {
@@ -30,6 +31,17 @@
   grid-template-columns: repeat(2, 9px);
   place-content: center;
   gap: 2px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.start:hover,
+.start:focus-visible,
+.start[aria-expanded="true"] {
+  outline: none;
+  background: rgb(255 255 255 / 0.08);
 }
 
 .start i {

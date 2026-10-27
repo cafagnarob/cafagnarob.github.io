@@ -30,6 +30,41 @@
   list-style: none;
 }
 
+/* Velo trasparente: un clic fuori dal menu Start lo chiude */
+.velo {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+/* Spegnimento da vecchio monitor CRT: l'immagine si schiaccia in una
+   riga luminosa, poi si stringe in un punto e sparisce sul nero */
+.spegnimento {
+  pointer-events: none;
+  animation: spegni 450ms ease-in forwards;
+}
+
+@keyframes spegni {
+  0% {
+    transform: none;
+    filter: none;
+  }
+  60% {
+    transform: scale(1, 0.004);
+    filter: brightness(3);
+  }
+  100% {
+    transform: scale(0, 0.004);
+    filter: brightness(5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spegnimento {
+    animation-duration: 1ms; /* onAnimationEnd arriva comunque */
+  }
+}
+
 /* Schermi grandi: icone un po' più grandi */
 @media (min-width: 1600px) {
   .icone {

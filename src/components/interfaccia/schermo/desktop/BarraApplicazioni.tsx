@@ -12,20 +12,34 @@ import { IconaProgetto } from "../comuni/IconaProgetto"
 import { useOra } from "../comuni/useOra"
 import stili from "./BarraApplicazioni.module.css"
 
-type Props = { onApri?: (progetto: Progetto) => void }
+type Props = {
+  onApri?: (progetto: Progetto) => void
+  onStart?: () => void
+  menuAperto?: boolean
+}
 
-export function BarraApplicazioni({ onApri }: Props) {
+export function BarraApplicazioni({
+  onApri,
+  onStart,
+  menuAperto = false,
+}: Props) {
   const ora = useOra()
 
   return (
     <footer className={stili.barra}>
       <div className={stili.centro}>
-        <span className={stili.start} aria-hidden="true">
+        <button
+          type="button"
+          className={stili.start}
+          onClick={onStart}
+          aria-label="Start"
+          aria-expanded={menuAperto}
+        >
           <i />
           <i />
           <i />
           <i />
-        </span>
+        </button>
         {PROGETTI.map((progetto) => (
           <button
             key={progetto.id}
