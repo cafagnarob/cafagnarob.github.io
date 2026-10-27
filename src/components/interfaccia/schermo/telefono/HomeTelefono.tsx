@@ -13,8 +13,12 @@ import { BarraStato } from "./BarraStato"
 import { IconaApp } from "./IconaApp"
 import { Browser } from "../comuni/browser/Browser"
 import stili from "./HomeTelefono.module.css"
+import { useAppDispatch } from "../../../../store/hooks"
+import { BarraHome } from "./BarraHome"
+import { esci } from "../../../../store/azioniScena"
 
 export function HomeTelefono() {
+  const dispatch = useAppDispatch()
   const [aperto, setAperto] = useState<Progetto | null>(null)
 
   return (
@@ -36,6 +40,11 @@ export function HomeTelefono() {
           onChiudi={() => setAperto(null)}
         />
       )}
+
+      <BarraHome
+        onPremi={aperto ? () => setAperto(null) : () => dispatch(esci())}
+        etichetta={aperto ? "Torna alla home" : "Esci dal telefono"}
+      />
     </div>
   )
 }

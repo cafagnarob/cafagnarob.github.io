@@ -30,6 +30,10 @@
 .pulsante:active {
   transform: scale(0.94);
 }
+.icona {
+  width: 22px;
+  height: 22px;
+}
 
 /* Cursore: largo su touch, nascosto e a scomparsa con il mouse */
 .cursore {

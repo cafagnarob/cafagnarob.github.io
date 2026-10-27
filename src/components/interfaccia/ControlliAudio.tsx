@@ -1,23 +1,36 @@
 /*
  * Controlli audio
  * In basso a destra: pulsante muto + cursore del volume, per tutti i
- * suoni del sito (musica, e più avanti pioggia e città).
+ * suoni del sito (musica, pioggia, città).
  *
+ * - Nascosti a schermo acceso: lì l'interfaccia (desktop/telefono)
+ *   occupa tutto lo schermo e ha il suo comando del volume
+ *   (ComandoVolume). Si nasconde solo il comando: musica e volume
+ *   restano come sono, perché vivono nello slice "audio".
  * - Con il mouse il cursore compare passando sopra il pulsante (o con
  *   il focus da tastiera); su touch è sempre visibile, perché lì non
  *   esiste il "passare sopra".
  * - Con il muto attivo il cursore mostra 0, ma il volume scelto resta
  *   salvato: togliendo il muto si torna a quel livello.
- * - Icone disegnate in SVG: altoparlante con onde, o con una X se muto.
+ * - Icona condivisa con le interfacce (IconaVolume): altoparlante con
+ *   una o due onde secondo il livello, o una X se è a zero.
  */
 import { useAppDispatch, useAppSelector } from "../../store/hooks"
 import { alternaMuto, impostaVolume } from "../../store/azioniAudio"
+import { IconaVolume } from "./schermo/comuni/volume/IconaVolume"
 import stili from "./ControlliAudio.module.css"
 
 export function ControlliAudio() {
   const dispatch = useAppDispatch()
   const muto = useAppSelector((s) => s.audio.muto)
   const volume = useAppSelector((s) => s.audio.volume)
+  const schermoAcceso = useAppSelector((s) => s.scena.schermo?.acceso ?? false)
+
+  // Dopo TUTTI gli hook: a ogni render vanno chiamati sempre gli
+  // stessi, nello stesso ordine, anche se poi non si mostra nulla
+  if (schermoAcceso) return null
+
+  const livello = muto ? 0 : volume
 
   return (
     <div className={stili.controlli}>
@@ -27,7 +40,7 @@ export function ControlliAudio() {
         min={0}
         max={1}
         step={0.01}
-        value={muto ? 0 : volume}
+        value={livello}
         aria-label="Volume"
         onChange={(e) => dispatch(impostaVolume(Number(e.target.value)))}
       />
@@ -38,25 +51,7 @@ export function ControlliAudio() {
         aria-pressed={muto}
         onClick={() => dispatch(alternaMuto())}
       >
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-          <path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" />
-          {muto ? (
-            <path
-              d="M16 9l5 6M21 9l-5 6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          ) : (
-            <path
-              d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              fill="none"
-            />
-          )}
-        </svg>
+        <IconaVolume livello={livello} className={stili.icona} />
       </button>
     </div>
   )

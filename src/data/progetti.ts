@@ -30,6 +30,7 @@ export type Progetto = {
   link?: { demo?: string; codice?: string }
   colore: string
   indirizzo: string // indirizzo mostrato e digitato nel browser (senza https://)
+  incorpora?: string // se c'è, il browser apre questo indirizzo in un iframe (giochi, demo) invece della pagina del progetto
 }
 
 /* Percorsi delle immagini, ricavati dall'id: nessun percorso scritto a mano */
@@ -64,9 +65,29 @@ export const PROGETTI: Progetto[] = [
     link: {
       // DA CONFERMARE: aggiungi i link quando ci sono (o lasciali vuoti)
       // demo: "https://…",
-      // codice: "https://github.com/…",
+      codice: "https://github.com/cafagnarob/muma-gin-frontend",
     },
     colore: "#1f3a34", // DA CONFERMARE: prendilo dall'icona
     indirizzo: "mumagin.it", // DA CONFERMARE
+  },
+
+  {
+    id: "the-worst-date",
+    nome: "The Worst Date",
+    sottotitolo: "Quiz in stile dating-sim anni '90",
+    descrizione: [
+      // DA CONFERMARE: testo di bozza
+      "Un primo appuntamento in pixel art: scegli il tuo match tra Emma, Lisa e Anna e rispondi a 5 domande sulle sue passioni. Ogni risposta giusta accende un cuore.",
+      "Domande e risposte in ordine casuale, quindi ogni partita è diversa. Progetto di gruppo realizzato in quattro durante il Master Full-Stack di Epicode.",
+    ],
+    tecnologie: ["HTML", "CSS", "JavaScript"],
+    stato: "completato",
+    indirizzo: "cafagnarob.github.io/quiz_game",
+    incorpora: "https://cafagnarob.github.io/quiz_game/", // opzione B: "/giochi/the-worst-date/index.html"
+    link: {
+      demo: "https://cafagnarob.github.io/quiz_game/",
+      codice: "https://github.com/cafagnarob/quiz_game",
+    },
+    colore: "#b3245c", // DA CONFERMARE: prendilo dall'icona
   },
 ]

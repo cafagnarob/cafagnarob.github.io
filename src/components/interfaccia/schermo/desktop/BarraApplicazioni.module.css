@@ -69,12 +69,20 @@
   border-radius: 5px;
 }
 
-.orologio {
+/* Vassoio di sistema: volume e orologio, a destra */
+.vassoio {
   position: absolute;
-  right: 12px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.orologio {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  padding: 0 4px;
   font-size: 12px;
   line-height: 1.35;
 }

@@ -16,6 +16,8 @@
  * - variante "finestra" (desktop): scheda, pulsanti, indirizzo in alto
  * - variante "telefono": a tutto schermo, indirizzo in basso come
  *   Safari, con "‹" per tornare alla home
+ *
+ * se il progetto ha link.codice: una seconda scheda (finestra) o un pulsante (telefono) apre il repository su GitHub in una nuova scheda. Non dentro il browser finto: GitHub vieta di essere mostrato in un iframe (X-Frame-Options)”.
  */
 import type { CSSProperties } from "react"
 import type { Progetto } from "../../../../../data/progetti"
@@ -50,23 +52,40 @@ export function Browser({ progetto, variante, onChiudi }: Props) {
       {variante === "finestra" && (
         <header className={stili.titolo}>
           <span className={stili.scheda}>
-            <span className={stili.strati}>
-              <span
-                className={`${stili.prima} ${stili.marchio}`}
-                aria-hidden="true"
-              >
-                s
+            <span className={stili.scheda}>
+              <span className={stili.strati}>
+                <span
+                  className={`${stili.prima} ${stili.marchio}`}
+                  aria-hidden="true"
+                >
+                  s
+                </span>
+                <IconaProgetto
+                  progetto={progetto}
+                  className={`${stili.dopo} ${stili.favicon}`}
+                />
               </span>
-              <IconaProgetto
-                progetto={progetto}
-                className={`${stili.dopo} ${stili.favicon}`}
-              />
+              <span className={stili.strati}>
+                <span className={stili.prima}>Sonda</span>
+                <span className={stili.dopo}>{progetto.nome}</span>
+              </span>
             </span>
-            <span className={stili.strati}>
-              <span className={stili.prima}>Sonda</span>
-              <span className={stili.dopo}>{progetto.nome}</span>
-            </span>
+
+            {progetto.link?.codice && (
+              <a
+                className={`${stili.scheda} ${stili.schedaEsterna}`}
+                href={progetto.link.codice}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Apre il repository su GitHub in una nuova scheda"
+              >
+                <IconaCodice className={stili.favicon} />
+                <span>GitHub</span>
+                <IconaUscita className={stili.uscita} />
+              </a>
+            )}
           </span>
+
           <span className={stili.comandi}>
             <span aria-hidden="true">–</span>
             <span aria-hidden="true">□</span>
@@ -93,6 +112,8 @@ export function Browser({ progetto, variante, onChiudi }: Props) {
             ‹
           </button>
         )}
+
+        {/* Pillola: SOLO i due strati, segnaposto e indirizzo */}
         <span className={`${stili.indirizzo} ${stili.strati}`}>
           <span className={`${stili.prima} ${stili.segnaposto}`}>
             Cerca o digita un indirizzo
@@ -109,6 +130,19 @@ export function Browser({ progetto, variante, onChiudi }: Props) {
             {progetto.indirizzo}
           </span>
         </span>
+
+        {/* Fuori dalla pillola: flex + gap di barraIndirizzo lo mettono a destra */}
+        {variante === "telefono" && progetto.link?.codice && (
+          <a
+            className={stili.pulsanteCodice}
+            href={progetto.link.codice}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Apri il codice su GitHub"
+          >
+            <IconaCodice />
+          </a>
+        )}
       </div>
 
       <div className={stili.caricamento} aria-hidden="true" />
@@ -116,9 +150,53 @@ export function Browser({ progetto, variante, onChiudi }: Props) {
       <div className={stili.vista}>
         <HomeSonda testo={progetto.indirizzo} className={stili.prima} />
         <div className={`${stili.dopo} ${stili.pagina}`}>
-          <PaginaProgetto progetto={progetto} />
+          {progetto.incorpora ? (
+            <iframe
+              className={stili.sito}
+              src={progetto.incorpora}
+              title={progetto.nome}
+              allow="autoplay; fullscreen"
+            />
+          ) : (
+            <PaginaProgetto progetto={progetto} />
+          )}
         </div>
       </div>
     </section>
+  )
+}
+
+/* "</>": codice sorgente */
+function IconaCodice({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" />
+    </svg>
+  )
+}
+
+/* Freccia in uscita: "si apre fuori da qui" */
+function IconaUscita({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+    </svg>
   )
 }

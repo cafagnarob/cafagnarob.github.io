@@ -24,8 +24,32 @@
 
 /* Telefono: tutto lo schermo sotto la barra di stato (44px) */
 .telefono {
-  inset: calc(44px + env(safe-area-inset-top)) 0 0;
+  inset: calc(44px + env(safe-area-inset-top)) 0
+    calc(28px + env(safe-area-inset-bottom));
   font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+.telefono .barraIndirizzo {
+  order: 2;
+  padding: 8px 12px;
+  background: rgb(30 30 33 / 0.92);
+  backdrop-filter: blur(20px);
+}
+
+.fixBarraRicerca {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Sito incorporato: riempie tutta la vista, senza bordo */
+.sito {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #000;
 }
 
 @keyframes apertura {
@@ -46,17 +70,35 @@
   background: #1a1a1d;
 }
 
+/* flex: 0 1 240px → larga 240px se c'è spazio, può stringersi, non
+   si allarga. overflow: hidden tiene il testo DENTRO la scheda */
 .scheda {
+  flex: 0 1 240px;
   display: flex;
   align-items: center;
   gap: 8px;
-  width: min(240px, 50%);
+  min-width: 0;
   height: 32px;
   padding: 0 12px;
+  overflow: hidden;
   border-radius: 8px 8px 0 0;
   background: #2b2c30;
   font-size: 12px;
   white-space: nowrap;
+}
+
+/* Il titolo (secondo elemento della scheda) si accorcia con "…" */
+.scheda > :nth-child(2) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Icona e freccia non si schiacciano mai */
+.favicon,
+.marchio,
+.uscita {
+  flex: none;
 }
 
 .favicon,
@@ -100,6 +142,68 @@
   outline: none;
   background: #c42b1c;
   color: #fff;
+}
+
+/* Le schede occupano lo spazio libero a sinistra dei comandi.
+   min-width: 0 permette di stringersi sotto la larghezza del testo
+   (senza, un elemento flex non diventa mai più stretto del contenuto) */
+.schede {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.schedaEsterna {
+  position: relative;
+  flex: 0 0 auto; /* larga quanto il suo contenuto, non si stringe */
+  background: transparent;
+  color: #b8bcc4;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+/* Separatore tra le schede (sparisce al passaggio del mouse) */
+.schedaEsterna::before {
+  content: "";
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  left: -4px;
+  width: 1px;
+  background: rgb(255 255 255 / 0.15);
+}
+
+.schedaEsterna:hover::before,
+.schedaEsterna:focus-visible::before {
+  opacity: 0;
+}
+.schedaEsterna:hover,
+.schedaEsterna:focus-visible {
+  outline: none;
+  background: rgb(255 255 255 / 0.06);
+  color: #e8eaed;
+}
+
+.uscita {
+  width: 12px;
+  opacity: 0.6;
+}
+
+/* Telefono: pulsante rotondo accanto all'indirizzo */
+.pulsanteCodice {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: #8ab4f8;
+}
+
+.pulsanteCodice svg {
+  width: 20px;
 }
 
 /* ---------- Barra degli indirizzi ---------- */

@@ -4,6 +4,7 @@
  * in CSS (decorativi, nascosti agli screen reader).
  */
 import { useOra } from "../comuni/useOra"
+import { ComandoVolume } from "../comuni/volume/ComandoVolume"
 import stili from "./BarraStato.module.css"
 
 export function BarraStato() {
@@ -17,7 +18,8 @@ export function BarraStato() {
           minute: "2-digit",
         })}
       </time>
-      <span className={stili.indicatori} aria-hidden="true">
+      <span className={stili.indicatori}>
+        <ComandoVolume variante="telefono" />
         <span className={stili.segnale}>
           <i />
           <i />

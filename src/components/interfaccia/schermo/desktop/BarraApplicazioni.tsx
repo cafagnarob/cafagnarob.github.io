@@ -10,6 +10,7 @@
 import { PROGETTI, type Progetto } from "../../../../data/progetti"
 import { IconaProgetto } from "../comuni/IconaProgetto"
 import { useOra } from "../comuni/useOra"
+import { ComandoVolume } from "../comuni/volume/ComandoVolume"
 import stili from "./BarraApplicazioni.module.css"
 
 type Props = {
@@ -53,15 +54,18 @@ export function BarraApplicazioni({
         ))}
       </div>
 
-      <time className={stili.orologio} dateTime={ora.toISOString()}>
-        <span>
-          {ora.toLocaleTimeString("it-IT", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </span>
-        <span>{ora.toLocaleDateString("it-IT")}</span>
-      </time>
+      <span className={stili.vassoio}>
+        <ComandoVolume variante="desktop" />
+        <time className={stili.orologio} dateTime={ora.toISOString()}>
+          <span>
+            {ora.toLocaleTimeString("it-IT", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
+          <span>{ora.toLocaleDateString("it-IT")}</span>
+        </time>
+      </span>
     </footer>
   )
 }
