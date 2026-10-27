@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "postinstall": "node scripts/copia-decodificatori.mjs"
+    "postinstall": "node scripts/copia-decodificatori.mjs",
+    "converti-icone": "node scripts/converti-icone.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
