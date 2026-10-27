@@ -45,7 +45,10 @@ function contenutoDi(progetto: Progetto, variante: Props["variante"]) {
   if (progetto.readme) {
     return (
       <Suspense fallback={null}>
-        <PaginaReadme progetto={progetto} giocabile={variante !== "telefono"} />
+        <PaginaReadme
+          progetto={progetto}
+          giocabile={!(variante === "telefono" && progetto.readme.soloComputer)}
+        />
       </Suspense>
     )
   }

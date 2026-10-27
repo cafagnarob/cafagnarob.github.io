@@ -1,15 +1,21 @@
 /*
  * Pagina README
  * La pagina "sito" di un progetto costruita dal suo README su GitHub,
- * nello stile del gioco (pixel art, Press Start 2P):
+ * in uno dei temi (readme.tema, "pixel" se manca):
+ * - pixel: pixel art rosa, Press Start 2P (The Worst Date)
+ * - terminale: fosfori verdi con righe di scansione, VT323 (ORBITAL)
+ * Il tema è una classe che definisce variabili CSS (colori, font): va
+ * messa su OGNI contenitore radice, cioè la pagina e il livello del
+ * gioco, perché le variabili si ereditano solo verso l'interno.
+ *
  * - il Markdown (con l'HTML che contiene) diventa React (react-markdown,
- *   remark-gfm per le tabelle, rehype-raw per l'HTML)
+ *   remark-gfm per tabelle e liste di attività, rehype-raw per l'HTML)
  * - i percorsi relativi delle immagini diventano assoluti (urlTransform)
  * - il `codice in linea` uguale a readme.avvio diventa il pulsante che
  *   avvia il gioco (SitoIncorporato) al posto della pagina
- * - con giocabile = false (telefono: il gioco non è pensato per schermi
- *   piccoli) lo stesso punto diventa un pulsante spento con l'avviso
- *   "Gioca da computer": il README resta leggibile
+ * - con giocabile = false (telefono, progetti con readme.soloComputer)
+ *   lo stesso punto diventa un pulsante spento con l'avviso "Gioca da
+ *   computer": il README resta leggibile
  * - i link si aprono in una nuova scheda
  *
  * Il testo arriva con use(): il componente "sospende" finché il README
@@ -25,12 +31,13 @@ import type { Progetto } from "../../../../../data/progetti"
 import { SitoIncorporato } from "../SitoIncorporato"
 import { caricaReadme } from "./caricaReadme"
 import stili from "./PaginaReadme.module.css"
+import { createPortal } from "react-dom"
 
 type Readme = NonNullable<Progetto["readme"]>
 
 type Props = {
   progetto: Progetto
-  /* false sul telefono: il gioco non parte, compare "Gioca da computer" */
+  /* false: il gioco non parte, compare "Gioca da computer" */
   giocabile?: boolean
 }
 
@@ -39,23 +46,12 @@ export default function PaginaReadme({ progetto, giocabile = true }: Props) {
   const { readme, incorpora } = progetto
   if (!readme) return null
 
-  if (inGioco && incorpora) {
-    return (
-      <div className={stili.gioco}>
-        <SitoIncorporato src={incorpora} titolo={progetto.nome} />
-        <button
-          type="button"
-          className={stili.esciGioco}
-          onClick={() => setInGioco(false)}
-        >
-          ◀ README
-        </button>
-      </div>
-    )
-  }
+  // Classe del tema: sulla pagina e sul livello del gioco (le variabili
+  // CSS si ereditano solo verso l'interno, e il gioco è fuori, nel body)
+  const tema = stili[readme.tema ?? "pixel"]
 
   return (
-    <div className={stili.pagina}>
+    <div className={`${stili.pagina} ${tema}`}>
       <Suspense fallback={<p className={stili.attesa}>LOADING…</p>}>
         <Contenuto
           readme={readme}
@@ -64,6 +60,29 @@ export default function PaginaReadme({ progetto, giocabile = true }: Props) {
           soloComputer={Boolean(incorpora) && !giocabile}
         />
       </Suspense>
+
+      {/* Gioco a tutto schermo: portale nel body, fuori dalla finestra del
+          browser (che lo taglierebbe). Il README resta montato sotto:
+          tornando, si ritrova alla stessa posizione di scorrimento */}
+      {inGioco &&
+        incorpora &&
+        createPortal(
+          <div
+            className={`${stili.gioco} ${tema}`}
+            role="dialog"
+            aria-label={progetto.nome}
+          >
+            <SitoIncorporato src={incorpora} titolo={progetto.nome} />
+            <button
+              type="button"
+              className={stili.esciGioco}
+              onClick={() => setInGioco(false)}
+            >
+              ◀ README
+            </button>
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }

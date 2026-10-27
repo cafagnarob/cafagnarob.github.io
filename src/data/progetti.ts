@@ -31,12 +31,17 @@ export type Progetto = {
   colore: string
   indirizzo: string // indirizzo mostrato e digitato nel browser (senza https://)
   incorpora?: string // se c'è, il browser apre questo indirizzo in un iframe (giochi, demo) invece della pagina del progetto
-  /* README da mostrare come pagina del progetto (al posto di PaginaProgetto):
-     - url: il file README.md "grezzo" (raw.githubusercontent.com)
-     - base: cartella da cui risolvere i percorsi relativi delle immagini
-     - avvio: testo di un `codice in linea` del README da trasformare nel
-       pulsante che avvia il sito/gioco di "incorpora" */
-  readme?: { url: string; base: string; avvio?: string }
+  /* README da mostrare come pagina del progetto:
+     - url, base, avvio: come prima
+     - tema: aspetto della pagina ("pixel" se manca)
+     - soloComputer: su telefono il gioco non si avvia ("Gioca da computer") */
+  readme?: {
+    url: string
+    base: string
+    avvio?: string
+    tema?: "pixel" | "terminale"
+    soloComputer?: boolean
+  }
 }
 
 /* Percorsi delle immagini, ricavati dall'id: nessun percorso scritto a mano */
@@ -99,6 +104,35 @@ export const PROGETTI: Progetto[] = [
       url: "https://raw.githubusercontent.com/cafagnarob/quiz_game/main/README.md",
       base: "https://raw.githubusercontent.com/cafagnarob/quiz_game/main/",
       avvio: "▶ PRESS START TO FLIRT",
+      soloComputer: true,
     },
+  },
+
+  {
+    id: "orbital",
+    nome: "ORBITAL",
+    sottotitolo:
+      "Gestione e sopravvivenza nello spazio, con un'IA di bordo di cui non fidarsi",
+    descrizione: [
+      // DA CONFERMARE: non si vede (c'è il README), ma resta come riassunto
+      "Browser game single-player: scegli la crew, prepara la nave e porta a termine la missione, mentre V.A.L.E., l'intelligenza di bordo, segue una direttiva che non puoi leggere.",
+      "Motore in TypeScript puro a funzioni pure con generatore casuale a seed, interfaccia React senza useEffect, suoni generati in tempo reale e 427 test.",
+    ],
+    tecnologie: ["React 19", "TypeScript", "Vite", "Vitest", "Web Audio"],
+    stato: "in corso",
+    indirizzo: "cafagnarob.github.io/ORBITAL",
+    incorpora: "https://cafagnarob.github.io/ORBITAL/",
+    readme: {
+      url: "https://raw.githubusercontent.com/cafagnarob/ORBITAL/main/README.md",
+      base: "https://raw.githubusercontent.com/cafagnarob/ORBITAL/main/",
+      avvio: "▶ INIZIA MISSIONE",
+      tema: "terminale",
+      soloComputer: true, // DA CONFERMARE: false se il gioco funziona bene su telefono
+    },
+    link: {
+      demo: "https://cafagnarob.github.io/ORBITAL/",
+      codice: "https://github.com/cafagnarob/ORBITAL",
+    },
+    colore: "#0f2a1c", // verde fosfori scuro; DA CONFERMARE con l'icona
   },
 ]

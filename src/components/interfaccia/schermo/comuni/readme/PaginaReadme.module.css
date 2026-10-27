@@ -1,9 +1,48 @@
-/* Pagina nello stile del gioco: fondo viola notte, rosa, pixel.
-   Le misure in cqi seguono la larghezza del browser (container .vista) */
+/*
+ * Pagina README: struttura comune + temi
+ * Le regole usano solo variabili; ogni tema (.pixel, .terminale) le
+ * definisce. Misure in cqi: seguono la larghezza del browser.
+ */
+
+/* ---------- Temi ---------- */
+.pixel {
+  --testo: #f3e9ff;
+  --accento: #ff5c9a;
+  --accento-chiaro: #ff9cc4;
+  --ombra: #5a1236;
+  --bordo: #3d2650;
+  --fondo-codice: #0d0714;
+  --testo-pulsante: #1a0f24;
+  --hover-pulsante: #ffd23f;
+  --font-titoli: "Press Start 2P", monospace;
+  --scala-titoli: 1;
+  --bagliore: none;
+  background: radial-gradient(ellipse at 50% 0%, #2c1640 0%, #140a1c 70%);
+}
+
+/* Terminale a fosfori verdi (P1): testo luminoso, righe di scansione.
+   VT323 è un font piccolo: --scala-titoli lo ingrandisce */
+.terminale {
+  --testo: #b9f5c8;
+  --accento: #39ff88;
+  --accento-chiaro: #8dffb9;
+  --ombra: #0a3a1f;
+  --bordo: #1d4a30;
+  --fondo-codice: rgb(0 0 0 / 0.35);
+  --testo-pulsante: #02140a;
+  --hover-pulsante: #ffb347; /* ambra */
+  --font-titoli: "VT323", monospace;
+  --scala-titoli: 1.7;
+  --bagliore: 0 0 6px rgb(57 255 136 / 0.55);
+  background:
+    repeating-linear-gradient(transparent 0 2px, rgb(0 0 0 / 0.22) 2px 3px),
+    radial-gradient(ellipse at 50% 40%, #0c1f14 0%, #030806 80%);
+}
+
+/* ---------- Struttura ---------- */
 .pagina {
   min-height: 100%;
-  background: radial-gradient(ellipse at 50% 0%, #2c1640 0%, #140a1c 70%);
-  color: #f3e9ff;
+  color: var(--testo);
   font-family: system-ui, sans-serif;
 }
 
@@ -20,35 +59,39 @@
 }
 
 .readme h1,
-.readme h2 {
-  font-family: "Press Start 2P", monospace;
-  line-height: 1.5;
-  color: #ff5c9a;
+.readme h2,
+.readme h3 {
+  font-family: var(--font-titoli);
+  line-height: 1.4;
+  color: var(--accento);
+  text-shadow: var(--bagliore);
 }
 
 .readme h1 {
-  font-size: clamp(16px, 3.4cqi, 26px);
-  text-shadow: 3px 3px 0 #5a1236;
+  font-size: calc(clamp(16px, 3.4cqi, 26px) * var(--scala-titoli));
 }
 
 .readme h2 {
   margin-top: 40px;
-  font-size: clamp(12px, 2.2cqi, 16px);
+  font-size: calc(clamp(12px, 2.2cqi, 16px) * var(--scala-titoli));
 }
 
-/* Separatore "a trattini" pixel */
+.readme h3 {
+  font-size: calc(clamp(11px, 1.8cqi, 13px) * var(--scala-titoli));
+}
+
 .readme hr {
   height: 4px;
   margin: 32px 0;
   border: 0;
   background: repeating-linear-gradient(
     90deg,
-    #ff5c9a 0 8px,
+    var(--accento) 0 8px,
     transparent 8px 16px
   );
+  opacity: 0.8;
 }
 
-/* pixelated: le GIF pixel art restano nitide anche ingrandite */
 .readme img {
   max-width: 100%;
   height: auto;
@@ -56,39 +99,45 @@
 }
 
 .readme a {
-  color: #ff9cc4;
+  color: var(--accento-chiaro);
 }
 
 .readme blockquote {
   margin: 16px 0;
   padding: 8px 16px;
-  border-left: 4px solid #ff5c9a;
-  background: rgb(255 92 154 / 0.08);
+  border-left: 4px solid var(--accento);
+  background: color-mix(in srgb, var(--accento), transparent 92%);
 }
 
 .readme code {
   padding: 2px 6px;
   border-radius: 3px;
   background: rgb(255 255 255 / 0.08);
-  font-family: ui-monospace, monospace;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
   font-size: 0.85em;
 }
 
+/* Blocchi di codice e ASCII art: font monospazio con i caratteri da
+   disegno (█ ╗ ║), interlinea stretta perché i blocchi si tocchino.
+   La misura si riduce con la larghezza: l'arte larga ~55 colonne entra
+   anche nel browser stretto invece di scorrere di lato */
 .readme pre {
   overflow-x: auto;
   padding: 16px;
-  border: 2px solid #3d2650;
-  background: #0d0714;
+  border: 2px solid var(--bordo);
+  background: var(--fondo-codice);
+  line-height: 1.2;
+  text-align: left;
 }
 
 .readme pre code {
   padding: 0;
   background: none;
-  font-size: 13px;
+  font-size: min(13px, calc(100cqi / 42));
+  color: var(--accento-chiaro);
+  text-shadow: var(--bagliore);
 }
 
-/* Tabelle: colonne uguali (fixed), così le GIF si stringono su telefono
-   invece di far uscire la tabella dalla pagina */
 .readme table {
   width: 100%;
   margin: 16px auto;
@@ -99,20 +148,37 @@
 .readme th,
 .readme td {
   padding: 8px 10px;
-  border: 2px solid #3d2650;
+  border: 2px solid var(--bordo);
   vertical-align: top;
   overflow-wrap: anywhere;
 }
 
-/* ---------- Pulsante "PRESS START" ---------- */
+/* <details> della "Sala macchine" */
+.readme summary {
+  color: var(--accento);
+  cursor: pointer;
+  text-shadow: var(--bagliore);
+}
+
+/* Liste di attività (- [ ] …): niente pallino, casella nel colore del tema */
+.readme li:has(> input[type="checkbox"]) {
+  list-style: none;
+}
+
+.readme input[type="checkbox"] {
+  margin-right: 8px;
+  accent-color: var(--accento);
+}
+
+/* ---------- Pulsante di avvio ---------- */
 .avvio {
   padding: 14px 20px;
   border: 0;
-  background: #ff5c9a;
-  color: #1a0f24;
-  font-family: "Press Start 2P", monospace;
-  font-size: clamp(11px, 2cqi, 14px);
-  box-shadow: 4px 4px 0 #5a1236;
+  background: var(--accento);
+  color: var(--testo-pulsante);
+  font-family: var(--font-titoli);
+  font-size: calc(clamp(11px, 2cqi, 14px) * var(--scala-titoli));
+  box-shadow: 4px 4px 0 var(--ombra);
   cursor: pointer;
   animation: lampeggia 1s steps(1) infinite;
 }
@@ -120,11 +186,10 @@
 .avvio:hover,
 .avvio:focus-visible {
   outline: none;
-  background: #ffd23f;
+  background: var(--hover-pulsante);
   animation: none;
 }
 
-/* Premuto: "affonda" nell'ombra, come un pulsante arcade */
 .avvio:active {
   transform: translate(4px, 4px);
   box-shadow: none;
@@ -136,44 +201,91 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .avvio {
-    animation: none;
-  }
+/* ---------- Avvio bloccato (telefono) ---------- */
+.avvioBloccato {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.etichettaBloccata {
+  padding: 14px 20px;
+  background: var(--bordo);
+  color: color-mix(in srgb, var(--testo), transparent 40%);
+  font-family: var(--font-titoli);
+  font-size: calc(clamp(11px, 2cqi, 14px) * var(--scala-titoli));
+  box-shadow: 4px 4px 0 var(--ombra);
+}
+
+.nota {
+  color: var(--accento-chiaro);
+  font-family: var(--font-titoli);
+  font-size: calc(9px * var(--scala-titoli));
+  line-height: 1.6;
 }
 
 /* ---------- Attesa / errore ---------- */
 .attesa {
   margin: 0;
   padding: 48px 24px;
-  font-family: "Press Start 2P", monospace;
-  font-size: 12px;
+  font-family: var(--font-titoli);
+  font-size: calc(12px * var(--scala-titoli));
   line-height: 1.8;
   text-align: center;
 }
 
-/* ---------- Gioco avviato ---------- */
+/* ---------- Gioco avviato: a tutto schermo ---------- */
+/* Sopra l'interfaccia dello schermo (z 5) e a tutto il resto */
 .gioco {
-  position: relative;
-  height: 100%;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #000;
+  animation: ingrandisci 280ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
+@keyframes ingrandisci {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+/* Semitrasparente per non coprire l'interfaccia del gioco;
+   piena al passaggio del mouse o con il focus da tastiera */
 .esciGioco {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 12px;
+  left: 12px;
   z-index: 1;
   padding: 8px 10px;
   border: 0;
-  background: rgb(26 15 36 / 0.85);
-  color: #ff9cc4;
-  font-family: "Press Start 2P", monospace;
-  font-size: 10px;
-  box-shadow: 3px 3px 0 #5a1236;
+  background: rgb(0 0 0 / 0.75);
+  color: var(--accento-chiaro);
+  font-family: var(--font-titoli);
+  font-size: calc(10px * var(--scala-titoli));
+  box-shadow: 3px 3px 0 var(--ombra);
+  opacity: 0.6;
   cursor: pointer;
+  transition: opacity 0.15s;
 }
 
-/* Browser stretto (telefono) */
+.esciGioco:hover,
+.esciGioco:focus-visible {
+  outline: none;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avvio {
+    animation: none;
+  }
+  .gioco {
+    animation: none;
+  }
+}
+
 @container (max-width: 560px) {
   .readme {
     padding: 24px 16px 40px;
@@ -184,28 +296,4 @@
     padding: 6px;
     font-size: 12px;
   }
-}
-
-/* ---------- PRESS START su telefono: spento, con avviso ---------- */
-.avvioBloccato {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.etichettaBloccata {
-  padding: 14px 20px;
-  background: #3d2650;
-  color: #a58bb8;
-  font-family: "Press Start 2P", monospace;
-  font-size: clamp(11px, 2cqi, 14px);
-  box-shadow: 4px 4px 0 #1f1229;
-}
-
-.nota {
-  color: #ff9cc4;
-  font-family: "Press Start 2P", monospace;
-  font-size: 9px;
-  line-height: 1.6;
 }
