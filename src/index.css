@@ -8,6 +8,15 @@
  * su mobile, dove il trascinamento deve muovere la scena e
  * non la pagina.
  */
+
+/* Le misure (width, height) includono bordi e padding: un elemento
+   largo 100% resta largo 100% anche con un bordo */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html,
 body,
 #root {

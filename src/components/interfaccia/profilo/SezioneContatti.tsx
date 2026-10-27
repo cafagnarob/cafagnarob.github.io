@@ -35,9 +35,11 @@ export function SezioneContatti({ contatti, cv }: Props) {
           )
         })}
       </ul>
-      <a className={stili.cv} href={cv.href} download>
-        {cv.etichetta}
-      </a>
+      <div className="scaricaCv">
+        <a className={stili.cv} href={cv.href} download>
+          {cv.etichetta}
+        </a>
+      </div>
     </>
   )
 }

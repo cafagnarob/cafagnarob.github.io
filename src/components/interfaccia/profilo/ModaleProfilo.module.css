@@ -1,15 +1,17 @@
 /*
- * Modale del profilo
- * - .sfondo: contenitore a tutto schermo, posiziona la finestra e riceve
- *   il clic per chiudere (non ha sfondo proprio).
- * - .velo: dietro la finestra, sfoca e scurisce la stanza tranne il
- *   rettangolo della foto. Separato dalla finestra: la maschera non tocca
- *   il testo.
- * - .finestra: intestazione, schede, contenuto scorrevole e piede.
- *   Larghezza e altezza le decidono SOLO le media query (in fondo):
- *   devono coincidere con config/profilo.ts, che le usa per spostare
- *   l'inquadratura della foto.
- * Accenti nel rosso del neon.
+ * Modale del profilo: fascicolo di fogli
+ * - .sfondo: contenitore a tutto schermo, posiziona foto e fascicolo,
+ *   riceve il clic per chiudere.
+ * - .velo: dietro tutto, sfoca e scurisce la stanza.
+ * - .fascicolo: la pila. Ogni .foglio è assoluto e ha una posizione di
+ *   riposo (--dx, --dy, --angolo); .attivo lo porta davanti, dritto.
+ *   Cambiando foglio: .attivo → "sfila" (esce a destra e torna sopra),
+ *   .uscente → "rientra" (torna al suo posto nella pila).
+ * - .carta: l'immagine del foglio disegnata in Photoshop, a 9 fette
+ *   (border-image): angoli e bordi non si deformano, il centro si allunga.
+ *   L'ombra è un drop-shadow sul .foglio: segue la forma reale della
+ *   carta, strappi compresi.
+ * - Misure (in fondo): devono coincidere con config/profilo.ts.
  */
 
 /* --- Struttura --- */
@@ -22,200 +24,304 @@
   padding: 16px;
 }
 
-/* Velo: sfoca e scurisce la stanza, TRANNE un rettangolo attorno alla
-   foto (bordi da TracciaFoto). Due livelli di maschera che si sommano:
-   - orizzontale: copre a sinistra e a destra della foto
-   - verticale:   copre sopra e sotto
-   Solo dentro il rettangolo entrambi sono trasparenti → foto nitida.
+/* Velo: sfoca e scurisce tutta la stanza dietro la foto e il fascicolo.
    Sporge oltre lo schermo (--sporgenza): così la sfocatura non lascia
-   bordi nitidi; le posizioni della maschera sono spostate di conseguenza.
-   Prima che la posizione della foto sia nota, il rettangolo è fuori
-   dallo schermo. pointer-events: none → i clic arrivano al contenitore. */
+   bordi nitidi. pointer-events: none → i clic arrivano al contenitore. */
 .velo {
   --sporgenza: 40px;
-  --sfumatura: 18px;
-  --sx: calc(var(--foto-sinistra, -999px) + var(--sporgenza));
-  --dx: calc(var(--foto-destra, -999px) + var(--sporgenza));
-  --al: calc(var(--foto-alto, -999px) + var(--sporgenza));
-  --ba: calc(var(--foto-basso, -999px) + var(--sporgenza));
-  --orizzontale: linear-gradient(
-    to right,
-    #000 var(--sx),
-    transparent calc(var(--sx) + var(--sfumatura)),
-    transparent calc(var(--dx) - var(--sfumatura)),
-    #000 var(--dx)
-  );
-  --verticale: linear-gradient(
-    to bottom,
-    #000 var(--al),
-    transparent calc(var(--al) + var(--sfumatura)),
-    transparent calc(var(--ba) - var(--sfumatura)),
-    #000 var(--ba)
-  );
   position: absolute;
   inset: calc(-1 * var(--sporgenza));
   background: rgb(10 10 14 / 0.55);
   backdrop-filter: blur(6px);
-  -webkit-mask-image: var(--orizzontale), var(--verticale);
-  mask-image: var(--orizzontale), var(--verticale);
   pointer-events: none;
   animation: sfocatura 0.6s ease-out both;
 }
 
-/* Finestra: sopra il velo. Niente larghezza qui: vedi le media query */
-.finestra {
-  --rosso: #ff6b5a;
+/* Foto in primo piano: proporzioni 9:16, come una stampa.
+   transform-origin in alto a sinistra: il volo FLIP misura da lì. */
+.foto {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-rows: auto auto 1fr auto; /* intestazione, schede, contenuto, piede */
-  border: 1px solid rgb(255 255 255 / 0.1);
-  border-radius: 18px;
-  background: rgb(20 20 24 / 0.92);
-  color: #f2f0ee;
-  font-family: system-ui, sans-serif;
-  line-height: 1.55;
-  box-shadow: 0 24px 60px rgb(0 0 0 / 0.5);
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border: 6px solid #f4f1ec;
+  border-radius: 4px;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.5);
+  transform-origin: 0 0;
+  cursor: default;
+}
+
+/* Testo solo per gli screen reader (il titolo del dialogo) */
+.nascosto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
   overflow: hidden;
-  animation: entrata 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-/* --- Intestazione --- */
+/* --- Fascicolo --- */
 
-.intestazione {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 24px 24px 12px;
-}
-
-.nome {
-  margin: 0;
-  font-size: clamp(20px, 4vw, 26px);
-  letter-spacing: 0.04em;
-}
-
-.ruolo {
-  margin: 4px 0 0;
-  color: var(--rosso);
-  font-size: 14px;
+.fascicolo {
+  --inchiostro: #2b2a27;
+  --rosso: #b23a2c;
+  position: relative;
+  z-index: 1;
+  animation: entrata 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
 }
 
 .chiudi {
-  flex: none;
+  position: absolute;
+  top: -14px;
+  left: -14px;
+  z-index: 30;
   width: 40px;
   height: 40px;
   border: none;
   border-radius: 50%;
-  background: rgb(255 255 255 / 0.06);
-  color: inherit;
+  background: #1f1f23;
+  color: #f2f0ee;
   font-size: 22px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.4);
   cursor: pointer;
 }
 
 .chiudi:hover,
 .chiudi:focus-visible {
-  background: rgb(255 255 255 / 0.14);
+  background: #34343a;
 }
 
-/* --- Schede: scorrono in orizzontale se non ci stanno --- */
+.fermaglio {
+  position: absolute;
+  top: -48px;
+  right: 36px;
+  z-index: 20;
+  width: 64px;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 4px rgb(0 0 0 / 0.35));
+}
 
-.schede {
+/* --- Fogli --- */
+
+.foglio {
+  --riposo: translate(var(--dx), var(--dy)) rotate(var(--angolo));
+  --davanti: translate(0, 0) rotate(-0.6deg);
+  position: absolute;
+  inset: 0;
+  z-index: var(--strato);
+  transform: var(--riposo);
+  filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.35));
+}
+
+.attivo {
+  z-index: 10;
+  transform: var(--davanti);
+  animation: sfila 0.7s cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+/* Il foglio che era davanti: sopra gli altri finché rientra */
+.uscente {
+  z-index: 9;
+  animation: rientra 0.7s cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+/* --- Carta: immagini disegnate in Photoshop, a 9 fette ---
+   border-image divide l'immagine con quattro linee a --fetta px dai
+   bordi (misure dell'IMMAGINE, che è a doppia risoluzione):
+   - angoli copiati identici, bordi allungati solo per il lungo,
+     centro allungato (grana uniforme: non si nota)
+   - "fill": mostra anche il centro, non solo la cornice
+   - --spessore: larghezza della fascia sullo schermo (metà della
+     fetta, perché l'immagine è al doppio della risoluzione)
+   Il testo sta dentro la fascia: border trasparente + padding. */
+.carta {
+  --fetta: 60 60 60 60; /* alto destra basso sinistra (px dell'immagine) */
+  --spessore: 30px 30px 30px 30px; /* le stesse fasce sullo schermo */
   display: flex;
-  gap: 4px;
-  padding: 0 20px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  flex-direction: column;
+  height: 100%;
+  border-style: solid;
+  border-color: transparent;
+  border-width: var(--spessore);
+  border-image-source: var(--immagine);
+  border-image-slice: var(--fetta) fill;
+  border-image-width: var(--spessore);
+  border-image-repeat: stretch;
+  padding: 6px 4px 0;
+  color: var(--inchiostro);
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.6;
+  .carta {
+    box-sizing: border-box; /* height: 100% INCLUDE bordi (le fasce) e padding */
+    /* ...tutto il resto come prima... */
+  }
 }
 
-.scheda {
-  flex: none;
-  padding: 12px 12px 10px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: none;
-  color: inherit;
+/* Ogni carta: la sua immagine e il colore della sua linguetta
+   (prendilo con il contagocce dal disegno) */
+/* Foglio "Chi sono" (carta millimetrata): la fascia sinistra contiene
+   la colonna tecnica (RATING, DR. BY, ASSIGNMENT), quella alta
+   l'intestazione: il testo resta a destra e sotto.
+   Valori = guide di Photoshop (px dell'immagine 1000 × 1300). */
+.cartaPanna {
+  --immagine: url("/images/profilo/fogli/panna.webp");
+  --colore-linguetta: #f3ead9;
+  --fetta: 43 19 36 121; /* alto destra basso sinistra */
+  --spessore: 21.5px 9.5px 18px 60.5px;
+  padding: 10px 14px 0 16px; /* il testo non tocca le linee della cornice */
+}
+
+/* Quaderno: fascia sinistra più larga per i fori (guida a 120 px) */
+.cartaQuaderno {
+  --immagine: url("/images/profilo/fogli/quaderno.webp");
+  --colore-linguetta: #dcd8bb;
+  --fetta: 60 60 60 120;
+  --spessore: 30px 30px 30px 60px;
+}
+
+/* Cartoncino: i bordi strappati sono profondi, quindi le fasce sono
+   larghe. Valori = margini delle guide in Photoshop, in px dell'immagine
+   (alto 234, destra 146, basso 207, sinistra 121); sullo schermo sono
+   la metà, perché l'immagine è al doppio della risoluzione.
+   Il testo resta dentro il rettangolo delle guide. */
+.cartaCartoncino {
+  --immagine: url("/images/profilo/fogli/cartoncino.webp");
+  --colore-linguetta: #c49a6c;
+  --fetta: 234 146 207 121; /* alto destra basso sinistra */
+  --spessore: 117px 73px 103.5px 60.5px;
+  padding: 0; /* il bordo è già il margine */
+}
+
+.cartaKraft {
+  --immagine: url("/images/profilo/fogli/kraft.webp");
+  --colore-linguetta: #cdb48e;
+  --fetta: 60 60 60 120; /* fori a sinistra: fascia larga */
+  --spessore: 30px 30px 30px 60px;
+}
+
+/* --- Contenuto del foglio --- */
+
+.testataFoglio {
+  margin-bottom: 18px;
+}
+
+.nome {
+  margin: 0;
+  font-family: "Courier Prime", "Courier New", monospace;
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 700;
+}
+
+.ruolo {
+  margin: 2px 0 14px;
+  color: var(--rosso);
   font-size: 14px;
-  opacity: 0.6;
-  cursor: pointer;
 }
 
-.scheda:hover {
-  opacity: 0.9;
+.titoloFoglio {
+  margin: 0;
+  font-family: "Courier Prime", "Courier New", monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
 }
 
-.scheda:focus-visible {
-  outline: 2px solid var(--rosso);
-  outline-offset: -4px;
-  border-radius: 6px;
-}
-
-.attiva {
+/* Titolo del foglio del quaderno: scritto a penna */
+.cartaQuaderno .titoloFoglio {
+  font-family: "Caveat", cursive;
+  font-size: 26px;
+  letter-spacing: 0;
+  text-transform: none;
   opacity: 1;
-  border-bottom-color: var(--rosso);
 }
 
-/* --- Contenuto e piede --- */
+.cartaPanna .titoloFoglio {
+  color: #b23a2c;
+  font-size: 40px;
+  margin-bottom: 110px;
+}
 
+/* Il testo scorre dentro il foglio se è lungo */
 .contenuto {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden; /* niente scorrimento orizzontale */
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 24px;
-  animation: dissolvenza 0.25s ease-out;
+  padding: 0 6px 28px 0; /* in fondo: l'ultima riga esce dalla dissolvenza */
+  scrollbar-width: none; /* barra nascosta (Firefox, Chrome recenti) */
+  /* Dissolvenza in fondo: il testo che continua "sfuma" nella carta */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - 28px),
+    transparent
+  );
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
 }
 
+/* Barra nascosta anche in Safari */
+.contenuto::-webkit-scrollbar {
+  display: none;
+}
 .contenuto:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 2px rgb(255 107 90 / 0.5);
+  outline: 2px dashed rgb(43 42 39 / 0.4);
+  outline-offset: 4px;
 }
 
-.piede {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 12px 16px;
-  border-top: 1px solid rgb(255 255 255 / 0.08);
+.cartaPanna .contenuto {
+  font-weight: 700;
 }
 
-.passo {
-  padding: 8px 12px;
+/* --- Linguette (schede) --- */
+
+.linguette {
+  position: absolute;
+  z-index: 15;
+}
+
+/* Le linguette hanno anche la classe della carta, ma usano solo
+   --colore-linguetta: il border-image della carta qui non c'è */
+.linguetta {
+  position: absolute;
   border: none;
-  border-radius: 999px;
-  background: none;
-  color: inherit;
+  background: var(--colore-linguetta, #e9e2d0);
+  color: var(--inchiostro);
+  font-family: "Courier Prime", "Courier New", monospace;
   font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   opacity: 0.75;
   cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
 }
 
-.passo:hover,
-.passo:focus-visible {
+.linguetta:hover,
+.linguettaAttiva {
   opacity: 1;
-  background: rgb(255 255 255 / 0.06);
 }
 
-.indicatore {
-  font-size: 12px;
-  opacity: 0.5;
-  font-variant-numeric: tabular-nums;
+.linguetta:focus-visible {
+  outline: 2px solid #f2f0ee;
+  outline-offset: 2px;
 }
 
-/* --- Sezioni --- */
+/* --- Sezioni (inchiostro su carta) --- */
 
 .testo {
   margin: 0 0 12px;
   font-size: 15px;
 }
 
-/* Percorso: linea verticale con un punto per tappa */
 .lineaTempo {
   margin: 0;
   padding: 0 0 0 18px;
   list-style: none;
-  border-left: 1px solid rgb(255 255 255 / 0.15);
+  border-left: 1px solid rgb(43 42 39 / 0.3);
 }
 
 .tappa {
@@ -229,21 +335,21 @@
   content: "";
   position: absolute;
   left: -23px;
-  top: 6px;
+  top: 7px;
   width: 9px;
   height: 9px;
   border-radius: 50%;
   background: var(--rosso);
-  box-shadow: 0 0 8px var(--rosso);
 }
 
 .periodo {
-  font-size: 12px;
-  opacity: 0.6;
+  font-family: "Courier Prime", "Courier New", monospace;
+  font-size: 13px;
+  opacity: 0.7;
 }
 
 .ruoloTappa {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .luogo {
@@ -251,15 +357,14 @@
   opacity: 0.8;
 }
 
-/* Competenze: etichette */
 .gruppo {
   margin-bottom: 18px;
 }
 
 .titoloGruppo {
   margin: 0 0 8px;
+  font-family: "Courier Prime", "Courier New", monospace;
   font-size: 14px;
-  font-weight: 600;
 }
 
 .etichette {
@@ -272,13 +377,12 @@
 }
 
 .etichetta {
-  padding: 4px 10px;
-  border: 1px solid rgb(255 255 255 / 0.14);
+  padding: 3px 10px;
+  border: 1px solid rgb(43 42 39 / 0.4);
   border-radius: 999px;
   font-size: 13px;
 }
 
-/* Contatti */
 .contatti {
   display: grid;
   gap: 10px;
@@ -299,67 +403,295 @@
 .contatto:hover span:last-child,
 .contatto:focus-visible span:last-child {
   color: var(--rosso);
+  text-decoration: underline;
 }
 
 .etichettaContatto {
-  opacity: 0.6;
-  font-size: 14px;
+  font-family: "Courier Prime", "Courier New", monospace;
+  font-size: 13px;
+  opacity: 0.7;
 }
 
+/* Pulsante del CV: il biglietto attaccato con lo scotch (immagine a
+   parte, il testo lo scrive il sito). Leggermente storto, come
+   attaccato a mano; al passaggio del mouse si "solleva" un poco. */
+
 .cv {
-  display: inline-block;
-  padding: 10px 18px;
-  border: 1px solid var(--rosso);
-  border-radius: 999px;
-  color: var(--rosso);
-  text-decoration: none;
+  display: grid;
+  place-items: center;
+  width: 220px;
+  aspect-ratio: 640 / 300; /* proporzioni dell'immagine */
+  margin-top: 300px;
+  padding: 0 28px;
+  background: url("/images/profilo/fogli/nota.webp") center / contain no-repeat;
+  color: var(--inchiostro);
+  font-family: "Courier Prime", "Courier New", monospace;
   font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  transform: rotate(-3deg);
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
 }
 
 .cv:hover,
 .cv:focus-visible {
-  background: var(--rosso);
-  color: #1b1b1d;
+  transform: rotate(-1.5deg) translateY(-2px) scale(1.03);
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.25));
+}
+
+.cv:focus-visible {
+  outline: 2px dashed var(--inchiostro);
+  outline-offset: 4px;
+}
+
+/* Post-it del primo foglio: immagine a parte (con lo scotch), nome e
+   ruolo scritti dal sito. Flottante a destra: il testo del foglio gli
+   gira intorno a sinistra e non ci passa mai sopra.
+   --padding-postit: dove si scrive, cioè la parte gialla sotto lo scotch
+   (alto destra basso sinistra, in % della LARGHEZZA del post-it: così
+   la zona di scrittura resta la stessa a qualsiasi dimensione). */
+.postit {
+  --padding-postit: 18% 8% 8% 0%;
+  float: right;
+  width: min(200px, 46%);
+  aspect-ratio: 520 / 554; /* = misure di postit.png */
+  margin: 0 0 10px 16px;
+  padding: var(--padding-postit);
+  background: url("/images/profilo/fogli/postit.webp") center / contain
+    no-repeat;
+  transform: rotate(3deg);
+}
+
+/* Sul post-it nome e ruolo sono "scritti a pennarello" */
+.postit .nome {
+  font-family: "Caveat", cursive;
+  font-size: clamp(26px, 3vw, 32px);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.postit .ruolo {
+  margin: 8px 0 0;
+  font-family: "Caveat", cursive;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.1;
 }
 
 /* --- Dimensioni e posizione (in fondo: vincono sulle regole sopra) --- */
 
-/* Largo: finestra a destra, la parte sinistra resta per la foto.
-   = LARGHEZZA_MODALE_PX / _VW e MARGINE_DESTRO in config/profilo.ts */
+/* Largo: foto e fascicolo in riga a destra; linguette sul lato destro.
+   = LARGHEZZA_MODALE_PX / _VW, SPORGENZA_LINGUETTE_PX, MARGINE_DESTRO */
 @media (min-width: 900px) {
   .sfondo {
+    display: flex;
     align-items: center;
-    justify-items: end;
-    padding-right: clamp(16px, 5vw, 80px);
+    justify-content: flex-end;
+    gap: 40px;
+    padding-right: calc(clamp(16px, 5vw, 80px) + 40px);
+    justify-content: center;
   }
 
-  .finestra {
-    width: min(560px, 48vw);
-    max-height: min(80vh, 760px);
+  /* Proporzioni fisse dei fogli (1000 × 1300): solo l'altezza decide,
+     la larghezza segue. = ALTEZZA_MODALE_VH / _PX in config/profilo.ts */
+  .fascicolo {
+    height: min(76vh, 660px);
+    aspect-ratio: 1000 / 1300;
+  }
+
+  .foto {
+    height: min(60vh, 520px);
+  }
+
+  .linguette {
+    top: 56px;
+    right: -40px;
+  }
+
+  /* Linguette in colonna, testo verticale */
+  .linguetta {
+    top: calc(var(--posizione) * 104px);
+    left: 0;
+    width: 40px;
+    height: 96px;
+    border-radius: 0 8px 8px 0;
+    writing-mode: vertical-rl;
+  }
+
+  .linguetta:hover,
+  .linguettaAttiva {
+    transform: translateX(4px);
   }
 }
 
-/* Stretto: foglio in basso, la foto resta visibile in alto.
-   = ALTEZZA_FOGLIO in config/profilo.ts.
-   z-index sopra i controlli audio e "←": coprirebbero il piede del
-   foglio (il pulsante "successiva"); la × chiude comunque. */
+/* Stretto: foto sopra, fascicolo in basso; linguette sopra il fascicolo.
+   = ALTEZZA_FOGLIO (fascicolo + linguette + spazi) */
 @media (max-width: 899px) {
   .sfondo {
     z-index: 12;
-    align-items: end;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 44px; /* spazio per le linguette */
     padding: 10px;
     padding-bottom: calc(10px + env(safe-area-inset-bottom));
   }
 
-  .finestra {
-    width: 100%;
-    height: 62vh;
+  /* Telefono: il più alto possibile entro il 58% dello schermo, ma
+     senza superare la larghezza disponibile (che, × 1.3, dà l'altezza) */
+  .fascicolo {
+    height: min(58vh, calc((100vw - 36px) * 1.3));
+    aspect-ratio: 1000 / 1300;
+  }
+
+  .foto {
+    height: calc(42vh - 96px);
+  }
+
+  .linguette {
+    top: -34px;
+    left: 24px;
+    right: 24px;
+    height: 34px;
+  }
+
+  /* Linguette in riga sopra il fascicolo */
+  .linguetta {
+    top: 0;
+    left: calc(var(--posizione) * 25%);
+    width: calc(25% - 4px);
+    height: 34px;
+    padding: 0 4px;
+    border-radius: 8px 8px 0 0;
+    font-size: 11px;
+  }
+
+  .linguetta:hover,
+  .linguettaAttiva {
+    transform: translateY(-4px);
+  }
+
+  /* Fasce più sottili: più spazio per il testo (i bordi si
+     rimpiccioliscono, ma restano proporzionati) */
+  .cartaCartoncino {
+    --spessore: 88px 55px 78px 45px;
+  }
+
+  .postit {
+    --padding-postit: 12% 8% 0% 0%;
+    float: right;
+    width: min(200px, 46%);
+    aspect-ratio: 520 / 554; /* = misure di postit.png */
+    margin: 0 0 10px 16px;
+    padding: var(--padding-postit);
+    background: url("/images/profilo/fogli/postit.webp") center / contain
+      no-repeat;
+    transform: rotate(3deg);
+  }
+
+  .postit .nome {
+    font-size: 24px;
+  }
+
+  .postit .ruolo {
+    font-size: 15px;
+  }
+
+  .cartaPanna .titoloFoglio {
+    margin-bottom: 0;
+    width: 40%;
+    font-size: 30px;
+  }
+
+  /* "Chi sono" su telefono: post-it e titolo fissi, scorre solo il testo.
+     .contenuto diventa una colonna che NON scorre; la testata sta in alto
+     (titolo a sinistra, post-it a destra) e .testoScorrevole prende lo
+     spazio rimasto ed è l'unica area con lo scorrimento.
+     La dissolvenza in fondo passa dal contenitore al testo, così non
+     sfuma la testata. */
+  [data-foglio="chi-sono"] .contenuto {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  [data-foglio="chi-sono"] .testataFoglio {
+    flex: none;
+    display: flex;
+    flex-direction: row-reverse; /* nel codice il post-it viene prima: qui va a destra */
+    align-items: center;
+    justify-content: space-between;
+    /* gap: 12px; */
+    margin-bottom: 40px;
+  }
+
+  [data-foglio="chi-sono"] .postit {
+    float: none;
+    margin: 0;
+  }
+
+  [data-foglio="chi-sono"] .testoScorrevole {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 28px;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      #000 calc(100% - 28px),
+      transparent
+    );
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+  }
+
+  [data-foglio="chi-sono"] .testoScorrevole::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cv {
+    margin-top: 0;
   }
 }
 
 /* --- Animazioni --- */
 
-/* Sfocatura e oscuramento entrano insieme, partendo dalla stanza nitida */
+/* Si sfila dalla pila verso destra, poi torna sopra a tutti.
+   var(--riposo) è diverso per ogni foglio: la stessa animazione porta
+   ognuno al suo posto */
+@keyframes sfila {
+  0% {
+    transform: var(--riposo);
+  }
+  50% {
+    transform: translate(62%, -3%) rotate(6deg);
+  }
+  100% {
+    transform: var(--davanti);
+  }
+}
+
+/* Torna al suo posto nella pila, con un piccolo "abbassamento" */
+@keyframes rientra {
+  0% {
+    transform: var(--davanti);
+  }
+  50% {
+    transform: translate(-2%, 1%) rotate(-1deg) scale(0.98);
+  }
+  100% {
+    transform: var(--riposo);
+  }
+}
+
 @keyframes sfocatura {
   from {
     background: rgb(10 10 14 / 0);
@@ -371,19 +703,10 @@
   }
 }
 
-@keyframes dissolvenza {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @keyframes entrata {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.98);
+    transform: translateY(24px) rotate(2deg);
   }
   to {
     opacity: 1;
@@ -393,8 +716,49 @@
 
 @media (prefers-reduced-motion: reduce) {
   .velo,
-  .finestra,
-  .contenuto {
+  .fascicolo,
+  .attivo,
+  .uscente {
     animation: none;
   }
+}
+
+/* --- Fogli a righe ---
+   Le righe sono disegnate dal CSS con la stessa misura dell'interlinea
+   (--riga): ogni riga di testo appoggia su una riga del quaderno.
+   background-attachment: local → le righe scorrono insieme al testo.
+   --scarto-righe: sposta le righe in su o in giù di qualche pixel per
+   farle combaciare con la base delle lettere. */
+.aRighe .contenuto {
+  --riga: 30px;
+  --colore-riga: rgb(120 130 110 / 0.35);
+  --scarto-righe: 0px;
+  line-height: var(--riga);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(var(--riga) - 1px),
+    var(--colore-riga) calc(var(--riga) - 1px) var(--riga)
+  );
+  background-position: 0 var(--scarto-righe);
+  background-attachment: local;
+}
+
+/* Nei fogli a righe ogni blocco occupa righe intere: niente margini
+   "a metà riga" che sfaserebbero il testo */
+.aRighe .testataFoglio,
+.aRighe .testo,
+.aRighe .contatti {
+  margin: 0 0 var(--riga);
+}
+
+.aRighe .titoloFoglio,
+.aRighe .nome,
+.aRighe .ruolo,
+.aRighe .contatto {
+  line-height: var(--riga);
+  margin: 0;
+}
+
+.aRighe .contatti {
+  gap: 0; /* una voce per riga */
 }

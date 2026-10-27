@@ -25,11 +25,13 @@ import {
 } from "../../config/camera"
 import {
   ALTEZZA_FOGLIO,
-  LARGHEZZA_MODALE_PX,
-  LARGHEZZA_MODALE_VW,
+  ALTEZZA_MODALE_PX,
+  ALTEZZA_MODALE_VH,
   MARGINE_DESTRO,
   MEDIA_LATERALE,
   POSIZIONE_FOTO,
+  PROPORZIONI_FOGLI,
+  SPORGENZA_LINGUETTE_PX,
   VERSO_SPOSTAMENTO,
 } from "../../config/profilo"
 
@@ -83,16 +85,18 @@ export function liberaLimiti(controlli: CameraControls) {
    (finestra + margine destro), con le stesse regole del CSS */
 function frazioneModale() {
   const larghezza = window.innerWidth
-  const finestra = Math.min(
-    LARGHEZZA_MODALE_PX,
-    LARGHEZZA_MODALE_VW * larghezza,
+  // Larghezza del fascicolo = sua altezza × proporzioni dei fogli
+  const altezzaFascicolo = Math.min(
+    ALTEZZA_MODALE_PX,
+    ALTEZZA_MODALE_VH * window.innerHeight,
   )
+  const finestra = altezzaFascicolo * PROPORZIONI_FOGLI
   const margine = THREE.MathUtils.clamp(
     MARGINE_DESTRO.vw * larghezza,
     MARGINE_DESTRO.minimo,
     MARGINE_DESTRO.massimo,
   )
-  return (finestra + margine) / larghezza
+  return (finestra + SPORGENZA_LINGUETTE_PX + margine) / larghezza
 }
 
 /* Camera di prova, riutilizzata: serve solo a proiettare un punto */

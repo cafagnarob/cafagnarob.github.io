@@ -19,6 +19,7 @@ import {
 } from "../../materials/materialeBake"
 import {
   creaMaterialeBraccio,
+  creaMaterialeSchermoPc,
   creaMaterialeVinile,
   creaMaterialiSpeciali,
 } from "./materialiSpeciali"
@@ -29,6 +30,10 @@ import { NOMI, VISTA_DI } from "./nomiStanza"
 import { chiaveNeon } from "./textureStanza"
 import { registraLuminoso } from "../scena/oggettiLuminosi"
 import { preparaPioggia } from "./pioggiaVetro"
+import { uvSulPiano } from "../../utils/uvSulPiano"
+import { analizzaPiano } from "../../utils/piano"
+import { ASPETTO_SFONDO_PC, VUOTO_VISTA_PC } from "../../config/schermoPc"
+import { nomeGltf } from "../../utils/nomiGltf"
 
 export type MaterialiAnimati = {
   insegna: THREE.MeshBasicMaterial
@@ -40,6 +45,7 @@ export type MaterialiAnimati = {
 export function assegnaMaterialiStanza(
   scena: THREE.Object3D,
   texture: Record<string, THREE.Texture>,
+  sfondoPc: THREE.Texture,
 ): MaterialiAnimati {
   Object.values(texture).forEach(preparaTextureBake)
   const speciali = creaMaterialiSpeciali(texture.citta)
@@ -82,7 +88,19 @@ export function assegnaMaterialiStanza(
       oggetto.material = speciali.neon
       registraLuminoso(oggetto)
     } else if (nome === NOMI.citta) oggetto.material = speciali.citta
-    else if (NOMI.schermi.includes(nome)) oggetto.material = speciali.schermo
+    else if (nome === NOMI.schermoPc) {
+      // Faccia davanti del monitor: quella rivolta verso la vista PC
+      const vuoto = scena.getObjectByName(nomeGltf(VUOTO_VISTA_PC))
+      if (vuoto) {
+        const punto = vuoto.getWorldPosition(new THREE.Vector3())
+        // UV "cover": lo sfondo 16:10 copre il monitor senza deformarsi
+        uvSulPiano(oggetto, analizzaPiano(oggetto, punto), ASPETTO_SFONDO_PC)
+        oggetto.material = creaMaterialeSchermoPc(sfondoPc)
+      } else {
+        console.warn(`Schermo PC: empty "${VUOTO_VISTA_PC}" non trovato`)
+        oggetto.material = speciali.schermo
+      }
+    } else if (NOMI.schermi.includes(nome)) oggetto.material = speciali.schermo
     else if (nome === NOMI.braccio) oggetto.material = creaMaterialeBraccio()
     else if (nome === NOMI.vinile) {
       proiettaUvDallAlto(oggetto.geometry)

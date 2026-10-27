@@ -1,21 +1,31 @@
 /*
- * Modale del profilo
- * Si apre nella vista del letto (VISTA_PROFILO): sfondo semitrasparente
- * sopra la stanza e una finestra con le sezioni del profilo a schede.
+ * Modale del profilo: un fascicolo di fogli
+ * Si apre nella vista del letto, quando la camera è arrivata
+ * (vistaRaggiunta). Ogni sezione è un foglio disegnato in Photoshop;
+ * le linguette (schede) sul bordo scelgono il foglio.
  *
- * - ModaleProfilo monta la finestra SOLO quando è aperta: a ogni
- *   apertura riparte dalla prima sezione e autoFocus porta il focus
- *   sulle schede, senza useEffect.
- * - Schede accessibili (role tablist / tab / tabpanel): ← → per passare
- *   da una sezione all'altra, Home / Fine per la prima e l'ultima.
- *   Solo la scheda attiva è raggiungibile con il Tab (tabIndex 0);
- *   le frecce spostano il focus tra le altre.
- * - Si chiude con la ×, il clic sullo sfondo, Esc e "←": tutti chiamano
- *   esci(), che riporta anche la camera alla panoramica.
- * - key={attiva} sul contenuto: cambiando sezione lo scorrimento
- *   riparte dall'alto.
+ * - Cambio sezione: il foglio scelto si "sfila" dalla pila e torna
+ *   davanti (classe attivo → animazione sfila); quello che era davanti
+ *   rientra nella pila (classe uscente → animazione rientra). Per questo
+ *   si ricordano due indici: attivo e precedente.
+ * - A riposo ogni foglio ha la sua posizione e rotazione (--dx, --dy,
+ *   --angolo): la pila "disordinata" come su una scrivania.
+ * - Schede accessibili (tablist / tab / tabpanel): frecce per cambiare
+ *   foglio, Home / Fine. I fogli non attivi sono "inert": il loro
+ *   contenuto non si raggiunge con il Tab.
+ * - Monta solo quando è aperto: riparte dal primo foglio e autoFocus
+ *   porta il focus sulla prima linguetta, senza useEffect.
+ * - La foto esce dal portafoto e si affianca al fascicolo
+ *   (FotoInPrimoPiano); dietro, il velo sfoca tutta la stanza.
+ * - Si chiude con la ×, il clic sullo sfondo, Esc e "←".
  */
-import { useRef, useState, type KeyboardEvent } from "react"
+import {
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react"
 import { useAppDispatch, useAppSelector } from "../../../store/hooks"
 import { esci } from "../../../store/azioniScena"
 import { VISTA_PROFILO } from "../../../config/profilo"
@@ -24,28 +34,46 @@ import { SezioneChiSono } from "./SezioneChiSono"
 import { SezionePercorso } from "./SezionePercorso"
 import { SezioneCompetenze } from "./SezioneCompetenze"
 import { SezioneContatti } from "./SezioneContatti"
+import { FotoInPrimoPiano } from "./FotoInPrimoPiano"
+import { Fermaglio } from "./Fermaglio"
 import stili from "./ModaleProfilo.module.css"
 
-/* Le sezioni, nell'ordine delle schede */
-const SEZIONI = [
+type Foglio = {
+  id: string
+  etichetta: string
+  carta: string // classe CSS: immagine del foglio e colore della linguetta
+  riposo: { dx: number; dy: number; angolo: number } // posizione nella pila
+  contenuto: () => ReactNode
+}
+
+/* I fogli, dall'alto della pila verso il basso */
+const FOGLI: Foglio[] = [
   {
     id: "chi-sono",
     etichetta: "Chi sono",
+    carta: stili.cartaPanna,
+    riposo: { dx: 0, dy: 0, angolo: -1 },
     contenuto: () => <SezioneChiSono paragrafi={PROFILO.chiSono} />,
   },
   {
     id: "percorso",
     etichetta: "Percorso",
+    carta: stili.cartaQuaderno,
+    riposo: { dx: -14, dy: -10, angolo: 2 },
     contenuto: () => <SezionePercorso tappe={PROFILO.percorso} />,
   },
   {
     id: "competenze",
     etichetta: "Competenze",
+    carta: stili.cartaCartoncino,
+    riposo: { dx: 12, dy: 12, angolo: -3 },
     contenuto: () => <SezioneCompetenze gruppi={PROFILO.competenze} />,
   },
   {
     id: "contatti",
     etichetta: "Contatti",
+    carta: `${stili.cartaKraft} ${stili.aRighe}`,
+    riposo: { dx: -6, dy: 18, angolo: 1.5 },
     contenuto: () => (
       <SezioneContatti contatti={PROFILO.contatti} cv={PROFILO.cv} />
     ),
@@ -59,27 +87,36 @@ export function ModaleProfilo() {
       s.scena.vista === VISTA_PROFILO &&
       s.scena.vistaRaggiunta,
   )
-  return aperto ? <FinestraProfilo /> : null
+  return aperto ? <Fascicolo /> : null
 }
 
-function FinestraProfilo() {
+function Fascicolo() {
   const dispatch = useAppDispatch()
-  const [attiva, setAttiva] = useState(0)
-  const schede = useRef<(HTMLButtonElement | null)[]>([])
+  const [fogli, setFogli] = useState<{
+    attivo: number
+    precedente: number | null
+  }>({
+    attivo: 0,
+    precedente: null,
+  })
+  const linguette = useRef<(HTMLButtonElement | null)[]>([])
 
-  /* Va alla sezione i (in cerchio: dopo l'ultima torna la prima) */
-  const vaiASezione = (i: number, spostaFocus = true) => {
-    const indice = (i + SEZIONI.length) % SEZIONI.length
-    setAttiva(indice)
-    if (spostaFocus) schede.current[indice]?.focus()
+  /* Porta davanti il foglio i (in cerchio); quello attuale rientra */
+  const vaiAFoglio = (i: number, spostaFocus = true) => {
+    const indice = (i + FOGLI.length) % FOGLI.length
+    if (indice !== fogli.attivo)
+      setFogli({ attivo: indice, precedente: fogli.attivo })
+    if (spostaFocus) linguette.current[indice]?.focus()
   }
 
-  const tastiSchede = (e: KeyboardEvent) => {
+  const tastiLinguette = (e: KeyboardEvent) => {
     const azioni: Record<string, () => void> = {
-      ArrowRight: () => vaiASezione(attiva + 1),
-      ArrowLeft: () => vaiASezione(attiva - 1),
-      Home: () => vaiASezione(0),
-      End: () => vaiASezione(SEZIONI.length - 1),
+      ArrowRight: () => vaiAFoglio(fogli.attivo + 1),
+      ArrowDown: () => vaiAFoglio(fogli.attivo + 1),
+      ArrowLeft: () => vaiAFoglio(fogli.attivo - 1),
+      ArrowUp: () => vaiAFoglio(fogli.attivo - 1),
+      Home: () => vaiAFoglio(0),
+      End: () => vaiAFoglio(FOGLI.length - 1),
     }
     const azione = azioni[e.key]
     if (azione) {
@@ -88,95 +125,107 @@ function FinestraProfilo() {
     }
   }
 
-  const sezione = SEZIONI[attiva]
-
   return (
     <div className={stili.sfondo} onClick={() => dispatch(esci())}>
-      {/* Velo: sfoca e scurisce la stanza, tranne la foto. Separato dalla
-          finestra, così la maschera non può "bucare" anche lei */}
       <div className={stili.velo} aria-hidden="true" />
+      <FotoInPrimoPiano />
+
       <div
-        className={stili.finestra}
+        className={stili.fascicolo}
         role="dialog"
         aria-modal="true"
         aria-labelledby="profilo-nome"
         onClick={(e) => e.stopPropagation()} // un clic dentro non chiude
       >
-        <header className={stili.intestazione}>
-          <div>
-            <h2 id="profilo-nome" className={stili.nome}>
-              {PROFILO.nome}
-            </h2>
-            <p className={stili.ruolo}>{PROFILO.ruolo}</p>
-          </div>
-          <button
-            type="button"
-            className={stili.chiudi}
-            aria-label="Chiudi il profilo"
-            onClick={() => dispatch(esci())}
-          >
-            ×
-          </button>
-        </header>
+        <h2 id="profilo-nome" className={stili.nascosto}>
+          Profilo di {PROFILO.nome}
+        </h2>
 
+        <button
+          type="button"
+          className={stili.chiudi}
+          aria-label="Chiudi il profilo"
+          onClick={() => dispatch(esci())}
+        >
+          ×
+        </button>
+
+        {/* Linguette: le schede, sul bordo del fascicolo */}
         <div
-          className={stili.schede}
+          className={stili.linguette}
           role="tablist"
           aria-label="Sezioni del profilo"
-          onKeyDown={tastiSchede}
+          aria-orientation="vertical"
+          onKeyDown={tastiLinguette}
         >
-          {SEZIONI.map(({ id, etichetta }, i) => (
+          {FOGLI.map(({ id, etichetta, carta }, i) => (
             <button
               key={id}
               ref={(elemento) => {
-                schede.current[i] = elemento
+                linguette.current[i] = elemento
               }}
               type="button"
               role="tab"
-              id={`scheda-${id}`}
-              aria-selected={i === attiva}
-              aria-controls={`pannello-${id}`}
-              tabIndex={i === attiva ? 0 : -1}
+              id={`linguetta-${id}`}
+              aria-selected={i === fogli.attivo}
+              aria-controls={`foglio-${id}`}
+              tabIndex={i === fogli.attivo ? 0 : -1}
               autoFocus={i === 0}
-              className={`${stili.scheda} ${i === attiva ? stili.attiva : ""}`}
-              onClick={() => vaiASezione(i, false)}
+              className={`${stili.linguetta} ${carta} ${i === fogli.attivo ? stili.linguettaAttiva : ""}`}
+              style={{ "--posizione": i } as CSSProperties}
+              onClick={() => vaiAFoglio(i, false)}
             >
               {etichetta}
             </button>
           ))}
         </div>
 
-        <div
-          key={attiva}
-          className={stili.contenuto}
-          role="tabpanel"
-          id={`pannello-${sezione.id}`}
-          aria-labelledby={`scheda-${sezione.id}`}
-          tabIndex={0}
-        >
-          {sezione.contenuto()}
-        </div>
+        {/* La pila dei fogli */}
+        {FOGLI.map((foglio, i) => {
+          const attivo = i === fogli.attivo
+          const uscente = i === fogli.precedente
+          return (
+            <article
+              data-foglio={foglio.id}
+              key={foglio.id}
+              id={`foglio-${foglio.id}`}
+              role="tabpanel"
+              aria-labelledby={`linguetta-${foglio.id}`}
+              inert={!attivo}
+              className={`${stili.foglio} ${attivo ? stili.attivo : ""} ${uscente ? stili.uscente : ""}`}
+              style={
+                {
+                  "--dx": `${foglio.riposo.dx}px`,
+                  "--dy": `${foglio.riposo.dy}px`,
+                  "--angolo": `${foglio.riposo.angolo}deg`,
+                  "--strato": FOGLI.length - i,
+                } as CSSProperties
+              }
+            >
+              <div className={`${stili.carta} ${foglio.carta}`}>
+                {/* Testata e testo scorrono insieme (anche le righe del quaderno) */}
+                <div className={stili.contenuto} tabIndex={0}>
+                  <header className={stili.testataFoglio}>
+                    {/* Primo foglio: nome e ruolo scritti sul post-it */}
+                    {i === 0 && (
+                      <div className={stili.postit}>
+                        <p className={stili.nome}>{PROFILO.nome}</p>
+                        <p className={stili.ruolo}>{PROFILO.ruolo}</p>
+                      </div>
+                    )}
+                    <h3 className={stili.titoloFoglio}>{foglio.etichetta}</h3>
+                  </header>
+                  {/* Il testo: su telefono, in "Chi sono", è l'unica parte che scorre */}
+                  <div className={stili.testoScorrevole}>
+                    {foglio.contenuto()}
+                  </div>
+                </div>
+              </div>
+            </article>
+          )
+        })}
 
-        <footer className={stili.piede}>
-          <button
-            type="button"
-            className={stili.passo}
-            onClick={() => vaiASezione(attiva - 1, false)}
-          >
-            ←{" "}
-            {SEZIONI[(attiva - 1 + SEZIONI.length) % SEZIONI.length].etichetta}
-          </button>
-          <span className={stili.indicatore} aria-hidden="true">
-            {attiva + 1} / {SEZIONI.length}
-          </span>
-          <button
-            type="button"
-            className={stili.passo}
-            onClick={() => vaiASezione(attiva + 1, false)}
-          >
-            {SEZIONI[(attiva + 1) % SEZIONI.length].etichetta} →
-          </button>
-        </footer>
+        <Fermaglio className={stili.fermaglio} />
       </div>
     </div>
   )

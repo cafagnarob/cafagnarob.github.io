@@ -18,7 +18,6 @@ import { PulsanteIndietro } from "./components/interfaccia/PulsanteIndietro"
 import { InterfacciaSchermo } from "./components/interfaccia/InterfacciaSchermo"
 import { ControlliAudio } from "./components/interfaccia/ControlliAudio"
 import { Ingresso } from "./components/interfaccia/Ingresso"
-
 import { ModaleProfilo } from "./components/interfaccia/profilo/ModaleProfilo"
 
 export default function App() {

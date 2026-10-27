@@ -14,7 +14,7 @@
  * fumo_tazza resta un segnaposto per il fumo, più avanti.
  */
 import { useMemo } from "react"
-import { useGLTF } from "@react-three/drei"
+import { useGLTF, useTexture } from "@react-three/drei"
 import { PERCORSO_MODELLO_STANZA } from "../../config/stanza"
 import { registraVisteDaScena } from "../scena/viste"
 import { registraSchermi } from "../scena/schermi"
@@ -33,18 +33,22 @@ import {
 } from "../../utils/useTextureBake"
 import { PERCORSO_DRACO } from "../../config/texture"
 import { TracciaFoto } from "./TracciaFoto"
+import { FotoProfilo } from "./FotoProfilo"
+import { PERCORSO_SFONDO_PC } from "../../config/schermoPc"
 
 export function Stanza() {
   const { scene } = useGLTF(PERCORSO_MODELLO_STANZA, PERCORSO_DRACO)
 
   const texture = useTextureBake(URL_TEXTURE)
 
+  const sfondoPc = useTexture(PERCORSO_SFONDO_PC)
+
   const materiali = useMemo(() => {
-    const animati = assegnaMaterialiStanza(scene, texture)
+    const animati = assegnaMaterialiStanza(scene, texture, sfondoPc)
     registraVisteDaScena(scene)
     registraSchermi(scene)
     return animati
-  }, [scene, texture])
+  }, [scene, texture, sfondoPc])
 
   const { sottoMouse, gestori } = useInterazioniStanza()
   useLuciStanza(materiali, sottoMouse)
@@ -58,9 +62,12 @@ export function Stanza() {
       <FuoriFinestra />
       <Fumo />
       <TracciaFoto />
+
+      <FotoProfilo />
     </>
   )
 }
 
 useGLTF.preload(PERCORSO_MODELLO_STANZA, PERCORSO_DRACO)
 precaricaTextureBake(URL_TEXTURE)
+useTexture.preload(PERCORSO_SFONDO_PC)
