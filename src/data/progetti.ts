@@ -31,6 +31,12 @@ export type Progetto = {
   colore: string
   indirizzo: string // indirizzo mostrato e digitato nel browser (senza https://)
   incorpora?: string // se c'è, il browser apre questo indirizzo in un iframe (giochi, demo) invece della pagina del progetto
+  /* README da mostrare come pagina del progetto (al posto di PaginaProgetto):
+     - url: il file README.md "grezzo" (raw.githubusercontent.com)
+     - base: cartella da cui risolvere i percorsi relativi delle immagini
+     - avvio: testo di un `codice in linea` del README da trasformare nel
+       pulsante che avvia il sito/gioco di "incorpora" */
+  readme?: { url: string; base: string; avvio?: string }
 }
 
 /* Percorsi delle immagini, ricavati dall'id: nessun percorso scritto a mano */
@@ -89,5 +95,10 @@ export const PROGETTI: Progetto[] = [
       codice: "https://github.com/cafagnarob/quiz_game",
     },
     colore: "#b3245c", // DA CONFERMARE: prendilo dall'icona
+    readme: {
+      url: "https://raw.githubusercontent.com/cafagnarob/quiz_game/main/README.md",
+      base: "https://raw.githubusercontent.com/cafagnarob/quiz_game/main/",
+      avvio: "▶ PRESS START TO FLIRT",
+    },
   },
 ]

@@ -4,7 +4,10 @@
  * 1. si apre sulla home di Sonda (motore di ricerca inventato)
  * 2. l'indirizzo del progetto si digita nella casella di ricerca
  * 3. invio: la barra di caricamento corre
- * 4. compare la pagina del progetto e la barra mostra l'indirizzo
+ * 4. compare il contenuto (contenutoDi) e la barra mostra l'indirizzo:
+ *    - README del progetto, con il pulsante che avvia il gioco
+ *    - oppure il sito vero in un iframe (incorpora)
+ *    - oppure la pagina del progetto
  *
  * La regia è tutta CSS: i tempi (tempi.ts) diventano variabili
  * (--inizio, --passo, --invio, --caricamento, --pagina) e ogni elemento
@@ -13,19 +16,43 @@
  * mette key={progetto.id}, così un altro progetto riparte da capo.
  *
  * Fasi: .prima (ricerca) sparisce a --pagina, .dopo (sito) compare.
- * - variante "finestra" (desktop): scheda, pulsanti, indirizzo in alto
+ * - variante "finestra" (desktop): schede, pulsanti, indirizzo in alto
  * - variante "telefono": a tutto schermo, indirizzo in basso come
  *   Safari, con "‹" per tornare alla home
  *
- * se il progetto ha link.codice: una seconda scheda (finestra) o un pulsante (telefono) apre il repository su GitHub in una nuova scheda. Non dentro il browser finto: GitHub vieta di essere mostrato in un iframe (X-Frame-Options)”.
+ * Se il progetto ha link.codice: una seconda scheda (finestra) o un
+ * pulsante (telefono) apre il repository su GitHub in una nuova scheda.
+ * Non dentro il browser finto: GitHub vieta di essere mostrato in un
+ * iframe (X-Frame-Options).
  */
-import type { CSSProperties } from "react"
+import { lazy, Suspense, type CSSProperties } from "react"
 import type { Progetto } from "../../../../../data/progetti"
 import { IconaProgetto } from "../IconaProgetto"
 import { PaginaProgetto } from "../PaginaProgetto"
+import { SitoIncorporato } from "../SitoIncorporato"
 import { HomeSonda } from "./HomeSonda"
 import { TEMPI, tempiDigitazione } from "./tempi"
 import stili from "./Browser.module.css"
+
+/* Caricata solo al primo progetto con README: le librerie del Markdown
+   restano fuori dal caricamento iniziale del sito */
+const PaginaReadme = lazy(() => import("../readme/PaginaReadme"))
+
+/* Cosa mostra il browser dopo il caricamento:
+   README (se c'è) → sito incorporato (se c'è) → pagina del progetto */
+function contenutoDi(progetto: Progetto) {
+  if (progetto.readme) {
+    return (
+      <Suspense fallback={null}>
+        <PaginaReadme progetto={progetto} />
+      </Suspense>
+    )
+  }
+  if (progetto.incorpora) {
+    return <SitoIncorporato src={progetto.incorpora} titolo={progetto.nome} />
+  }
+  return <PaginaProgetto progetto={progetto} />
+}
 
 type Props = {
   progetto: Progetto
@@ -51,7 +78,8 @@ export function Browser({ progetto, variante, onChiudi }: Props) {
     >
       {variante === "finestra" && (
         <header className={stili.titolo}>
-          <span className={stili.scheda}>
+          <span className={stili.schede}>
+            {/* Scheda del sito: Sonda → nome del progetto */}
             <span className={stili.scheda}>
               <span className={stili.strati}>
                 <span
@@ -71,6 +99,7 @@ export function Browser({ progetto, variante, onChiudi }: Props) {
               </span>
             </span>
 
+            {/* Scheda GitHub: si apre fuori, in una nuova scheda */}
             {progetto.link?.codice && (
               <a
                 className={`${stili.scheda} ${stili.schedaEsterna}`}
@@ -150,16 +179,7 @@ export function Browser({ progetto, variante, onChiudi }: Props) {
       <div className={stili.vista}>
         <HomeSonda testo={progetto.indirizzo} className={stili.prima} />
         <div className={`${stili.dopo} ${stili.pagina}`}>
-          {progetto.incorpora ? (
-            <iframe
-              className={stili.sito}
-              src={progetto.incorpora}
-              title={progetto.nome}
-              allow="autoplay; fullscreen"
-            />
-          ) : (
-            <PaginaProgetto progetto={progetto} />
-          )}
+          {contenutoDi(progetto)}
         </div>
       </div>
     </section>
