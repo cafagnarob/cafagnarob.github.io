@@ -1,0 +1,72 @@
+.barra {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  padding: 0 28px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.indicatori {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Segnale: quattro barrette di altezza crescente */
+.segnale {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 11px;
+}
+
+.segnale i {
+  width: 3px;
+  border-radius: 1px;
+  background: #fff;
+}
+
+.segnale i:nth-child(1) {
+  height: 30%;
+}
+.segnale i:nth-child(2) {
+  height: 55%;
+}
+.segnale i:nth-child(3) {
+  height: 80%;
+}
+.segnale i:nth-child(4) {
+  height: 100%;
+}
+
+/* Batteria: contorno, "polo" con ::after e carica all'80% */
+.batteria {
+  position: relative;
+  width: 22px;
+  height: 10px;
+  padding: 1px;
+  border: 1.5px solid rgb(255 255 255 / 0.5);
+  border-radius: 3px;
+}
+
+.batteria::after {
+  content: "";
+  position: absolute;
+  top: 2.5px;
+  right: -4px;
+  width: 2px;
+  height: 4px;
+  border-radius: 0 1px 1px 0;
+  background: rgb(255 255 255 / 0.5);
+}
+
+.batteria i {
+  display: block;
+  width: 80%;
+  height: 100%;
+  border-radius: 1px;
+  background: #fff;
+}

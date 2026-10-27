@@ -1,0 +1,25 @@
+/* safe-area: lascia spazio al notch e alla barra "home" dell'iPhone.
+   Funziona solo con viewport-fit=cover nel meta viewport di index.html */
+.home {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  background: #05060a url("/images/schermi/sfondo_telefono.webp") center / cover
+    no-repeat;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  user-select: none;
+}
+
+/* 4 colonne uguali; la griglia parte sotto la scritta dello sfondo */
+.griglia {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-content: start;
+  gap: 22px 10px;
+  margin: 0;
+  padding: max(16vh, 110px) 20px 24px;
+  list-style: none;
+}

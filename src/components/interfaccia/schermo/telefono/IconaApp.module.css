@@ -1,0 +1,40 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent; /* niente rettangolo grigio al tocco */
+}
+
+.immagine {
+  width: min(62px, 100%);
+  border-radius: 22.5%;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+  transition: transform 0.12s ease-out;
+}
+
+.app:active .immagine {
+  transform: scale(0.92);
+}
+
+.app:focus-visible .immagine {
+  outline: 2px solid rgb(255 255 255 / 0.8);
+  outline-offset: 3px;
+}
+
+/* Nome su una riga, con "…" se troppo lungo */
+.nome {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+}

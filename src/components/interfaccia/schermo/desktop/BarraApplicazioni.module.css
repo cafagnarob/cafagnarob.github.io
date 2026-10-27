@@ -1,0 +1,68 @@
+.barra {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  background: rgb(28 28 32 / 0.82);
+  backdrop-filter: blur(24px) saturate(1.4);
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.centro {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.start,
+.app {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+}
+
+/* Logo Start: quattro quadratini in griglia 2×2 */
+.start {
+  grid-template-columns: repeat(2, 9px);
+  place-content: center;
+  gap: 2px;
+}
+
+.start i {
+  width: 9px;
+  height: 9px;
+  border-radius: 1px;
+  background: linear-gradient(135deg, #5fc8ff, #1a7fe0);
+}
+
+.app {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.app:hover,
+.app:focus-visible {
+  outline: none;
+  background: rgb(255 255 255 / 0.08);
+}
+
+.iconaApp {
+  width: 24px;
+  border-radius: 5px;
+}
+
+.orologio {
+  position: absolute;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 12px;
+  line-height: 1.35;
+}

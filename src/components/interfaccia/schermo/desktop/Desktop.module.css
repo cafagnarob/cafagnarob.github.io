@@ -1,0 +1,39 @@
+/* Desktop: sfondo a tutta pagina, icone sopra, barra in fondo */
+.desktop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #05060a url("/images/schermi/sfondo_desktop.webp") center / cover
+    no-repeat;
+  color: #fff;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  user-select: none;
+}
+
+/* Griglia "a colonne": grid-auto-flow: column riempie dall'alto in
+   basso, poi passa alla colonna a destra (come Windows).
+   auto-fill crea tante righe quante ne stanno nell'altezza. */
+.icone {
+  --cella-alta: 100px;
+  --cella-larga: 84px;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, var(--cella-alta));
+  grid-auto-columns: var(--cella-larga);
+  align-content: start;
+  gap: 4px;
+  margin: 0;
+  padding: 10px 6px;
+  list-style: none;
+}
+
+/* Schermi grandi: icone un po' più grandi */
+@media (min-width: 1600px) {
+  .icone {
+    --cella-alta: 112px;
+    --cella-larga: 96px;
+  }
+}
