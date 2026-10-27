@@ -39,12 +39,13 @@ import stili from "./Browser.module.css"
 const PaginaReadme = lazy(() => import("../readme/PaginaReadme"))
 
 /* Cosa mostra il browser dopo il caricamento:
-   README (se c'è) → sito incorporato (se c'è) → pagina del progetto */
-function contenutoDi(progetto: Progetto) {
+   README (se c'è) → sito incorporato (se c'è) → pagina del progetto.
+   Sul telefono i giochi del README non si avviano (solo da computer). */
+function contenutoDi(progetto: Progetto, variante: Props["variante"]) {
   if (progetto.readme) {
     return (
       <Suspense fallback={null}>
-        <PaginaReadme progetto={progetto} />
+        <PaginaReadme progetto={progetto} giocabile={variante !== "telefono"} />
       </Suspense>
     )
   }
@@ -179,7 +180,7 @@ export function Browser({ progetto, variante, onChiudi }: Props) {
       <div className={stili.vista}>
         <HomeSonda testo={progetto.indirizzo} className={stili.prima} />
         <div className={`${stili.dopo} ${stili.pagina}`}>
-          {contenutoDi(progetto)}
+          {contenutoDi(progetto, variante)}
         </div>
       </div>
     </section>

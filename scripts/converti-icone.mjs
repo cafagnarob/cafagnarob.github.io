@@ -19,8 +19,11 @@ for (const id of await readdir(CARTELLA)) {
   }
   const webp = path.join(CARTELLA, id, "icona.webp")
   await sharp(png)
-    .resize(512, 512, { fit: "cover" })
-    .webp({ quality: 88 })
+    .resize(512, 512, {
+      fit: "contain", // tutto il disegno, centrato, senza ritagli
+      background: { r: 0, g: 0, b: 0, alpha: 0 }, // spazio vuoto trasparente
+    })
+    .webp({ quality: 88, alphaQuality: 100 }) // trasparenza senza perdite sui bordi
     .toFile(webp)
   console.log(`✔ ${id}: icona.webp`)
 }

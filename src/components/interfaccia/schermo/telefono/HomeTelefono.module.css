@@ -13,13 +13,21 @@
   user-select: none;
 }
 
-/* 4 colonne uguali; la griglia parte sotto la scritta dello sfondo */
 .griglia {
+  --icona: 72px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   align-content: start;
-  gap: 22px 10px;
+  gap: 24px 8px;
   margin: 0;
-  padding: max(16vh, 110px) 20px 24px;
+  padding: max(16vh, 110px) 16px 24px;
   list-style: none;
+}
+
+/* Telefoni stretti (iPhone SE, 375px e meno): 4 colonne di 72px non
+   ci stanno con i margini */
+@media (max-width: 380px) {
+  .griglia {
+    --icona: 64px;
+  }
 }

@@ -11,12 +11,14 @@
   user-select: none;
 }
 
-/* Griglia "a colonne": grid-auto-flow: column riempie dall'alto in
-   basso, poi passa alla colonna a destra (come Windows).
-   auto-fill crea tante righe quante ne stanno nell'altezza. */
+/* Misure delle icone sul desktop, tutte in un punto:
+   --icona: lato dell'immagine; le celle si ricavano da lì
+   (larga = icona + margine per il nome, alta = icona + due righe di nome).
+   Le variabili si ereditano: IconaDesktop legge --icona. */
 .icone {
-  --cella-alta: 100px;
-  --cella-larga: 84px;
+  --icona: 72px;
+  --cella-larga: calc(var(--icona) + 40px);
+  --cella-alta: calc(var(--icona) + 56px);
   flex: 1;
   min-height: 0;
   display: grid;
@@ -24,10 +26,25 @@
   grid-template-rows: repeat(auto-fill, var(--cella-alta));
   grid-auto-columns: var(--cella-larga);
   align-content: start;
-  gap: 4px;
+  gap: 6px;
   margin: 0;
-  padding: 10px 6px;
+  padding: 14px 10px;
   list-style: none;
+}
+
+/* Schermi grandi: icone ancora più grandi */
+@media (min-width: 1600px) {
+  .icone {
+    --icona: 88px;
+  }
+}
+
+/* Schermi piccoli o finestra bassa: un po' più piccole, così ne
+   stanno più in colonna */
+@media (max-height: 700px) {
+  .icone {
+    --icona: 60px;
+  }
 }
 
 /* Velo trasparente: un clic fuori dal menu Start lo chiude */
@@ -62,13 +79,5 @@
 @media (prefers-reduced-motion: reduce) {
   .spegnimento {
     animation-duration: 1ms; /* onAnimationEnd arriva comunque */
-  }
-}
-
-/* Schermi grandi: icone un po' più grandi */
-@media (min-width: 1600px) {
-  .icone {
-    --cella-alta: 112px;
-    --cella-larga: 96px;
   }
 }

@@ -14,9 +14,9 @@
 }
 
 .immagine {
-  width: min(62px, 100%);
-  border-radius: 22.5%;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+  width: min(var(--icona, 62px), 100%);
+  --raggio: 22.5%;
+  filter: drop-shadow(0 2px 6px rgb(0 0 0 / 0.4));
   transition: transform 0.12s ease-out;
 }
 
@@ -35,6 +35,6 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: 11px;
+  font-size: 12px;
   text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
 }

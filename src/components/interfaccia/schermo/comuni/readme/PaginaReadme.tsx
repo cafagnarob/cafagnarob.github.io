@@ -5,8 +5,11 @@
  * - il Markdown (con l'HTML che contiene) diventa React (react-markdown,
  *   remark-gfm per le tabelle, rehype-raw per l'HTML)
  * - i percorsi relativi delle immagini diventano assoluti (urlTransform)
- * - il `codice in linea` uguale a readme.avvio diventa un pulsante:
- *   il clic sostituisce la pagina con il gioco (SitoIncorporato)
+ * - il `codice in linea` uguale a readme.avvio diventa il pulsante che
+ *   avvia il gioco (SitoIncorporato) al posto della pagina
+ * - con giocabile = false (telefono: il gioco non è pensato per schermi
+ *   piccoli) lo stesso punto diventa un pulsante spento con l'avviso
+ *   "Gioca da computer": il README resta leggibile
  * - i link si aprono in una nuova scheda
  *
  * Il testo arriva con use(): il componente "sospende" finché il README
@@ -25,7 +28,13 @@ import stili from "./PaginaReadme.module.css"
 
 type Readme = NonNullable<Progetto["readme"]>
 
-export default function PaginaReadme({ progetto }: { progetto: Progetto }) {
+type Props = {
+  progetto: Progetto
+  /* false sul telefono: il gioco non parte, compare "Gioca da computer" */
+  giocabile?: boolean
+}
+
+export default function PaginaReadme({ progetto, giocabile = true }: Props) {
   const [inGioco, setInGioco] = useState(false)
   const { readme, incorpora } = progetto
   if (!readme) return null
@@ -51,7 +60,8 @@ export default function PaginaReadme({ progetto }: { progetto: Progetto }) {
         <Contenuto
           readme={readme}
           codice={progetto.link?.codice}
-          onAvvia={incorpora ? () => setInGioco(true) : undefined}
+          onAvvia={incorpora && giocabile ? () => setInGioco(true) : undefined}
+          soloComputer={Boolean(incorpora) && !giocabile}
         />
       </Suspense>
     </div>
@@ -62,9 +72,10 @@ type PropsContenuto = {
   readme: Readme
   codice?: string
   onAvvia?: () => void
+  soloComputer: boolean
 }
 
-function Contenuto({ readme, codice, onAvvia }: PropsContenuto) {
+function Contenuto({ readme, codice, onAvvia, soloComputer }: PropsContenuto) {
   const testo = use(caricaReadme(readme.url))
 
   if (testo === null) {
@@ -97,14 +108,25 @@ function Contenuto({ readme, codice, onAvvia }: PropsContenuto) {
         rehypePlugins={[rehypeRaw]}
         urlTransform={assoluto}
         components={{
-          code: ({ children }) =>
-            onAvvia && String(children).trim() === readme.avvio ? (
-              <button type="button" className={stili.avvio} onClick={onAvvia}>
-                {children}
-              </button>
-            ) : (
-              <code>{children}</code>
-            ),
+          code: ({ children }) => {
+            const eAvvio = String(children).trim() === readme.avvio
+            if (eAvvio && onAvvia) {
+              return (
+                <button type="button" className={stili.avvio} onClick={onAvvia}>
+                  {children}
+                </button>
+              )
+            }
+            if (eAvvio && soloComputer) {
+              return (
+                <span className={stili.avvioBloccato}>
+                  <span className={stili.etichettaBloccata}>{children}</span>
+                  <span className={stili.nota}>🖥 Gioca da computer</span>
+                </span>
+              )
+            }
+            return <code>{children}</code>
+          },
           a: ({ href, children }) => (
             <a href={href} target="_blank" rel="noopener noreferrer">
               {children}
