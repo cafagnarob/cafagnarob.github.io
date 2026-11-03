@@ -1,0 +1,46 @@
+.corpo {
+  position: relative;
+  display: block;
+  width: var(--diametro);
+  height: var(--diametro);
+}
+
+/* La tela è più grande del corpo (margine per l'ombra): centrata */
+.base {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--tela);
+  height: var(--tela);
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+/* Il contenitore ruota attorno al centro del corpo; il puntino sta in
+   alto (ore 12) e gira con lui. Transizione breve: segue gli scatti
+   senza sembrare "a salti" */
+.indicatore {
+  position: absolute;
+  inset: 0;
+  rotate: var(--angolo);
+  transition: rotate 0.08s ease-out;
+}
+
+.indicatore::after {
+  content: "";
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  width: calc(var(--diametro) * 0.1);
+  height: calc(var(--diametro) * 0.1);
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #e0473f, #7c0d0a 75%);
+  box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicatore {
+    transition: none;
+  }
+}

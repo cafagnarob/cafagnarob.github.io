@@ -63,3 +63,17 @@ export const DB_MIN_CANALI = -48 // sotto: LED spenti; 0 dB = tutti accesi
 
 /* Movimento ridotto: niente animazione, aggiornamento a scatti */
 export const PASSO_RIDOTTO_MS = 150
+
+/* Manopole (immagine: corpo di 204 px su una tela di 234, centrato) */
+export const IMMAGINE_MANOPOLA = "/images/audio/manopola.webp"
+export const IMMAGINE_PIASTRA = "/images/audio/piastra.webp"
+export const PROPORZIONE_CORPO = 204 / 234 // corpo / tela dell'immagine
+
+export const DIAMETRO_VOLUME = 64 // corpo della manopola del volume
+export const SCALA_TACCHE = 88 // cerchio delle tacche attorno
+export const PIXEL_PER_SCATTO = 10 // trascinamento: px per ogni scatto
+
+/* Angolo del puntino: arco di ARCO_MANOPOLA gradi centrato a ore 12
+   (valore 0 → −135°, 5 → 0°, 10 → +135°) */
+export const angoloDi = (scatto: number) =>
+  -ARCO_MANOPOLA / 2 + (scatto / SCATTI_VOLUME) * ARCO_MANOPOLA

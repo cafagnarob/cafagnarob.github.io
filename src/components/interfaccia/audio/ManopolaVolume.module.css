@@ -1,0 +1,51 @@
+/* Manopola + etichetta; la disposizione (etichetta a destra su desktop,
+   sotto su mobile) la decide il pannello con className */
+.blocco {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+/* Area della scala (88×88): è anche l'area cliccabile, più grande
+   della manopola, quindi ok anche per il dito (minimo 44×44) */
+.manopola {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--scala);
+  height: var(--scala);
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none; /* il trascinamento non scorre/zooma la pagina */
+}
+
+.manopola:active {
+  cursor: grabbing;
+}
+
+.manopola:focus-visible {
+  outline: 2px solid #3d7bff;
+  outline-offset: 2px;
+}
+
+/* Tacche incise: ruotano attorno al centro della scala */
+.tacca {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  width: 1.5px;
+  height: 6px;
+  margin-left: -0.75px;
+  transform-origin: 50% calc(var(--scala) / 2 - 3px);
+  rotate: var(--angolo);
+  background: rgb(0 0 0 / 0.35);
+  box-shadow: 0.5px 0.5px 0 rgb(255 255 255 / 0.8);
+}
+
+.corpo {
+  grid-area: 1 / 1;
+}
+
+.etichetta {
+  composes: incisione from "./incisioni.module.css";
+}
