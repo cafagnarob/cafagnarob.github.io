@@ -19,6 +19,7 @@ import { InterfacciaSchermo } from "./components/interfaccia/InterfacciaSchermo"
 import { ControlliAudio } from "./components/interfaccia/ControlliAudio"
 import { Ingresso } from "./components/interfaccia/Ingresso"
 import { ModaleProfilo } from "./components/interfaccia/profilo/ModaleProfilo"
+import { PannelloAudio } from "./components/interfaccia/audio/PannelloAudio"
 
 export default function App() {
   const dispatch = useAppDispatch()
@@ -32,6 +33,7 @@ export default function App() {
       <Scena />
       <PulsanteIndietro />
       <ControlliAudio />
+      <PannelloAudio />
       <InterfacciaSchermo />
 
       <ModaleProfilo />

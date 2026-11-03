@@ -3,7 +3,9 @@
 .controlli {
   position: fixed;
   right: calc(16px + env(safe-area-inset-right));
-  bottom: calc(16px + env(safe-area-inset-bottom));
+  /* bottom: calc(16px + env(safe-area-inset-bottom)); */
+  /* PROVVISORIO (passo 1): sopra il pannello audio, che è alto al massimo 225px */
+  bottom: calc(15px + 225px + 12px + env(safe-area-inset-bottom));
   z-index: 10;
   display: flex;
   align-items: center;

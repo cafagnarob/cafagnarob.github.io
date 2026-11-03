@@ -1,0 +1,35 @@
+/* Piastra fissa in basso a destra, dentro le aree sicure del telefono.
+   Il metallo è PROVVISORIO (CSS): verrà sostituito dalle piastre
+   esportate da Figma (WebP). Luce in alto a sinistra: ombra in basso
+   a destra */
+.pannello {
+  position: fixed;
+  right: calc(var(--margine) + env(safe-area-inset-right));
+  bottom: calc(var(--margine) + env(safe-area-inset-bottom));
+  z-index: 10;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: var(--larghezza);
+  height: var(--altezza);
+  padding: var(--padding);
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgb(255 255 255 / 0.06) 0 1px,
+      transparent 1px 2px
+    ),
+    linear-gradient(
+      90deg,
+      #b7babe 0%,
+      #e4e6e9 40%,
+      #fbfcfd 52%,
+      #dcdfe2 64%,
+      #b9bcc0 100%
+    );
+  box-shadow:
+    inset 1px 1px 0 rgb(255 255 255 / 0.9),
+    inset -1px -1px 0 rgb(0 0 0 / 0.15),
+    4px 6px 14px rgb(0 0 0 / 0.35);
+}

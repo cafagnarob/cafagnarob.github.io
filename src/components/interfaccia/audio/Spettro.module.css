@@ -1,0 +1,63 @@
+.spettro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.colonne {
+  display: flex;
+  gap: var(--gap-colonne);
+}
+
+/* column-reverse: il LED 1 in basso, l'11 in alto */
+.colonna {
+  --livello: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--gap-verticale);
+}
+
+.verde {
+  --colore: #3fd23a;
+}
+.giallo {
+  --colore: #e9b31d;
+}
+.rosso {
+  --colore: #e3261f;
+}
+
+/* --acceso: 1 se il LED è entro il livello della colonna, 0 altrimenti.
+   Con interi, clamp(0, livello − i + 1, 1) può valere solo 0 o 1.
+   Da lì, tutto in proporzione:
+   - spento: colore al ~18%, niente nucleo né glow (handoff)
+   - acceso: colore saturo, nucleo chiaro, glow dello stesso colore */
+.led {
+  --acceso: clamp(0, var(--livello) - var(--i) + 1, 1);
+  width: var(--led);
+  height: var(--led);
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      color-mix(in srgb, #fff calc(var(--acceso) * 80%), transparent) 0 14%,
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 40% 35%,
+      color-mix(in srgb, var(--colore) calc(18% + var(--acceso) * 82%), #000),
+      color-mix(in srgb, var(--colore) calc(10% + var(--acceso) * 55%), #000)
+        80%
+    );
+  box-shadow:
+    inset 0 0 0 0.5px rgb(0 0 0 / 0.45),
+    0 0 calc(var(--acceso) * var(--led) * 0.8)
+      color-mix(in srgb, var(--colore) calc(var(--acceso) * 85%), transparent);
+}
+
+.canali {
+  composes: incisione from "./incisioni.module.css";
+  display: flex;
+  gap: calc(var(--led) + var(--gap-colonne) - 1ch);
+}

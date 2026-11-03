@@ -7,6 +7,7 @@
  * - Creato alla prima richiesta, non all'avvio.
  * - I browser lo tengono "sospeso" finché l'utente non interagisce:
  *   sbloccaAudio va chiamata dentro un clic.
+ * contestoCreato: per chi legge l’audio senza produrlo (spettro)
  */
 let contesto: AudioContext | null = null
 let uscita: GainNode | null = null
@@ -37,3 +38,11 @@ export function impostaLivelloPrincipale(livello: number) {
     uscita.gain.setTargetAtTime(livello, contesto.currentTime, 0.03)
   }
 }
+
+/* Il contesto esiste già? (Chi vuole solo LEGGERE l'audio, come lo
+   spettro, non deve crearlo: senza un clic nascerebbe sospeso) */
+export const contestoCreato = () => contesto !== null
+
+/* Livello principale attuale (0 = muto o volume a zero): lo spettro lo
+   usa per far scendere i LED più lentamente quando l'audio è spento */
+export const livelloPrincipaleAttuale = () => livelloPrincipale
