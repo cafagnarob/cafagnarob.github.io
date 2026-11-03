@@ -77,3 +77,13 @@ export const PIXEL_PER_SCATTO = 10 // trascinamento: px per ogni scatto
    (valore 0 → −135°, 5 → 0°, 10 → +135°) */
 export const angoloDi = (scatto: number) =>
   -ARCO_MANOPOLA / 2 + (scatto / SCATTI_VOLUME) * ARCO_MANOPOLA
+
+/* Immagini esportate da Figma (public/images/audio/) */
+export const IMMAGINE_TACCHE = "/images/audio/tacche.webp" // 88×88, arco di 11 tacche
+
+/* LED acceso: tela di 152 px con il cerchio di 80 al centro e il glow
+   attorno → l'immagine è 152/80 volte il LED */
+export const PROPORZIONE_GLOW = 152 / 80
+
+/* Selettore mute */
+export const DIAMETRO_MUTO = 39

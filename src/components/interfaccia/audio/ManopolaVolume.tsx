@@ -1,7 +1,8 @@
 /*
  * Manopola del volume
  * Slider accessibile (role="slider", valori 0–SCATTI_VOLUME) disegnato
- * come una manopola, con la scala di tacche attorno e "VOLUME" inciso.
+ * come una manopola, con la scala di tacche attorno (immagine di Figma)
+ * e "VOLUME" inciso.
  * Lo store tiene il volume 0–1: la manopola mostra lo scatto più vicino
  * e imposta volume = scatto / SCATTI_VOLUME.
  *
@@ -11,6 +12,9 @@
  *   setPointerCapture: il trascinamento continua anche fuori dalla
  *   manopola. Inizio del trascinamento in una ref: serve ai movimenti
  *   successivi ma non deve provocare render.
+ *   preventDefault: niente selezione (riquadro blu) né "fantasma"
+ *   dell'immagine; il focus si dà a mano, perché preventDefault lo
+ *   impedirebbe.
  * - tastiera: frecce ±1, Home / End = minimo / massimo
  * - rotellina: ±1
  */
@@ -19,6 +23,7 @@ import { useAppDispatch, useAppSelector } from "../../../store/hooks"
 import { impostaVolume } from "../../../store/azioniAudio"
 import {
   DIAMETRO_VOLUME,
+  IMMAGINE_TACCHE,
   PIXEL_PER_SCATTO,
   SCALA_TACCHE,
   SCATTI_VOLUME,
@@ -54,9 +59,11 @@ export function ManopolaVolume({ className = "" }: { className?: string }) {
     imposta(calcola(valore))
   }
 
-  const misure = {
-    "--scala": `${SCALA_TACCHE}px`,
-  } as CSSProperties
+  const fineTrascinamento = () => {
+    inizio.current = null
+  }
+
+  const misure = { "--scala": `${SCALA_TACCHE}px` } as CSSProperties
 
   return (
     <div className={`${stili.blocco} ${className}`}>
@@ -73,6 +80,8 @@ export function ManopolaVolume({ className = "" }: { className?: string }) {
         onKeyDown={tasto}
         onWheel={(e) => imposta(valore + (e.deltaY < 0 ? 1 : -1))}
         onPointerDown={(e) => {
+          e.preventDefault() // niente selezione né trascinamento dell'immagine
+          e.currentTarget.focus() // …ma il focus sì (preventDefault lo toglierebbe)
           e.currentTarget.setPointerCapture(e.pointerId)
           inizio.current = { x: e.clientX, y: e.clientY, valore }
         }}
@@ -82,23 +91,24 @@ export function ManopolaVolume({ className = "" }: { className?: string }) {
           const spostamento = e.clientX - t.x + (t.y - e.clientY) // destra / su = +
           imposta(t.valore + Math.round(spostamento / PIXEL_PER_SCATTO))
         }}
-        onPointerUp={() => (inizio.current = null)}
-        onPointerCancel={() => (inizio.current = null)}
+        onPointerUp={fineTrascinamento}
+        onPointerCancel={fineTrascinamento}
       >
-        {/* Scala: una tacca per scatto, sullo stesso arco del puntino */}
-        {Array.from({ length: SCATTI_VOLUME + 1 }, (_, k) => (
-          <span
-            key={k}
-            className={stili.tacca}
-            style={{ "--angolo": `${angoloDi(k)}deg` } as CSSProperties}
-          />
-        ))}
+        {/* Scala di tacche (Figma): ferma, sotto la manopola */}
+        <img
+          className={stili.tacche}
+          src={IMMAGINE_TACCHE}
+          alt=""
+          draggable={false}
+        />
         <CorpoManopola
           diametro={DIAMETRO_VOLUME}
           angolo={angoloDi(valore)}
           className={stili.corpo}
         />
       </div>
+
+      {/* PROVVISORIO: testo inciso in CSS, sarà sostituito dall'immagine di Figma */}
       <span className={stili.etichetta}>Volume</span>
     </div>
   )

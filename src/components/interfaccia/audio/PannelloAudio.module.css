@@ -18,6 +18,11 @@
     inset 1px 1px 0 rgb(255 255 255 / 0.9),
     inset -1px -1px 0 rgb(0 0 0 / 0.18),
     4px 6px 14px rgb(0 0 0 / 0.35);
+  /* È un controllo, non un testo: trascinare la manopola non deve
+     selezionare (riquadro blu) né "prendere" le immagini */
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -webkit-touch-callout: none; /* iOS: niente menu al tocco prolungato */
 }
 
 /* ---------- Aperto, desktop: spettro sopra, comandi sotto ---------- */
