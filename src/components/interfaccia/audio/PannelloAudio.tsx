@@ -73,8 +73,10 @@ export function PannelloAudio() {
         onToggle={(e) => setAperto(e.newState === "open")}
       >
         <Spettro variante={variante} />
-        <ManopolaVolume className={stili.volume} />
-        <SelettoreMuto variante={variante} className={stili.mute} />
+        <div className={stili.comandi}>
+          <ManopolaVolume variante={variante} className={stili.volume} />
+          <SelettoreMuto variante={variante} />
+        </div>
       </div>
     </>
   )

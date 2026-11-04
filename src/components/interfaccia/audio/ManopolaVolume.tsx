@@ -25,14 +25,18 @@ import {
   DIAMETRO_VOLUME,
   IMMAGINE_TACCHE,
   PIXEL_PER_SCATTO,
+  SCALA_ETICHETTE,
   SCALA_TACCHE,
   SCATTI_VOLUME,
   angoloDi,
+  type VariantePannello,
 } from "../../../config/pannelloAudio"
 import { CorpoManopola } from "./CorpoManopola"
 import stili from "./ManopolaVolume.module.css"
 import { Etichetta } from "./Etichetta"
 import { sbloccaAudio } from "../../../audio/contesto"
+
+type Props = { variante: VariantePannello; className?: string }
 
 const TASTI: Record<string, (valore: number) => number> = {
   ArrowUp: (v) => v + 1,
@@ -43,7 +47,7 @@ const TASTI: Record<string, (valore: number) => number> = {
   End: () => SCATTI_VOLUME,
 }
 
-export function ManopolaVolume({ className = "" }: { className?: string }) {
+export function ManopolaVolume({ variante, className = "" }: Props) {
   const dispatch = useAppDispatch()
   const volume = useAppSelector((s) => s.audio.volume)
   const valore = Math.round(volume * SCATTI_VOLUME)
@@ -110,7 +114,11 @@ export function ManopolaVolume({ className = "" }: { className?: string }) {
           angolo={angoloDi(valore)}
           className={stili.corpo}
         />
-        <Etichetta nome="volume" className={stili.etichetta} />
+        <Etichetta
+          nome="volume"
+          scala={SCALA_ETICHETTE[variante]}
+          className={stili.etichetta}
+        />
       </div>
     </div>
   )

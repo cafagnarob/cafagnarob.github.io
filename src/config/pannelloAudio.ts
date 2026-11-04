@@ -97,6 +97,9 @@ export const ETICHETTE = {
   r: { src: "/images/audio/r.webp", larghezza: 7, altezza: 9 },
 } as const
 
+/* Scala delle etichette per variante (su mobile più piccole) */
+export const SCALA_ETICHETTE = { desktop: 1, mobile: 0.6 } as const
+
 export type NomeEtichetta = keyof typeof ETICHETTE
 
 /* Selettore mute: angolo del puntino (gradi, 0 = ore 12, orario).

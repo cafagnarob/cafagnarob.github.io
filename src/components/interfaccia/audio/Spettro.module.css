@@ -33,3 +33,19 @@
   gap: var(--gap-colonne);
   justify-items: center;
 }
+
+/* Mobile: lo spettro occupa tutta l'altezza del pannello (Figma 34×214).
+   I LED si distribuiscono sull'altezza (space-between) invece di avere
+   uno spazio fisso: --gap-verticale resta come spazio MINIMO */
+.mobile {
+  align-self: stretch;
+  justify-content: space-between;
+}
+
+.mobile .colonne {
+  flex: 1;
+}
+
+.mobile .colonna {
+  justify-content: space-between;
+}

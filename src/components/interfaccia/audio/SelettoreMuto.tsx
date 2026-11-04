@@ -16,6 +16,7 @@ import { alternaMuto } from "../../../store/azioniAudio"
 import {
   ANGOLI_MUTO,
   DIAMETRO_MUTO,
+  SCALA_ETICHETTE,
   VARIANTI_PANNELLO,
   type VariantePannello,
 } from "../../../config/pannelloAudio"
@@ -45,8 +46,16 @@ export function SelettoreMuto({ variante, className = "" }: Props) {
       className={`${stili.selettore} ${stili[variante]} ${className}`}
       onClick={() => dispatch(alternaMuto())}
     >
-      <Etichetta nome="live" className={stili.live} />
-      <Etichetta nome="mute" className={stili.mute} />
+      <Etichetta
+        nome="live"
+        scala={SCALA_ETICHETTE[variante]}
+        className={stili.live}
+      />
+      <Etichetta
+        nome="mute"
+        scala={SCALA_ETICHETTE[variante]}
+        className={stili.mute}
+      />
       <span
         className={`${luce.led} ${luce.rosso} ${stili.spia}`}
         style={spia}

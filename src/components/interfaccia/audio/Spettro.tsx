@@ -50,7 +50,11 @@ export function Spettro({ variante }: { variante: VariantePannello }) {
   } as CSSProperties
 
   return (
-    <div className={stili.spettro} style={misure} aria-hidden="true">
+    <div
+      className={`${stili.spettro} ${stili[variante]}`}
+      style={misure}
+      aria-hidden="true"
+    >
       <div ref={collega} className={stili.colonne}>
         {Array.from({ length: colonne }, (_, c) => (
           <span key={c} className={stili.colonna}>

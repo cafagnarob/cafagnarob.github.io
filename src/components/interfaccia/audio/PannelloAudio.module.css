@@ -67,45 +67,39 @@
   }
 }
 
-/* ---------- Aperto, desktop: spettro sopra, comandi sotto ---------- */
+/* ---------- Aperto, desktop: spettro sopra, comandi sotto al centro ---------- */
 .aperto.desktop {
   grid-template-rows: auto 1fr;
-  grid-template-areas:
-    "spettro spettro"
-    "volume  mute";
-  align-items: end;
 }
 
 /* ---------- Aperto, mobile: spettro a sinistra, comandi a destra ---------- */
 .aperto.mobile {
   grid-template-columns: auto 1fr;
-  grid-template-areas:
-    "spettro volume"
-    "spettro mute";
   gap: 10px;
 }
 
-.aperto > :first-child {
-  grid-area: spettro;
+/* Comandi: volume e mute insieme. Su desktop in riga, vicini,
+   con la distanza data da --distanza-manopole */
+.comandi {
+  --distanza-manopole: 36px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--distanza-manopole);
+  align-self: end;
 }
 
-.volume {
-  grid-area: volume;
-  justify-self: start;
+/* Su mobile in colonna: volume in alto, mute in basso, allineati a destra */
+.mobile .comandi {
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: 6px;
 }
 
-/* Su mobile l'etichetta va sotto la manopola, allineata a destra */
+/* Su mobile "VOLUME" va sotto la manopola, allineata a destra */
 .mobile .volume {
   flex-direction: column;
   align-items: flex-end;
-  justify-self: center;
-}
-
-.mute {
-  grid-area: mute;
-  justify-self: end;
-}
-
-.mobile .mute {
-  justify-self: center;
 }

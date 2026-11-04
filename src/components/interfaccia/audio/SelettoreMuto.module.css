@@ -46,14 +46,40 @@
   justify-self: center;
 }
 
-/* Mobile: manopola a sinistra; a destra LIVE in alto, spia, MUTE in basso */
+/* Mobile: blocco di 82×89 come in Figma, con le posizioni misurate
+   sulla reference (px dall'angolo in alto a sinistra del blocco).
+   Posizione assoluta: gli elementi non sono in righe e colonne */
 .mobile {
-  grid-template-columns: auto auto;
-  grid-template-areas:
-    "manopola live"
-    "manopola spia"
-    "manopola mute";
-  justify-items: start;
+  position: relative;
+  display: block;
+  width: 82px;
+  height: 89px;
+  padding: 0;
+}
+
+.mobile > * {
+  position: absolute;
+}
+
+.mobile .live {
+  top: 7px;
+  left: 42px;
+}
+
+.mobile .manopola {
+  top: 22px;
+  left: 1px;
+}
+
+/* La spia è centrata nel punto (62, 59): si sottrae metà della sua misura */
+.mobile .spia {
+  top: calc(59px - var(--led) / 2);
+  left: calc(62px - var(--led) / 2);
+}
+
+.mobile .mute {
+  top: 68px;
+  left: 41px;
 }
 
 /* La spia si accende e si spegne con una breve dissolvenza */
