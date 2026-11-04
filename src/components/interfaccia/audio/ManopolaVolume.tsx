@@ -32,6 +32,7 @@ import {
 import { CorpoManopola } from "./CorpoManopola"
 import stili from "./ManopolaVolume.module.css"
 import { Etichetta } from "./Etichetta"
+import { sbloccaAudio } from "../../../audio/contesto"
 
 const TASTI: Record<string, (valore: number) => number> = {
   ArrowUp: (v) => v + 1,
@@ -56,6 +57,7 @@ export function ManopolaVolume({ className = "" }: { className?: string }) {
   const tasto = (e: KeyboardEvent) => {
     const calcola = TASTI[e.key]
     if (!calcola) return
+    sbloccaAudio()
     e.preventDefault() // le frecce non devono scorrere la pagina
     imposta(calcola(valore))
   }
@@ -83,6 +85,7 @@ export function ManopolaVolume({ className = "" }: { className?: string }) {
         onPointerDown={(e) => {
           e.preventDefault() // niente selezione né trascinamento dell'immagine
           e.currentTarget.focus() // …ma il focus sì (preventDefault lo toglierebbe)
+          sbloccaAudio() // il tocco è un gesto: qui il browser permette l'audio
           e.currentTarget.setPointerCapture(e.pointerId)
           inizio.current = { x: e.clientX, y: e.clientY, valore }
         }}

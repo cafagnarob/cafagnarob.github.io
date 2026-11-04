@@ -8,7 +8,6 @@
  * salvare le preferenze sono effetti, fatti dai thunk (azioniAudio.ts).
  */
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import { leggiPreferenzeAudio } from "../utils/preferenze"
 
 type StatoAudio = {
   discoInRiproduzione: boolean
@@ -18,7 +17,8 @@ type StatoAudio = {
 
 const statoIniziale: StatoAudio = {
   discoInRiproduzione: false,
-  ...leggiPreferenzeAudio(),
+  muto: false,
+  volume: 0,
 }
 
 const sliceAudio = createSlice({

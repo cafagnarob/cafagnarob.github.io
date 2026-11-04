@@ -35,3 +35,8 @@ export const LUMINOSITA_VINILE = 0.45
 /* Colore del braccio (grigio metallico). Più scuro = meno acceso
    nella penombra della stanza. */
 export const COLORE_BRACCIO = "#313235"
+
+/* Avvio del giradischi con il volume a zero: quando la puntina tocca
+   il disco, il volume sale da 0 a VOLUME_AVVIO in DURATA_SALITA_VOLUME_S */
+export const VOLUME_AVVIO = 0.25
+export const DURATA_SALITA_VOLUME_S = 1.5

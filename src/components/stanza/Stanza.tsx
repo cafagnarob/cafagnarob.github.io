@@ -23,7 +23,7 @@ import { assegnaMaterialiStanza } from "./materialiStanza"
 import { useInterazioniStanza } from "./useInterazioniStanza"
 import { useLuciStanza } from "./useLuciStanza"
 import { useGiradischi } from "./useGiradischi"
-import { useAudioAmbiente } from "./useAudioAmbiente"
+// import { useAudioAmbiente } from "./useAudioAmbiente"
 import { FuoriFinestra } from "./FuoriFinestra"
 import { Fumo } from "./Fumo"
 import { usePioggia } from "./usePioggia"
@@ -53,7 +53,7 @@ export function Stanza() {
   const { sottoMouse, gestori } = useInterazioniStanza()
   useLuciStanza(materiali, sottoMouse)
   useGiradischi(scene)
-  useAudioAmbiente(scene)
+  // useAudioAmbiente(scene)
   usePioggia(materiali.pioggia)
 
   return (
