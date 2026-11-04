@@ -109,3 +109,33 @@ export const ANGOLI_MUTO = {
   desktop: { live: -45, muto: 45 },
   mobile: { live: 45, muto: 135 },
 } as const
+
+/* Animazione chiuso ↔ aperto: "geometria chiusa" del pannello aperto.
+ * Il pannello aperto parte ritagliato sul rettangolo di quello chiuso
+ * (ancorato in basso a destra: --dw a sinistra, --dh in alto) e con lo
+ * spettro spostato dove sta nel pannello chiuso (--dx, --dy).
+ * Ricavata dalle misure delle varianti e dai due layout:
+ * - desktop: chiuso → spettro centrato in verticale; aperto → in alto
+ * - mobile: chiuso → spettro centrato in orizzontale; aperto → a sinistra
+ * Se cambi il layout di uno dei due stati, aggiorna questo calcolo. */
+const altezzaSpettro = (v: (typeof VARIANTI_PANNELLO)[VariantePannello]) =>
+  LIVELLI * v.led + (LIVELLI - 1) * v.gapVerticale
+
+const larghezzaSpettro = (v: (typeof VARIANTI_PANNELLO)[VariantePannello]) =>
+  v.colonne * v.led + (v.colonne - 1) * v.gapColonne
+
+export function geometriaChiusura(variante: VariantePannello) {
+  const v = VARIANTI_PANNELLO[variante]
+  const dw = v.aperto.larghezza - v.chiuso.larghezza
+  const dh = v.aperto.altezza - v.chiuso.altezza
+
+  if (variante === "desktop") {
+    const dy = dh + (v.chiuso.altezza - altezzaSpettro(v)) / 2 - v.padding
+    return { dw, dh, dx: 0, dy }
+  }
+  const dx = dw + (v.chiuso.larghezza - larghezzaSpettro(v)) / 2 - v.padding
+  return { dw, dh, dx, dy: 0 }
+}
+
+/* Durata del passaggio chiuso ↔ aperto */
+export const DURATA_APERTURA_MS = 320

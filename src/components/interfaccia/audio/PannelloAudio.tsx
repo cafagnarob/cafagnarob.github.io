@@ -3,27 +3,31 @@
  * Fisso in basso a destra, con margine MARGINE_PANNELLO: piastra di
  * metallo spazzolato con lo spettro di tutto l'audio del sito.
  *
- * Due elementi nello stesso angolo:
- * - CHIUSO: un pulsante con solo lo spettro (desktop 363×173, mobile
+ * Due elementi nello stesso angolo, ognuno = posizione + piastra:
+ * - CHIUSO: pulsante con solo lo spettro (desktop 363×173, mobile
  *   59×225). popoverTarget: il clic apre il pannello aperto.
- * - APERTO: popover="auto" con spettro, manopola del volume e selettore
- *   mute (desktop 363×283, mobile 157×225). Ancorato anche lui in basso
- *   a destra e più grande, copre quello chiuso. Il browser lo chiude da
- *   solo con un clic fuori (o Esc); i clic dentro non lo chiudono.
+ * - APERTO: popover="auto" con spettro e comandi (desktop 363×283,
+ *   mobile 157×225). Il browser lo chiude con un clic fuori o con Esc.
+ *
+ * Animazione (tutta CSS, vedi il .module.css): il pannello aperto parte
+ * dalla "geometria chiusa" (geometriaChiusura): ritagliato sul
+ * rettangolo di quello chiuso e con lo spettro dove sta lì. Poi il
+ * ritaglio si allarga, lo spettro scivola al suo posto e i comandi
+ * compaiono. In chiusura lo stesso al contrario, e alla fine il
+ * pannello chiuso, identico, è già lì sotto.
+ *
  * - aperto (stato React) segue il browser con l'evento toggle: serve
  *   per aria-expanded sul pulsante.
  * - nascosto a schermo acceso (l'interfaccia ha il suo volume)
- *
- * La piastra: texture (solo l'interno del metallo) stirata su tutta la
- * superficie; angoli, bordo smussato e ombra in CSS, così vanno bene
- * per tutte e quattro le misure.
  */
 import { useId, useState, type CSSProperties } from "react"
 import { useAppSelector } from "../../../store/hooks"
 import {
+  DURATA_APERTURA_MS,
   IMMAGINE_PIASTRA,
   MARGINE_PANNELLO,
   VARIANTI_PANNELLO,
+  geometriaChiusura,
 } from "../../../config/pannelloAudio"
 import { useVariantePannello } from "./useVariantePannello"
 import { Spettro } from "./Spettro"
@@ -50,17 +54,28 @@ export function PannelloAudio() {
       "--piastra": `url("${IMMAGINE_PIASTRA}")`,
     }) as CSSProperties
 
+  const g = geometriaChiusura(variante)
+  const passaggio = {
+    "--dw": `${g.dw}px`,
+    "--dh": `${g.dh}px`,
+    "--dx": `${g.dx}px`,
+    "--dy": `${g.dy}px`,
+    "--durata": `${DURATA_APERTURA_MS}ms`,
+  } as CSSProperties
+
   return (
     <>
       <button
         type="button"
-        className={`${stili.pannello} ${stili.chiuso} ${stili[variante]}`}
+        className={`${stili.posizione} ${stili.chiuso}`}
         style={misure(v.chiuso)}
         popoverTarget={id}
         aria-expanded={aperto}
         aria-label="Apri controlli audio"
       >
-        <Spettro variante={variante} />
+        <span className={`${stili.piastra} ${stili[variante]}`}>
+          <Spettro variante={variante} />
+        </span>
       </button>
 
       <div
@@ -68,14 +83,20 @@ export function PannelloAudio() {
         popover="auto"
         role="group"
         aria-label="Controlli audio"
-        className={`${stili.pannello} ${stili.aperto} ${stili[variante]}`}
-        style={misure(v.aperto)}
+        className={`${stili.posizione} ${stili.aperto}`}
+        style={{ ...misure(v.aperto), ...passaggio }}
         onToggle={(e) => setAperto(e.newState === "open")}
       >
-        <Spettro variante={variante} />
-        <div className={stili.comandi}>
-          <ManopolaVolume variante={variante} className={stili.volume} />
-          <SelettoreMuto variante={variante} />
+        <div
+          className={`${stili.piastra} ${stili.piastraAperta} ${stili[variante]}`}
+        >
+          <div className={stili.scivola}>
+            <Spettro variante={variante} />
+          </div>
+          <div className={stili.comandi}>
+            <ManopolaVolume variante={variante} className={stili.volume} />
+            <SelettoreMuto variante={variante} />
+          </div>
         </div>
       </div>
     </>
