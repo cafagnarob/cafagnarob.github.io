@@ -31,6 +31,7 @@ import {
 } from "../../../config/pannelloAudio"
 import { CorpoManopola } from "./CorpoManopola"
 import stili from "./ManopolaVolume.module.css"
+import { Etichetta } from "./Etichetta"
 
 const TASTI: Record<string, (valore: number) => number> = {
   ArrowUp: (v) => v + 1,
@@ -106,10 +107,8 @@ export function ManopolaVolume({ className = "" }: { className?: string }) {
           angolo={angoloDi(valore)}
           className={stili.corpo}
         />
+        <Etichetta nome="volume" className={stili.etichetta} />
       </div>
-
-      {/* PROVVISORIO: testo inciso in CSS, sarà sostituito dall'immagine di Figma */}
-      <span className={stili.etichetta}>Volume</span>
     </div>
   )
 }

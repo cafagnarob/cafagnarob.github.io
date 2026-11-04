@@ -1,0 +1,68 @@
+/* Pulsante senza aspetto da pulsante: è la manopola con le scritte.
+   La disposizione cambia con la variante (griglia con aree) */
+.selettore {
+  display: grid;
+  align-items: center;
+  gap: 4px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 2px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.selettore:focus-visible {
+  outline: 2px solid #3d7bff;
+  outline-offset: 2px;
+}
+
+.live {
+  grid-area: live;
+}
+.mute {
+  grid-area: mute;
+}
+.spia {
+  grid-area: spia;
+}
+.manopola {
+  grid-area: manopola;
+}
+
+/* Desktop: LIVE in alto a sinistra, MUTE in alto a destra con la spia
+   sopra, manopola sotto in mezzo */
+.desktop {
+  grid-template-columns: auto auto auto;
+  grid-template-areas:
+    ".    .        spia"
+    "live .        mute"
+    ".    manopola .";
+}
+
+.desktop .spia {
+  justify-self: center;
+}
+
+/* Mobile: manopola a sinistra; a destra LIVE in alto, spia, MUTE in basso */
+.mobile {
+  grid-template-columns: auto auto;
+  grid-template-areas:
+    "manopola live"
+    "manopola spia"
+    "manopola mute";
+  justify-items: start;
+}
+
+/* La spia si accende e si spegne con una breve dissolvenza */
+.spia::after {
+  transition: opacity 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spia::after {
+    transition: none;
+  }
+}

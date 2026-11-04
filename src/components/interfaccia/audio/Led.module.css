@@ -1,0 +1,38 @@
+/*
+ * LED (immagini di Figma), condiviso da spettro e spia del mute
+ * Riceve da fuori:
+ * - --led: misura del LED (cerchio)
+ * - --acceso: 0 o 1 (lo calcola chi lo usa)
+ * Lo spento è lo sfondo; l'acceso sta sopra (::after), grande 152/80
+ * del LED (cerchio di 80 px su una tela di 152 con il glow), centrato
+ * con un margine negativo di (152 − 80) / 2 / 80 = 0,45 del LED.
+ */
+.led {
+  position: relative;
+  display: block;
+  width: var(--led);
+  height: var(--led);
+  background: var(--immagine-spenta) center / 100% 100% no-repeat;
+}
+
+.led::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--led) * -0.45);
+  background: var(--immagine-accesa) center / 100% 100% no-repeat;
+  opacity: var(--acceso, 0);
+  pointer-events: none;
+}
+
+.verde {
+  --immagine-spenta: url("/images/audio/led_verde_spento.webp");
+  --immagine-accesa: url("/images/audio/led_verde_acceso.webp");
+}
+.giallo {
+  --immagine-spenta: url("/images/audio/led_giallo_spento.webp");
+  --immagine-accesa: url("/images/audio/led_giallo_acceso.webp");
+}
+.rosso {
+  --immagine-spenta: url("/images/audio/led_rosso_spento.webp");
+  --immagine-accesa: url("/images/audio/led_rosso_acceso.webp");
+}

@@ -1,8 +1,9 @@
 /* Piastra fissa in basso a destra, dentro le aree sicure del telefono.
-   Luce in alto a sinistra: riflesso sul bordo alto-sinistro, ombra in
-   basso a destra */
+   Vale per entrambi gli stati. Luce in alto a sinistra: riflesso sul
+   bordo alto-sinistro, ombra in basso a destra */
 .pannello {
   position: fixed;
+  inset: auto; /* il popover di base è centrato (inset: 0): si annulla */
   right: calc(var(--margine) + env(safe-area-inset-right));
   bottom: calc(var(--margine) + env(safe-area-inset-bottom));
   z-index: 10;
@@ -11,18 +12,59 @@
   place-items: center;
   width: var(--larghezza);
   height: var(--altezza);
+  margin: 0;
   padding: var(--padding);
+  overflow: visible; /* il glow dei LED non va tagliato */
+  border: 0;
   border-radius: 6px;
+  color: inherit;
+  font: inherit;
   background: #d9dbde var(--piastra) center / 100% 100% no-repeat;
   box-shadow:
     inset 1px 1px 0 rgb(255 255 255 / 0.9),
     inset -1px -1px 0 rgb(0 0 0 / 0.18),
     4px 6px 14px rgb(0 0 0 / 0.35);
-  /* È un controllo, non un testo: trascinare la manopola non deve
-     selezionare (riquadro blu) né "prendere" le immagini */
+  /* È un controllo, non un testo: niente selezione né menu al tocco */
   user-select: none;
-  -webkit-user-select: none; /* Safari */
-  -webkit-touch-callout: none; /* iOS: niente menu al tocco prolungato */
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* ---------- Chiuso: pulsante ---------- */
+.chiuso {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chiuso:focus-visible {
+  outline: 2px solid #3d7bff;
+  outline-offset: 3px;
+}
+
+/* ---------- Aperto: popover ---------- */
+/* Il popover chiuso è display: none, ma il nostro display: grid lo
+   sovrascriverebbe: lo si dichiara esplicitamente */
+.aperto:not(:popover-open) {
+  display: none;
+}
+
+/* Apertura: cresce dall'angolo in basso a destra, dove sta quello chiuso */
+.aperto:popover-open {
+  transform-origin: bottom right;
+  animation: apri 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes apri {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aperto:popover-open {
+    animation: none;
+  }
 }
 
 /* ---------- Aperto, desktop: spettro sopra, comandi sotto ---------- */
@@ -56,5 +98,14 @@
 .mobile .volume {
   flex-direction: column;
   align-items: flex-end;
+  justify-self: center;
+}
+
+.mute {
+  grid-area: mute;
+  justify-self: end;
+}
+
+.mobile .mute {
   justify-self: center;
 }

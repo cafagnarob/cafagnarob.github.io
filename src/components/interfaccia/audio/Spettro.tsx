@@ -21,13 +21,15 @@ import {
 } from "../../../config/pannelloAudio"
 import { registraSpettro } from "./motoreSpettro"
 import stili from "./Spettro.module.css"
+import luce from "./Led.module.css"
+import { Etichetta } from "./Etichetta"
 
 const tintaDi = (led: number) =>
   led >= SOGLIA_ROSSO
-    ? stili.rosso
+    ? luce.rosso
     : led >= SOGLIA_GIALLO
-      ? stili.giallo
-      : stili.verde
+      ? luce.giallo
+      : luce.verde
 
 export function Spettro({ variante }: { variante: VariantePannello }) {
   const { colonne, led, gapVerticale, gapColonne } = VARIANTI_PANNELLO[variante]
@@ -55,7 +57,7 @@ export function Spettro({ variante }: { variante: VariantePannello }) {
             {Array.from({ length: LIVELLI }, (_, i) => (
               <span
                 key={i}
-                className={`${stili.led} ${tintaDi(i + 1)}`}
+                className={`${luce.led} ${tintaDi(i + 1)} ${stili.ledColonna}`}
                 style={{ "--i": i + 1 } as CSSProperties}
               />
             ))}
@@ -65,8 +67,8 @@ export function Spettro({ variante }: { variante: VariantePannello }) {
 
       {variante === "mobile" && (
         <div className={stili.canali}>
-          <span>L</span>
-          <span>R</span>
+          <Etichetta nome="l" />
+          <Etichetta nome="r" />
         </div>
       )}
     </div>

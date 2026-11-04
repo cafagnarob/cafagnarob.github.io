@@ -87,3 +87,22 @@ export const PROPORZIONE_GLOW = 152 / 80
 
 /* Selettore mute */
 export const DIAMETRO_MUTO = 39
+
+/* Etichette incise (immagini di Figma, export a 3x; misure a 1x) */
+export const ETICHETTE = {
+  volume: { src: "/images/audio/volume.webp", larghezza: 62, altezza: 12 },
+  live: { src: "/images/audio/live.webp", larghezza: 39, altezza: 11 },
+  mute: { src: "/images/audio/mute.webp", larghezza: 39, altezza: 11 },
+  l: { src: "/images/audio/l.webp", larghezza: 6, altezza: 9 },
+  r: { src: "/images/audio/r.webp", larghezza: 7, altezza: 9 },
+} as const
+
+export type NomeEtichetta = keyof typeof ETICHETTE
+
+/* Selettore mute: angolo del puntino (gradi, 0 = ore 12, orario).
+   Desktop: LIVE in alto a sinistra, MUTE in alto a destra.
+   Mobile: LIVE in alto a destra, MUTE in basso a destra. */
+export const ANGOLI_MUTO = {
+  desktop: { live: -45, muto: 45 },
+  mobile: { live: 45, muto: 135 },
+} as const

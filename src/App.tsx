@@ -32,7 +32,6 @@ export default function App() {
     <>
       <Scena />
       <PulsanteIndietro />
-      <ControlliAudio />
       <PannelloAudio />
       <InterfacciaSchermo />
 

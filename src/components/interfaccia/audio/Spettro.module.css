@@ -18,45 +18,18 @@
   gap: var(--gap-verticale);
 }
 
-/* Immagini di Figma per colore: spento (sfondo) e acceso (sopra) */
-.verde {
-  --immagine-spenta: url("/images/audio/led_verde_spento.webp");
-  --immagine-accesa: url("/images/audio/led_verde_acceso.webp");
-}
-.giallo {
-  --immagine-spenta: url("/images/audio/led_giallo_spento.webp");
-  --immagine-accesa: url("/images/audio/led_giallo_acceso.webp");
-}
-.rosso {
-  --immagine-spenta: url("/images/audio/led_rosso_spento.webp");
-  --immagine-accesa: url("/images/audio/led_rosso_acceso.webp");
-}
-
-/* --acceso: 1 se il LED è entro il livello della colonna, 0 altrimenti
-   (con interi, clamp(0, livello − i + 1, 1) vale solo 0 o 1).
-   Il LED spento è lo sfondo; quello acceso sta sopra (::after) e
-   compare con l'opacità = --acceso */
-.led {
+/* Un LED della colonna è acceso se il suo indice è entro il livello:
+   con interi, clamp(0, livello − i + 1, 1) vale solo 0 o 1.
+   L'aspetto è in Led.module.css */
+.ledColonna {
   --acceso: clamp(0, var(--livello) - var(--i) + 1, 1);
-  position: relative;
-  width: var(--led);
-  height: var(--led);
-  background: var(--immagine-spenta) center / 100% 100% no-repeat;
 }
 
-/* Immagine accesa: 152/80 volte il LED, centrata. Il margine negativo
-   è metà della differenza: (152 − 80) / 2 / 80 = 0,45 del LED */
-.led::after {
-  content: "";
-  position: absolute;
-  inset: calc(var(--led) * -0.45);
-  background: var(--immagine-accesa) center / 100% 100% no-repeat;
-  opacity: var(--acceso);
-  pointer-events: none;
-}
-
+/* L e R centrate sotto la propria colonna: stessa larghezza delle
+   colonne (--led) e stesso spazio tra loro (--gap-colonne) */
 .canali {
-  composes: incisione from "./incisioni.module.css";
-  display: flex;
-  gap: calc(var(--led) + var(--gap-colonne) - 1ch);
+  display: grid;
+  grid-template-columns: repeat(2, var(--led));
+  gap: var(--gap-colonne);
+  justify-items: center;
 }
