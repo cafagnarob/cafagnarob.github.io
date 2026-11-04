@@ -39,7 +39,7 @@ export type Progetto = {
     url: string
     base: string
     avvio?: string
-    tema?: "pixel" | "terminale"
+    tema?: "pixel" | "terminale" | "metallo"
     soloComputer?: boolean
   }
 }
@@ -134,5 +134,36 @@ export const PROGETTI: Progetto[] = [
       codice: "https://github.com/cafagnarob/ORBITAL",
     },
     colore: "#0f2a1c", // verde fosfori scuro; DA CONFERMARE con l'icona
+  },
+  {
+    id: "audio-panel",
+    nome: "Audio Panel",
+    sottotitolo:
+      "Controllo audio in stile hardware vintage, da Figma al codice",
+    descrizione: [
+      "Caso studio UI/UX: un pannello di metallo spazzolato con manopola del volume, selettore mute e uno spettro di LED che reagisce alla musica.",
+      "Design system di 7 componenti in Figma, prototipo, handoff e sviluppo con React e la Web Audio API.",
+    ],
+    tecnologie: [
+      "Figma",
+      "React 19",
+      "TypeScript",
+      "Web Audio API",
+      "CSS Modules",
+    ],
+    stato: "completato",
+    indirizzo: "portfolio/audio-panel", // DA CONFERMARE: il dominio del portfolio quando sarà online
+    readme: {
+      // Il README vive nel portfolio (public/), non in un repository a parte
+      url: "/progetti/audio-panel/README.md",
+      // base deve essere un indirizzo COMPLETO: new URL("./x.webp", base)
+      // non accetta un percorso che inizia con "/"
+      base: `${window.location.origin}/progetti/audio-panel/`,
+      tema: "metallo",
+    },
+    link: {
+      // codice: "https://github.com/cafagnarob/…", // DA CONFERMARE: repo del portfolio, se pubblico
+    },
+    colore: "#5f6670", // grigio metallo; DA CONFERMARE con l'icona
   },
 ]
