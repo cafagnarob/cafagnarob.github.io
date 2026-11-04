@@ -39,7 +39,7 @@ export type Progetto = {
     url: string
     base: string
     avvio?: string
-    tema?: "pixel" | "terminale" | "metallo"
+    tema?: "pixel" | "terminale" | "radio"
     soloComputer?: boolean
   }
 }
@@ -159,7 +159,7 @@ export const PROGETTI: Progetto[] = [
       // base deve essere un indirizzo COMPLETO: new URL("./x.webp", base)
       // non accetta un percorso che inizia con "/"
       base: `${window.location.origin}/progetti/audio-panel/`,
-      tema: "metallo",
+      tema: "radio",
     },
     link: {
       // codice: "https://github.com/cafagnarob/…", // DA CONFERMARE: repo del portfolio, se pubblico
