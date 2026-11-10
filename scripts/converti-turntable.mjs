@@ -40,6 +40,18 @@ import sharp from "sharp"
 /* ------------------------------------------------------------
  * CONFIGURAZIONE
  * ------------------------------------------------------------ */
+
+/*
+ * Modo di scontorno:
+ *  "colore" → distanza dal colore degli angoli (sfondi a tinta unita di
+ *             qualsiasi colore)
+ *  "verde"  → quanto il pixel è più verde che rosso e blu: funziona anche
+ *             con lo sfondo verde sfumato. NON per capi verdi
+ */
+const MODO = "verde"
+const ECCESSO_CAPO = 25 // verde in più sotto cui è capo → opaco
+const ECCESSO_SFONDO = 85 // verde in più sopra cui è sfondo → trasparente
+
 const QUALITA = 82 // qualità WebP del colore (0–100)
 const QUALITA_ALFA = 90 // qualità WebP della trasparenza (0–100)
 
@@ -140,8 +152,16 @@ async function scontorna(percorso, sfondo) {
     // Quanto il pixel è diverso dal colore dello sfondo
     const distanza = Math.hypot(r - sr, g - sg, b - sb)
 
-    // Alfa: 0 vicino allo sfondo, 255 sul capo, sfumato sul bordo
-    const t = (distanza - DISTANZA_SFONDO) / (DISTANZA_CAPO - DISTANZA_SFONDO)
+    // Alfa: 0 sullo sfondo, 255 sul capo, sfumato sul bordo
+    let t
+    if (MODO === "verde") {
+      // Quanto il pixel è "più verde" del suo rosso e del suo blu
+      const eccesso = g - Math.max(r, b)
+      t = 1 - (eccesso - ECCESSO_CAPO) / (ECCESSO_SFONDO - ECCESSO_CAPO)
+    } else {
+      const distanza = Math.hypot(r - sr, g - sg, b - sb)
+      t = (distanza - DISTANZA_SFONDO) / (DISTANZA_CAPO - DISTANZA_SFONDO)
+    }
     const alfa = Math.round(255 * Math.min(Math.max(t, 0), 1))
     data[i + 3] = alfa
 

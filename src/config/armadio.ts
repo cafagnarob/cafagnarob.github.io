@@ -57,7 +57,7 @@ export const CAPI_CLICCABILI: Record<string, string> = {
   capo_3: "capo_3",
   capo_4: "capo_4",
   capo_5: "capo_5",
-  capo_6: "capo_6",
+  // capo_6: "capo_6",
   capo_7: "capo_7",
   capo_7_minuteria: "capo_7",
 }

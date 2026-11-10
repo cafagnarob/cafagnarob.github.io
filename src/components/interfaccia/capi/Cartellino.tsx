@@ -52,8 +52,6 @@ export function Cartellino({ id, lavoro }: Props) {
         <h2 className={stili.nome}>{lavoro.titolo}</h2>
         <p className={stili.collezione}>{sottotitolo}</p>
 
-        <p className={stili.collezione}>{sottotitolo}</p>
-
         <button
           type="button"
           className={stili.scopri}

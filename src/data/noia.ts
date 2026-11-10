@@ -233,6 +233,13 @@ export const COLLEZIONI_NOIA: Record<IdCollezione, RaccoltaNoia> = {
         1349,
       ),
       immagine(
+        "fw22_completo_denim",
+        "denim_nylon_look.png",
+        "Completo nero: giacca in denim a strati con impunture chiare e pantalone in nylon",
+        592,
+        1600,
+      ),
+      immagine(
         "fw22_jungle_mask_fronte",
         "jungle_mask.png",
         "Jungle mask vista di fronte",
@@ -294,6 +301,13 @@ export const COLLEZIONI_NOIA: Record<IdCollezione, RaccoltaNoia> = {
         "Bomber in pelle crema",
         1533,
         1430,
+      ),
+      immagine(
+        "ss24_trench",
+        "trench.png",
+        "Trench lungo crema con profili arancio",
+        409,
+        566,
       ),
       immagine(
         "ss24_outfit_bomber",
