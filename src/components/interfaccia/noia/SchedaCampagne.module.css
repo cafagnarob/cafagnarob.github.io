@@ -1,0 +1,5 @@
+/* Spazio ampio tra una campagna e l'altra: ogni campagna è un capitolo */
+.campagne {
+  display: grid;
+  gap: clamp(36px, 6vw, 64px);
+}

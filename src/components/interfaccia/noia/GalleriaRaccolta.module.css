@@ -1,5 +1,6 @@
 /*
- * Griglia dei capi: tante colonne quante ne entrano (minimo 220px).
+ * Galleria di una raccolta (collezione o campagna).
+ * Griglia: tante colonne quante ne entrano (minimo 220px).
  * grid-auto-flow: dense riempie i buchi lasciati dal pannello grande.
  * min(220px, 100%) evita che su schermi strettissimi la colonna
  * superi la larghezza disponibile.

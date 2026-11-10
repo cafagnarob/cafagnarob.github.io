@@ -50,3 +50,21 @@
     max-height: 420px;
   }
 }
+
+/*
+ * Video (PannelloVideo usa questo stesso file): i video sono verticali,
+ * quindi possono essere più alti delle foto prima di essere limitati.
+ */
+.pannello video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: var(--inchiostro);
+}
+
+.grande video {
+  max-height: 640px;
+}

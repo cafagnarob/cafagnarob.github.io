@@ -20,7 +20,8 @@ import { LogoNoia } from "./LogoNoia"
 import { BarraSchede } from "./BarraSchede"
 import { SchedaManifesto } from "./SchedaManifesto"
 import { SchedaIdentita } from "./SchedaIdentita"
-import { SchedaCollezione } from "./SchedaCollezione"
+import { GalleriaRaccolta } from "./GalleriaRaccolta"
+import { SchedaCampagne } from "./SchedaCampagne"
 import stili from "./FinestraNoia.module.css"
 
 /* Callback ref: React lo chiama quando il <dialog> entra nel DOM.
@@ -105,8 +106,8 @@ function ContenutoScheda({ scheda }: { scheda: IdScheda }) {
     case "identita":
       return <SchedaIdentita />
     case "campagne":
-      return <p>Le campagne arrivano presto.</p>
+      return <SchedaCampagne />
     default:
-      return <SchedaCollezione collezione={COLLEZIONI_NOIA[scheda]} />
+      return <GalleriaRaccolta raccolta={COLLEZIONI_NOIA[scheda]} />
   }
 }

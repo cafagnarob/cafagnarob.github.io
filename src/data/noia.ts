@@ -17,6 +17,7 @@ export type IdCollezione = "fw22" | "ss24"
 export type IdScheda = "manifesto" | "identita" | IdCollezione | "campagne"
 
 export interface ImmagineNoia {
+  tipo?: "immagine"
   /** percorso pubblico del file */
   src: string
   /** etichetta in stile tavole: "jungle_mask.png" */
@@ -27,14 +28,35 @@ export interface ImmagineNoia {
   altezza: number
 }
 
-export interface CollezioneNoia {
-  id: IdCollezione
+export interface VideoNoia {
+  tipo: "video"
+  /** percorso pubblico del file MP4 */
+  src: string
+  /** fotogramma mostrato prima che il video parta */
+  poster: string
+  nomeFile: string
+  alt: string
+  larghezza: number
+  altezza: number
+  /** true = film con sonoro: niente autoplay, controlli visibili */
+  audio?: boolean
+}
+
+/** Un elemento di una galleria: foto o video */
+export type MediaNoia = ImmagineNoia | VideoNoia
+
+/**
+ * Una raccolta da mostrare in galleria: una collezione (FW22-23, SS24)
+ * o una campagna (deserto, metro…). Stessa forma, stesso componente.
+ */
+export interface RaccoltaNoia {
+  id: string
   /** sigla mostrata sul badge: "FW22-23" */
   sigla: string
   titolo: string
-  /** frase breve sotto il titolo (da completare con Roberto) */
+  /** frase breve sotto il titolo */
   descrizione?: string
-  immagini: ImmagineNoia[]
+  media: MediaNoia[]
 }
 
 /* ── Utilità ──────────────────────────────────────────────────────── */
@@ -52,6 +74,27 @@ function immagine(
   return { src: `${CARTELLA}${file}.webp`, nomeFile, alt, larghezza, altezza }
 }
 
+/** Crea un video NOIA: MP4 e poster WebP hanno lo stesso nome */
+function video(
+  file: string,
+  nomeFile: string,
+  alt: string,
+  larghezza: number,
+  altezza: number,
+  audio = false,
+): VideoNoia {
+  return {
+    tipo: "video",
+    src: `${CARTELLA}${file}.mp4`,
+    poster: `${CARTELLA}${file}.webp`,
+    nomeFile,
+    alt,
+    larghezza,
+    altezza,
+    audio,
+  }
+}
+
 /* ── Schede della finestra, nell'ordine in cui compaiono ──────────── */
 
 export const SCHEDE_NOIA: { id: IdScheda; etichetta: string }[] = [
@@ -59,8 +102,7 @@ export const SCHEDE_NOIA: { id: IdScheda; etichetta: string }[] = [
   { id: "identita", etichetta: "Identità" },
   { id: "fw22", etichetta: "FW22-23" },
   { id: "ss24", etichetta: "SS24" },
-  // Da riattivare quando arrivano le foto delle campagne
-  // { id: "campagne", etichetta: "Campagne" },
+  { id: "campagne", etichetta: "Campagne" },
 ]
 
 /* ── Manifesto ────────────────────────────────────────────────────── */
@@ -142,12 +184,12 @@ export const IDENTITA_NOIA = {
 
 /* ── Collezioni ───────────────────────────────────────────────────── */
 
-export const COLLEZIONI_NOIA: Record<IdCollezione, CollezioneNoia> = {
+export const COLLEZIONI_NOIA: Record<IdCollezione, RaccoltaNoia> = {
   fw22: {
     id: "fw22",
     sigla: "FW22-23",
     titolo: "Fall Winter 22-23",
-    immagini: [
+    media: [
       immagine("fw22_felpa_rossa", "hoodie.png", "Felpa rossa con cappuccio e etichetta noia", 1600, 1349),
       immagine("fw22_jungle_mask_fronte", "jungle_mask.png", "Jungle mask vista di fronte", 1439, 1600),
       immagine("fw22_jungle_mask_profilo", "jungle_mask_side.png", "Jungle mask di profilo", 1271, 1600),
@@ -161,16 +203,73 @@ export const COLLEZIONI_NOIA: Record<IdCollezione, CollezioneNoia> = {
     id: "ss24",
     sigla: "SS24",
     titolo: "Spring Summer 24",
-    immagini: [
+    media: [
       immagine("ss24_outfit_modello", "walk_outfit.png", "Outfit SS24 indossato: bomber, t-shirt e pantaloncino", 754, 1600),
       immagine("ss24_bomber_pelle", "leather_bomber.png", "Bomber in pelle crema", 1533, 1430),
       immagine("ss24_outfit_bomber", "bomber_tee.png", "Bomber, t-shirt e pantaloncino", 855, 1600),
       immagine("ss24_tshirt_logo", "white_t-shirt_logo.png", "T-shirt bianca con logo noia", 894, 1007),
       immagine("ss24_pantaloncino", "shorts.png", "Pantaloncino con pinces", 1069, 962),
       immagine("ss24_borsa_imbottita", "puffer_bag.png", "Borsa imbottita in nylon crema", 939, 1587),
+      video("ss24_outfit_bomber_giro", "bomber_tee_360.mp4", "Il look con bomber, t-shirt e pantaloncino che ruota su se stesso", 720, 1280),
     ],
   },
 }
+
+/* ── Campagne ──────────────────────────────────────────────────────── */
+
+/**
+ * Le campagne, nell'ordine in cui compaiono nella scheda.
+ * I nomi "film" e "strada" sono provvisori: da confermare con Roberto.
+ */
+export const CAMPAGNE_NOIA: RaccoltaNoia[] = [
+  {
+    id: "deserto",
+    sigla: "desert",
+    titolo: "Deserto",
+    media: [
+      immagine("deserto_01", "desert_01.png", "Giacca a strati con profili arancio e pantaloncino nel deserto", 1200, 1200),
+      immagine("deserto_02", "desert_02.png", "Felpa con zip e logo arancio, mano sulla testa", 1200, 1200),
+      video("campagna_deserto", "desert_walk.mp4", "Il modello in felpa nera cammina nel deserto al tramonto", 720, 1280),
+      immagine("deserto_03", "desert_03.png", "Cappotto lungo con profili arancio mosso dal vento", 1200, 1200),
+      immagine("deserto_04", "desert_04.png", "Bomber in pelle crema, t-shirt e pantaloncino", 1200, 1200),
+      immagine("deserto_05", "desert_05.png", "Canotta, cappellino e pantalone ampio", 1200, 1200),
+      immagine("deserto_06", "desert_06.png", "Camicia a quadri verdi e borsa imbottita", 1200, 1200),
+    ],
+  },
+  {
+    id: "metro",
+    sigla: "metro",
+    titolo: "Metro",
+    media: [
+      immagine("metro_01", "metro_01.png", "Il modello scende le scale della metro", 1080, 1080),
+      immagine("metro_02", "metro_02.png", "Calcio verso l'obiettivo nel sottopassaggio", 1080, 1080),
+      immagine("metro_03", "metro_03.png", "Seduto a terra con t-shirt e pantaloncino bianchi", 1080, 1080),
+      immagine("metro_04", "metro_04.png", "Seduto sul pavimento, le sneaker in primo piano", 1080, 1080),
+      immagine("metro_05", "metro_05.png", "Seduto sui gradini con le mani tatuate", 1080, 1080),
+      immagine("metro_06", "metro_06.png", "Sdraiato sulla panca nella luce viola", 1080, 1080),
+      immagine("metro_07", "metro_07.png", "Primo piano con la t-shirt logo noia", 1080, 1080),
+      immagine("metro_08", "metro_08.png", "Appoggiato al muro di piastrelle verdi", 1080, 1080),
+    ],
+  },
+  {
+    id: "film",
+    sigla: "film",
+    titolo: "Film",
+    media: [
+      video("campagna_film", "noia_film.mp4", "Il film della campagna: camicia a quadri in una stanza gialla, finale con il logo noia", 720, 1280, true),
+      video("campagna_specchio", "mirror.mp4", "Le gambe tatuate riflesse in uno specchio", 720, 1280),
+      immagine("campagna_ritratto", "portrait.png", "Ritratto con la camicia a quadri verdi", 900, 1600),
+    ],
+  },
+  {
+    id: "strada",
+    sigla: "street",
+    titolo: "Strada",
+    media: [
+      video("campagna_strada", "street.mp4", "Il modello in felpa bianca cammina in una strada di notte", 324, 576),
+    ],
+  },
+]
 
 /* ── Collegamento con l'armadio della stanza ──────────────────────── */
 
