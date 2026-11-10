@@ -1,0 +1,126 @@
+/*
+ * Pannello della galleria (foto e video) in stile editoriale:
+ * - una linea nera sopra, come le colonne di un giornale
+ * - numero arancio + nome file in macchina da scrivere
+ * - il riquadro: fondo crema scura, l'immagine intera (contain)
+ * .grande occupa due colonne e due righe e ha il blocco arancio dietro
+ * l'immagine, come nelle reference.
+ */
+.pannello {
+  margin: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--inchiostro);
+}
+
+.etichetta {
+  display: flex;
+  gap: 12px;
+  font: 11px / 1 var(--font-macchina);
+}
+
+.etichetta span {
+  color: var(--arancio);
+}
+
+.riquadro {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  padding: 8%;
+  background: var(--crema-scura);
+  overflow: hidden;
+}
+
+.riquadro img,
+.riquadro video {
+  position: relative; /* sopra il blocco arancio */
+  width: 100%;
+  height: auto;
+  max-height: 340px;
+  object-fit: contain;
+  transition: scale 0.35s ease;
+}
+
+/* ── Pannello grande: copertina della raccolta ── */
+.grande {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.grande .riquadro::before {
+  content: "";
+  position: absolute;
+  inset: 46% 0 16% 22%;
+  background: var(--arancio);
+}
+
+.grande img,
+.grande video {
+  max-height: 640px;
+}
+
+/* ── Foto di campagna: niente cornice, l'immagine riempie ── */
+.piena .riquadro {
+  align-items: start; /* in alto, senza vuoto sopra la foto */
+  padding: 0;
+  background: none;
+  overflow: visible;
+}
+
+.piena .riquadro img,
+.piena .riquadro video {
+  max-height: none;
+}
+
+/* Il blocco arancio sporge dall'angolo in basso a destra */
+.piena.grande .riquadro::before {
+  inset: 55% -14px -14px 40%;
+}
+
+/* ── Clic: pulsante trasparente steso sul riquadro ── */
+.apri {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.apri:focus-visible {
+  outline: 2px solid var(--arancio);
+  outline-offset: -2px;
+}
+
+.riquadro:has(.apri:hover) img,
+.riquadro:has(.apri:hover) video {
+  scale: 1.04;
+}
+
+/* Su telefono due colonne: il grande le occupa entrambe */
+@media (max-width: 520px) {
+  .grande {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .piena.grande .riquadro::before {
+    inset: 55% -8px -8px 40%;
+  }
+
+  .grande img,
+  .grande video {
+    max-height: 440px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .riquadro img,
+  .riquadro video {
+    transition: none;
+  }
+}

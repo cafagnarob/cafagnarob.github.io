@@ -1,0 +1,51 @@
+.spettro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.colonne {
+  display: flex;
+  gap: var(--gap-colonne);
+}
+
+/* column-reverse: il LED 1 in basso, l'11 in alto */
+.colonna {
+  --livello: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--gap-verticale);
+}
+
+/* Un LED della colonna è acceso se il suo indice è entro il livello:
+   con interi, clamp(0, livello − i + 1, 1) vale solo 0 o 1.
+   L'aspetto è in Led.module.css */
+.ledColonna {
+  --acceso: clamp(0, var(--livello) - var(--i) + 1, 1);
+}
+
+/* L e R centrate sotto la propria colonna: stessa larghezza delle
+   colonne (--led) e stesso spazio tra loro (--gap-colonne) */
+.canali {
+  display: grid;
+  grid-template-columns: repeat(2, var(--led));
+  gap: var(--gap-colonne);
+  justify-items: center;
+}
+
+/* Mobile: lo spettro occupa tutta l'altezza del pannello (Figma 34×214).
+   I LED si distribuiscono sull'altezza (space-between) invece di avere
+   uno spazio fisso: --gap-verticale resta come spazio MINIMO */
+.mobile {
+  align-self: stretch;
+  justify-content: space-between;
+}
+
+.mobile .colonne {
+  flex: 1;
+}
+
+.mobile .colonna {
+  justify-content: space-between;
+}

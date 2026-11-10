@@ -1,0 +1,56 @@
+/*
+ * Schede come voci di menu editoriali: maiuscoletto piccolo e spaziato.
+ * La scheda attiva ha un punto arancio davanti, come gli indicatori
+ * di pagina nelle reference.
+ * Su mobile scorrono in orizzontale invece di andare a capo.
+ */
+.barra {
+  display: flex;
+  gap: clamp(16px, 3vw, 36px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.linguetta {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--inchiostro);
+  font: 600 11px / 1 var(--font-noia);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.linguetta::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--arancio);
+  scale: 0;
+  transition: scale 0.2s ease;
+}
+
+.linguetta:hover,
+.linguetta[aria-selected="true"] {
+  opacity: 1;
+}
+
+.linguetta[aria-selected="true"]::before {
+  scale: 1;
+}
+
+/* Focus da tastiera: sottolineatura arancio. Un outline verrebbe
+   tagliato dal contenitore che scorre in orizzontale */
+.linguetta:focus-visible {
+  outline: none;
+  text-decoration: underline 2px var(--arancio);
+  text-underline-offset: 5px;
+}

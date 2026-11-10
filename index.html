@@ -1,10 +1,29 @@
 <!doctype html>
-<html lang="en">
+<html lang="it">
   <head>
     <meta charset="UTF-8" />
+    <!-- viewport-fit=cover: la pagina usa tutto lo schermo dei telefoni
+         con notch; senza, env(safe-area-inset-*) vale 0 e la barra di
+         stato del telefono finisce sotto il notch -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Roberto Cafagna — Portfolio</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>protfolio-cameretta</title>
+
+    <!-- Google Fonts: un'unica richiesta per tutti i font
+         - Courier Prime: testi dei fogli del profilo
+         - Caveat: post-it (nome e ruolo)
+         - Press Start 2P: pagine README a tema "pixel" (The Worst Date)
+         - VT323: pagine README a tema "terminale" (ORBITAL) 
+         -“Anonymous Pro (bold): etichette incise del pannello audio”-->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Courier+Prime:wght@400;700&family=Press+Start+2P&family=VT323&family=Jost:wght@400;500;700&family=Anonymous+Pro:wght@700&family=Caveat:wght@600;700&…display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="root"></div>

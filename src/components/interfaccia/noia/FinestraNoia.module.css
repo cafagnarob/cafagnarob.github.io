@@ -1,0 +1,116 @@
+/*
+ * Finestra NOIA
+ * Stile editoriale: fondo crema pulito, angoli appena arrotondati,
+ * testata sottile con marchio, schede e chiusura su una riga.
+ * I token (colori, font) sono definiti qui e tutti i componenti interni
+ * li ereditano.
+ * Misure, velo ed entrata sono in FinestraModale.module.css.
+ */
+
+.finestra {
+  /* ── Token del brand (uguali a IDENTITA_NOIA.palette) ── */
+  --arancio: #c4441d;
+  --crema: #ece4d4;
+  --crema-scura: #e1d7c4; /* fondo dei riquadri immagine */
+  --inchiostro: #1a1714;
+  --oliva: #6f6a45;
+  --font-noia: "Futura PT", Futura, Jost, "Century Gothic", sans-serif;
+  --font-macchina: "Courier Prime", "Courier New", monospace;
+  --margine: clamp(16px, 3.2vw, 44px); /* margine laterale di tutta la pagina */
+
+  border-radius: 14px;
+  background: var(--crema);
+  color: var(--inchiostro);
+  font-family: var(--font-noia);
+}
+
+/* Testata in alto, contenuto che scorre sotto */
+.interno {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+/* ── Testata: marchio · schede · chiudi ── */
+.testata {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 18px var(--margine);
+}
+
+.marchio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 700 14px / 1 var(--font-macchina);
+}
+
+.marchio img {
+  width: 18px;
+  height: auto;
+}
+
+.chiudi {
+  justify-self: end;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--inchiostro);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.chiudi:hover,
+.chiudi:focus-visible {
+  background: var(--inchiostro);
+  color: var(--crema);
+  outline: none;
+}
+
+/* ── Contenuto: l'unica parte che scorre ── */
+.contenuto {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  padding: 8px var(--margine) 56px;
+  scrollbar-color: var(--inchiostro) transparent;
+}
+
+/* ── Mobile: tutto schermo, schede su una seconda riga ── */
+@media (max-width: 640px) {
+  .testata {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "marchio chiudi"
+      "schede schede";
+    padding: max(12px, env(safe-area-inset-top)) var(--margine) 8px;
+    row-gap: 10px;
+  }
+
+  .marchio {
+    grid-area: marchio;
+  }
+
+  .chiudi {
+    grid-area: chiudi;
+  }
+
+  .testata > nav {
+    grid-area: schede;
+  }
+
+  .contenuto {
+    padding-bottom: max(32px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contenuto {
+    scroll-behavior: auto;
+  }
+}

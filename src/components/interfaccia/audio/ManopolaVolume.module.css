@@ -1,0 +1,46 @@
+/* Manopola + etichetta; la disposizione (etichetta a destra su desktop,
+   sotto su mobile) la decide il pannello con className */
+.blocco {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+/* Area della scala (88×88): è anche l'area cliccabile, più grande
+   della manopola, quindi ok anche per il dito (minimo 44×44) */
+.manopola {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--scala);
+  height: var(--scala);
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none; /* il trascinamento non scorre/zooma la pagina */
+}
+
+.manopola:active {
+  cursor: grabbing;
+}
+
+.manopola:focus-visible {
+  outline: 2px solid #3d7bff;
+  outline-offset: 2px;
+}
+
+/* Scala di tacche: stessa misura dell'area (88×88), sotto la manopola */
+.tacche {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.corpo {
+  grid-area: 1 / 1;
+}
+
+/* "VOLUME" inciso (immagine): non si schiaccia nel flex */
+.etichetta {
+  flex: none;
+}

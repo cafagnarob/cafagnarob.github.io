@@ -1,0 +1,210 @@
+/*
+ * Armadio
+ * Mostra l'armadio bakeato e gestisce tutta la sua interazione.
+ *
+ * - useMaterialiBake / useAnte: materiali bakeati e apertura delle ante.
+ * - Armadio CHIUSO: passando sopra si accende l'alone su tutto l'armadio
+ *   (ALONE_ARMADIO); un click ovunque lo apre (onApri).
+ * - Armadio APERTO: passando sopra un capo si accende il suo alone; un
+ *   click su un capo calcola il suo rettangolo a schermo e lo porta in
+ *   primo piano (onSelezionaCapo); un click su un'anta chiude (onChiudi).
+ * - Durante l'ISPEZIONE hover e click sull'armadio vengono ignorati.
+ *   I capi con turntable vengono mostrati dal VisoreTurntable (HTML);
+ *   quelli senza, dal clone 3D di Ispezione.
+ * - capoSottoMouse e armadioSottoMouse sono ref: cambiano a ogni
+ *   movimento del mouse senza causare re-render.
+ * - useFrame, a ogni fotogramma:
+ *     neon → sfarfallio continuo
+ *     LED  → acceso se aperto, spento se chiuso
+ *     evidenziazione → alone dell'armadio o del capo sotto il mouse,
+ *                      LUMINOSITA_ISPEZIONE per il capo in ispezione 3D
+ *     visibilità → gli originali del capo in ispezione sono nascosti
+ */
+
+import { useRef } from "react"
+import * as THREE from "three"
+import { useGLTF } from "@react-three/drei"
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
+import { useMaterialiBake } from "./useMaterialiBake"
+import { useAnte } from "./useAnte"
+import { Ispezione } from "./Ispezione"
+import { intensitaNeon } from "../../utils/sfarfallio"
+import {
+  rettangoloSchermo,
+  type Rettangolo,
+} from "../../utils/rettangoloSchermo"
+import { LAVORI_MODA } from "../../data/lavoriModa"
+import {
+  ALONE_ARMADIO,
+  ANTE_ARMADIO,
+  CAPI_CLICCABILI,
+  VELOCITA_EVIDENZIAZIONE,
+  VELOCITA_LED,
+} from "../../config/armadio"
+import { LUMINOSITA_ISPEZIONE } from "../../config/ispezione"
+import { PERCORSO_DRACO } from "../../config/texture"
+
+const PERCORSO_MODELLO = "/models/armadio.glb"
+
+type ArmadioProps = {
+  aperto: boolean
+  capoInIspezione: string | null
+  ritornoCapo: boolean
+  onApri: () => void
+  onChiudi: () => void
+  onSelezionaCapo: (idLavoro: string, rettangolo: Rettangolo) => void
+  onRimettiCapo: () => void
+  onRitornoCompletato: () => void
+}
+
+/* Restituisce l'id del lavoro dell'oggetto colpito, se è un capo */
+function lavoroColpito(evento: ThreeEvent<PointerEvent | MouseEvent>) {
+  return CAPI_CLICCABILI[evento.object.name] as string | undefined
+}
+
+/* True se l'oggetto colpito è un'anta */
+function antaColpita(evento: ThreeEvent<PointerEvent | MouseEvent>) {
+  return evento.object.name in ANTE_ARMADIO
+}
+
+export function Armadio({
+  aperto,
+  capoInIspezione,
+  ritornoCapo,
+  onApri,
+  onChiudi,
+  onSelezionaCapo,
+  onRimettiCapo,
+  onRitornoCompletato,
+}: ArmadioProps) {
+  const { scene } = useGLTF(PERCORSO_MODELLO, PERCORSO_DRACO)
+  const materiali = useMaterialiBake(scene)
+  useAnte(scene, aperto)
+
+  const canvas = useThree((stato) => stato.gl.domElement)
+  const capoSottoMouse = useRef<string | null>(null)
+
+  // Il mouse è sopra l'armadio? (serve all'alone dell'armadio chiuso)
+  const armadioSottoMouse = useRef(false)
+  const inIspezione = capoInIspezione !== null
+
+  /* Oggetti 3D dei capi: cercati per nome al primo fotogramma e poi
+     conservati in un ref. Un ref (e non useMemo) perché li modifichiamo
+     a ogni fotogramma (visibilità): sono oggetti three.js mutabili,
+     che React non deve osservare. */
+  const oggettiCapi = useRef<THREE.Object3D[] | null>(null)
+
+  /* Animazioni a ogni fotogramma */
+  useFrame(({ clock }, delta) => {
+    const neon = intensitaNeon(clock.elapsedTime)
+    const frazioneLed = 1 - Math.exp(-VELOCITA_LED * delta)
+    const frazioneEvidenziazione =
+      1 - Math.exp(-VELOCITA_EVIDENZIAZIONE * delta)
+    const obiettivoLed = aperto ? 1 : 0
+
+    for (const [nomeOggetto, materiale] of Object.entries(materiali)) {
+      const {
+        intensitaLed,
+        intensitaNeon: uniformNeon,
+        evidenziazione,
+      } = materiale.uniforms
+      uniformNeon.value = neon
+      intensitaLed.value += (obiettivoLed - intensitaLed.value) * frazioneLed
+
+      const lavoro = CAPI_CLICCABILI[nomeOggetto]
+      let obiettivo = 0
+      if (lavoro !== undefined && lavoro === capoInIspezione) {
+        // Capo in ispezione 3D: più luminoso
+        obiettivo = LUMINOSITA_ISPEZIONE
+      } else if (!aperto && armadioSottoMouse.current) {
+        // Armadio CHIUSO sotto il mouse: alone su tutto l'armadio
+        obiettivo = ALONE_ARMADIO
+      } else if (
+        aperto &&
+        !inIspezione &&
+        lavoro !== undefined &&
+        lavoro === capoSottoMouse.current
+      ) {
+        // Armadio APERTO: alone sul solo capo sotto il mouse
+        obiettivo = 1
+      }
+      evidenziazione.value +=
+        (obiettivo - evidenziazione.value) * frazioneEvidenziazione
+    }
+
+    // Gli originali del capo in ispezione restano nascosti finché il clone è fuori
+    oggettiCapi.current ??= Object.keys(CAPI_CLICCABILI)
+      .map((nome) => scene.getObjectByName(nome))
+      .filter((oggetto): oggetto is THREE.Object3D => oggetto !== undefined)
+
+    for (const oggetto of oggettiCapi.current) {
+      oggetto.visible = CAPI_CLICCABILI[oggetto.name] !== capoInIspezione
+    }
+  })
+
+  /* Click:
+     - chiuso → apre
+     - aperto → capo: ispezione / anta: chiude */
+  const gestisciClick = (evento: ThreeEvent<MouseEvent>) => {
+    evento.stopPropagation()
+    if (inIspezione) return
+    if (!aperto) {
+      onApri()
+      return
+    }
+    const lavoro = lavoroColpito(evento)
+    if (lavoro) {
+      // Tutti gli oggetti del lavoro (es. zaino + minuterie) e il loro
+      // rettangolo sullo schermo: è il punto di partenza del render
+      const oggetti: THREE.Object3D[] = []
+      scene.traverse((o) => {
+        if (CAPI_CLICCABILI[o.name] === lavoro) oggetti.push(o)
+      })
+      onSelezionaCapo(lavoro, rettangoloSchermo(oggetti, evento.camera, canvas))
+      return
+    }
+    if (antaColpita(evento)) onChiudi()
+  }
+
+  /* Movimento: capo sotto il mouse e forma del cursore.
+     Ad armadio aperto sono cliccabili i capi e le ante. */
+  const gestisciMovimento = (evento: ThreeEvent<PointerEvent>) => {
+    evento.stopPropagation()
+    if (inIspezione) return
+    armadioSottoMouse.current = true
+    const lavoro = aperto ? lavoroColpito(evento) : undefined
+    capoSottoMouse.current = lavoro ?? null
+    const cliccabile = !aperto || lavoro !== undefined || antaColpita(evento)
+    document.body.style.cursor = cliccabile ? "pointer" : "auto"
+  }
+
+  const gestisciUscita = () => {
+    armadioSottoMouse.current = false
+    capoSottoMouse.current = null
+    if (!inIspezione) document.body.style.cursor = "auto"
+  }
+
+  return (
+    <>
+      <primitive
+        object={scene}
+        onClick={gestisciClick}
+        onPointerMove={gestisciMovimento}
+        onPointerOut={gestisciUscita}
+      />
+
+      {capoInIspezione && !LAVORI_MODA[capoInIspezione]?.turntable && (
+        <Ispezione
+          key={capoInIspezione}
+          scene={scene}
+          idLavoro={capoInIspezione}
+          ritorno={ritornoCapo}
+          onClickCapo={onRimettiCapo}
+          onRitornoCompletato={onRitornoCompletato}
+        />
+      )}
+    </>
+  )
+}
+
+useGLTF.preload(PERCORSO_MODELLO, PERCORSO_DRACO)

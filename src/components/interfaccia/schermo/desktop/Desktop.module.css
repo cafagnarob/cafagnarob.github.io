@@ -1,0 +1,83 @@
+/* Desktop: sfondo a tutta pagina, icone sopra, barra in fondo */
+.desktop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #05060a url("/images/schermi/sfondo_desktop.webp") center / cover
+    no-repeat;
+  color: #fff;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  user-select: none;
+}
+
+/* Misure delle icone sul desktop, tutte in un punto:
+   --icona: lato dell'immagine; le celle si ricavano da lì
+   (larga = icona + margine per il nome, alta = icona + due righe di nome).
+   Le variabili si ereditano: IconaDesktop legge --icona. */
+.icone {
+  --icona: 72px;
+  --cella-larga: calc(var(--icona) + 40px);
+  --cella-alta: calc(var(--icona) + 56px);
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, var(--cella-alta));
+  grid-auto-columns: var(--cella-larga);
+  align-content: start;
+  gap: 6px;
+  margin: 0;
+  padding: 14px 10px;
+  list-style: none;
+}
+
+/* Schermi grandi: icone ancora più grandi */
+@media (min-width: 1600px) {
+  .icone {
+    --icona: 88px;
+  }
+}
+
+/* Schermi piccoli o finestra bassa: un po' più piccole, così ne
+   stanno più in colonna */
+@media (max-height: 700px) {
+  .icone {
+    --icona: 60px;
+  }
+}
+
+/* Velo trasparente: un clic fuori dal menu Start lo chiude */
+.velo {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+/* Spegnimento da vecchio monitor CRT: l'immagine si schiaccia in una
+   riga luminosa, poi si stringe in un punto e sparisce sul nero */
+.spegnimento {
+  pointer-events: none;
+  animation: spegni 450ms ease-in forwards;
+}
+
+@keyframes spegni {
+  0% {
+    transform: none;
+    filter: none;
+  }
+  60% {
+    transform: scale(1, 0.004);
+    filter: brightness(3);
+  }
+  100% {
+    transform: scale(0, 0.004);
+    filter: brightness(5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spegnimento {
+    animation-duration: 1ms; /* onAnimationEnd arriva comunque */
+  }
+}

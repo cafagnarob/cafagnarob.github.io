@@ -1,0 +1,33 @@
+/* Spazio quadrato dell'icona. container-type: le iniziali della
+   riserva usano cqi (% della larghezza) e restano proporzionate */
+.icona {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  container-type: inline-size;
+}
+
+/* contain: il disegno entra tutto, senza tagli né deformazioni,
+   anche se non è perfettamente quadrato */
+.icona img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Riserva: quadrato del colore del progetto, arrotondato quanto chiede
+   chi usa l'icona (--raggio), altrimenti come un'app iOS */
+.riserva {
+  overflow: hidden;
+  border-radius: var(--raggio, 22.5%);
+  background: var(--colore);
+}
+
+.iniziali {
+  color: #fff;
+  font:
+    600 38cqi/1 system-ui,
+    sans-serif;
+  letter-spacing: 0.02em;
+}

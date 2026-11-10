@@ -1,0 +1,36 @@
+/*
+ * Stili del pulsante di chiusura
+ * Mobile: in basso al centro, comodo da raggiungere con il pollice.
+ * Desktop (da 768px): in alto a sinistra.
+ */
+.pulsante {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid rgba(242, 237, 230, 0.3);
+  border-radius: 999px;
+  background: rgba(17, 15, 13, 0.75);
+  backdrop-filter: blur(8px);
+  color: #f2ede6;
+  font:
+    500 0.95rem system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+
+.pulsante:hover,
+.pulsante:focus-visible {
+  background: rgba(40, 34, 28, 0.9);
+}
+
+@media (min-width: 768px) {
+  .pulsante {
+    top: 24px;
+    bottom: auto;
+    left: 24px;
+    transform: none;
+  }
+}

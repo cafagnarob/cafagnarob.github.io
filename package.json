@@ -7,13 +7,23 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "node scripts/copia-decodificatori.mjs",
+    "converti-icone": "node scripts/converti-icone.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
+    "@react-three/postprocessing": "^3.2.2",
+    "@reduxjs/toolkit": "^2.13.0",
+    "camera-controls": "^3.1.2",
+    "postprocessing": "^6.39.5",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
+    "react-redux": "^9.3.0",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
     "three": "^0.186.1"
   },
   "devDependencies": {
@@ -27,6 +37,8 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
+    "r3f-perf": "^7.2.3",
+    "sharp": "^0.35.5",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.2",
     "vite": "^8.3.4"

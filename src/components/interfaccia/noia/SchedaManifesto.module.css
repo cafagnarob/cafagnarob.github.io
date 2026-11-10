@@ -1,0 +1,86 @@
+/*
+ * Manifesto: colonna di lettura stretta (max 62 caratteri per riga),
+ * l'apertura in crema direttamente sull'arancio, il resto in pannelli.
+ */
+.manifesto {
+  position: relative;
+  max-width: 760px;
+  margin-inline: auto;
+  display: grid;
+  gap: 16px;
+}
+
+.apertura {
+  padding: 12px 4px 20px;
+  color: var(--crema);
+}
+
+.pannello {
+  padding: 26px clamp(18px, 4vw, 36px);
+  background: var(--crema);
+  border-radius: 32px 4px 4px 4px;
+  outline: 1px solid rgb(26 23 20 / 0.25);
+  outline-offset: -7px;
+}
+
+.titolo {
+  margin: 0 0 10px;
+  font: 12px / 1 var(--font-macchina);
+  text-transform: lowercase;
+}
+
+.paragrafo {
+  max-width: 62ch;
+  margin: 0 0 12px;
+  font-size: clamp(15px, 1.6vw, 17px);
+  line-height: 1.6;
+}
+
+.righe {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(1.7rem, 4.6vw, 3rem);
+  line-height: 1.08;
+}
+
+.righe span {
+  display: block;
+}
+
+/* Nei pannelli le righe sono la "chiusa": più piccole */
+.pannello .righe {
+  margin-top: 6px;
+  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+}
+
+/* ── La mosca che ronza ── */
+.mosca {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: clamp(44px, 7vw, 72px);
+  height: auto;
+  filter: invert(1) sepia(0.2);
+  animation: ronza 7s ease-in-out infinite;
+}
+
+@keyframes ronza {
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  20% { translate: -14px 6px; rotate: -12deg; }
+  22% { translate: -12px 4px; rotate: 8deg; }
+  50% { translate: 6px 14px; rotate: 20deg; }
+  52% { translate: 8px 12px; rotate: -4deg; }
+  80% { translate: -4px -6px; rotate: 6deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mosca {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .apertura {
+    padding-right: 56px; /* spazio per la mosca */
+  }
+}

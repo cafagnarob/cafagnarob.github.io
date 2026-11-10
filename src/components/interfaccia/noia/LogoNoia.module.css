@@ -1,0 +1,10 @@
+/*
+ * Logo NOIA: la forma viene dalla maschera, il colore dallo sfondo.
+ * Chi usa il componente decide larghezza e colore (--colore-logo).
+ */
+.logo {
+  display: block;
+  aspect-ratio: 587 / 584;
+  background-color: var(--colore-logo, var(--crema, #ece4d4));
+  mask: var(--maschera) center / contain no-repeat;
+}

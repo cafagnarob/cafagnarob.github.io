@@ -1,0 +1,175 @@
+/*
+ * Pannello audio
+ * .posizione: fisso in basso a destra, misura del pannello, ombra
+ *   (filter: drop-shadow, che segue anche la forma ritagliata)
+ * .piastra: metallo, angoli, bordo smussato e layout del contenuto
+ * .aperto: il popover, con l'animazione chiuso ↔ aperto
+ * Luce in alto a sinistra: riflesso sul bordo alto-sinistro, ombra in
+ * basso a destra.
+ */
+
+/* ---------- Posizione (pulsante chiuso e popover aperto) ---------- */
+/* Il popover di base è centrato, con bordo e sfondo: si annulla tutto */
+.posizione {
+  position: fixed;
+  inset: auto;
+  right: calc(var(--margine) + env(safe-area-inset-right));
+  bottom: calc(var(--margine) + env(safe-area-inset-bottom));
+  z-index: 10;
+  width: var(--larghezza);
+  height: var(--altezza);
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  filter: drop-shadow(4px 6px 7px rgb(0 0 0 / 0.35));
+  /* È un controllo, non un testo: niente selezione né menu al tocco */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* ---------- Piastra ---------- */
+.piastra {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: var(--padding);
+  border-radius: 6px;
+  background: #d9dbde var(--piastra) center / 100% 100% no-repeat;
+  box-shadow:
+    inset 1px 1px 0 rgb(255 255 255 / 0.9),
+    inset -1px -1px 0 rgb(0 0 0 / 0.18);
+}
+
+/* ---------- Chiuso ---------- */
+.chiuso {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chiuso:focus-visible {
+  outline: 2px solid #3d7bff;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- Layout aperto ---------- */
+.piastraAperta.desktop {
+  grid-template-rows: auto 1fr;
+}
+
+.piastraAperta.mobile {
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+}
+
+.scivola {
+  display: grid;
+}
+
+.mobile .scivola {
+  align-self: stretch; /* lo spettro mobile occupa tutta l'altezza */
+}
+
+/* Comandi: su desktop in riga, vicini */
+.comandi {
+  --distanza-manopole: 36px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--distanza-manopole);
+  align-self: end;
+}
+
+/* Su mobile in colonna: volume in alto, mute in basso, a destra */
+.mobile .comandi {
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: 6px;
+}
+
+.mobile .volume {
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* ---------- Animazione chiuso ↔ aperto ---------- */
+/* allow-discrete: in chiusura il popover resta visibile (display) e in
+   primo piano (overlay) per tutta la durata, invece di sparire subito */
+.aperto {
+  --curva: cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    display var(--durata) allow-discrete,
+    overlay var(--durata) allow-discrete;
+}
+
+/* Geometria CHIUSA: il punto di partenza dell'apertura e di arrivo
+   della chiusura. Ritaglio sul rettangolo del pannello chiuso
+   (ancorato in basso a destra), spettro dove sta lì, comandi nascosti */
+.aperto .piastra {
+  clip-path: inset(var(--dh) 0 0 var(--dw) round 6px);
+  transition: clip-path var(--durata) var(--curva);
+}
+
+.aperto .scivola {
+  translate: var(--dx) var(--dy);
+  transition: translate var(--durata) var(--curva);
+}
+
+/* In chiusura i comandi spariscono subito, prima che la piastra si stringa */
+.aperto .comandi {
+  opacity: 0;
+  translate: 0 6px;
+  transition:
+    opacity 160ms ease-out,
+    translate 160ms ease-out;
+}
+
+/* Geometria APERTA */
+.aperto:popover-open .piastra {
+  clip-path: inset(0 0 0 0 round 6px);
+}
+
+.aperto:popover-open .scivola {
+  translate: 0 0;
+}
+
+/* In apertura i comandi compaiono dopo, quando la piastra ha fatto spazio */
+.aperto:popover-open .comandi {
+  opacity: 1;
+  translate: 0 0;
+  transition-delay: 140ms;
+}
+
+/* Il primo fotogramma dopo la comparsa parte dalla geometria chiusa:
+   senza, l'elemento nascerebbe già aperto e non ci sarebbe transizione */
+@starting-style {
+  .aperto:popover-open .piastra {
+    clip-path: inset(var(--dh) 0 0 var(--dw) round 6px);
+  }
+  .aperto:popover-open .scivola {
+    translate: var(--dx) var(--dy);
+  }
+  .aperto:popover-open .comandi {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+/* Movimento ridotto: si apre e si chiude all'istante */
+@media (prefers-reduced-motion: reduce) {
+  .aperto {
+    --durata: 0s;
+  }
+  .aperto .comandi {
+    transition: none;
+  }
+}

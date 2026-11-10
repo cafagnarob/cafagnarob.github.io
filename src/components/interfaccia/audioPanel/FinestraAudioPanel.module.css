@@ -1,0 +1,157 @@
+/*
+ * Finestra Audio Panel
+ * Token della pagina (colori dei toni, accento, font) e gli elementi
+ * sovrapposti: testata, indicatore laterale, barra di avanzamento.
+ * La testata e l'indicatore usano mix-blend-mode: difference: il bianco
+ * "inverte" ciò che c'è sotto, quindi è scuro sul chiaro e chiaro sullo
+ * scuro, da solo.
+ */
+.finestra {
+  --chiaro-alto: #f4f5f6;
+  --chiaro-basso: #d3d6da;
+  --scuro-alto: #393b40;
+  --scuro-basso: #121315;
+  --inchiostro: #1b1c1f;
+  --carta: #eceef0;
+  --accento: #f0a23a; /* LED ambra */
+  --verde: #49c26b; /* LED verde */
+  --rosso: #e0483a; /* spia del mute */
+  --font-titolo: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-tecnico: "Anonymous Pro", "Courier Prime", monospace;
+  --margine: clamp(20px, 5vw, 72px);
+
+  border-radius: 14px;
+  background: var(--scuro-basso);
+  color: var(--inchiostro);
+  font-family: var(--font-titolo);
+}
+
+/* ── Testata sovrapposta ── */
+.testata {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 18px var(--margine);
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none; /* i clic passano alla pagina… */
+}
+
+.testata > * {
+  pointer-events: auto; /* …tranne che su titolo, menu e chiudi */
+}
+
+.marchio {
+  font: 700 13px / 1 var(--font-tecnico);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.menu {
+  display: flex;
+  gap: clamp(14px, 2.4vw, 32px);
+}
+
+.voce {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: 12px / 1 var(--font-titolo);
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.voce:hover,
+.voce[aria-current="true"] {
+  opacity: 1;
+}
+
+.voce:focus-visible {
+  outline: none;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.chiudi {
+  justify-self: end;
+  width: 36px;
+  height: 36px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* ── La pagina che scorre ── */
+.pagina {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y proximity; /* aggancio morbido alle sezioni */
+  scrollbar-width: none;
+}
+
+/* ── Indicatore "03 / 08" a destra ── */
+.indicatore {
+  position: absolute;
+  right: calc(var(--margine) * 0.45);
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 2;
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  color: #fff;
+  mix-blend-mode: difference;
+  font: 11px / 1 var(--font-tecnico);
+  pointer-events: none;
+}
+
+.lineetta {
+  width: 1px;
+  height: 22px;
+  background: currentColor;
+}
+
+/* ── Barra di avanzamento (solo mobile) ── */
+.avanzamento {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .menu,
+  .indicatore {
+    display: none;
+  }
+
+  .testata {
+    grid-template-columns: 1fr auto;
+    padding-top: max(14px, env(safe-area-inset-top));
+  }
+
+  .avanzamento {
+    display: block;
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 3;
+    height: 3px;
+    background: var(--accento);
+    transform-origin: left;
+    transition: scale 0.3s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avanzamento {
+    transition: none;
+  }
+}

@@ -1,0 +1,140 @@
+/* Pagina iniziale: i render coprono tutto lo schermo */
+.ingresso {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+  background: #1b1b1d;
+  transition: opacity 0.9s ease;
+  transition:
+    opacity 0.9s ease,
+    visibility 0s;
+}
+
+/* Nascosta: prima sfuma, POI diventa invisibile (visibility dopo 0.9 s).
+   Ricomparendo, visibility torna subito e l'opacità sale. */
+.uscita {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.9s ease,
+    visibility 0s 0.9s;
+}
+
+/* Render a tutto schermo: "cover" riempie senza deformare, il fuoco
+   tiene l'insegna visibile quando le proporzioni non coincidono */
+.render {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--fuoco-desktop);
+  user-select: none;
+}
+
+@media (orientation: portrait) {
+  .render {
+    object-position: var(--fuoco-mobile);
+  }
+}
+
+/* Insegna accesa: segue il caricamento ("il tubo si scalda") */
+.acceso {
+  opacity: var(--luce);
+  transition: opacity 0.4s linear;
+}
+
+/* A caricamento finito: sfarfallio di accensione, poi un leggero ronzio */
+.pronto {
+  animation:
+    accensione 1.4s steps(1, end) both,
+    ronzio 5s ease-in-out 1.4s infinite;
+}
+
+@keyframes accensione {
+  0% {
+    opacity: 0.6;
+  }
+  10% {
+    opacity: 1;
+  }
+  14% {
+    opacity: 0.25;
+  }
+  22% {
+    opacity: 1;
+  }
+  26% {
+    opacity: 0.4;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes ronzio {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.94;
+  }
+}
+
+/* Testi in alto, sul muro libero sopra l'insegna */
+.testi {
+  position: absolute;
+  top: calc(32px + env(safe-area-inset-top));
+  left: 16px;
+  right: 16px;
+  text-align: center;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  pointer-events: none;
+}
+
+.titolo {
+  margin: 0 0 6px;
+  font-size: clamp(18px, 4vw, 26px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sottotitolo {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pulsante invisibile grande quanto la scena */
+.pulsante {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: transparent;
+  cursor: default;
+}
+
+.pulsante:enabled {
+  cursor: pointer;
+}
+
+.pulsante:focus-visible {
+  outline: 2px solid #ffd0c8;
+  outline-offset: -12px;
+}
+
+/* Riduci movimento: niente sfarfallio */
+@media (prefers-reduced-motion: reduce) {
+  .pronto {
+    animation: none;
+    opacity: 1;
+  }
+}

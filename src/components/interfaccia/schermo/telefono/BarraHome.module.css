@@ -1,0 +1,33 @@
+/* Ultima riga della home: margin-top: auto la spinge in fondo */
+.barra {
+  position: relative;
+  z-index: 2; /* sopra il browser */
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 28px;
+  margin-top: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.linea {
+  width: 134px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.85);
+  transition: transform 0.15s ease-out;
+}
+
+.barra:active .linea {
+  transform: scaleX(0.9);
+}
+
+.barra:focus-visible .linea {
+  outline: 2px solid #8ab4f8;
+  outline-offset: 4px;
+}

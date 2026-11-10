@@ -1,0 +1,19 @@
+/* Contenitore a tutto schermo con dissolvenza d'ingresso.
+   Lo sfondo scuro copre la stanza finché l'immagine si carica. */
+.interfaccia {
+  position: fixed;
+  inset: 0;
+  z-index: 5; /* sotto il pulsante "←" (z-index 10) */
+  overflow: hidden;
+  background: #05060a;
+  animation: accensione 0.25s ease-out;
+}
+
+@keyframes accensione {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,352 @@
+/*
+ * Cartellino appeso (tutto CSS)
+ * .appeso: posizione, ombra, oscillazione, cordino (::after)
+ * .carta: la sagoma ritagliata (clip-path: angoli smussati) con il
+ *   foro (mask: cerchio trasparente). Separata da .appeso perché
+ *   clip-path e mask taglierebbero anche l'ombra
+ */
+
+/* ---------- Appeso: posizione, ombra, oscillazione ---------- */
+.appeso {
+  --carta: #efe7d7;
+  --inchiostro: #1d1b18;
+  --tenue: #6d665c;
+  --linea: rgb(29 27 24 / 0.22);
+  --foro: 22px; /* distanza del foro dal bordo alto */
+  --cordino: 46px; /* lunghezza del cordino sopra la carta */
+  position: fixed;
+  top: calc(clamp(72px, 12vh, 120px) + var(--cordino));
+  left: clamp(24px, 5vw, 80px);
+  /* Più grande, e cresce con lo schermo: 300 px su un portatile,
+     fino a 380 px su un monitor grande */
+  width: clamp(300px, 22vw, 380px);
+  filter: drop-shadow(6px 10px 14px rgb(0 0 0 / 0.45));
+  /* Il perno del pendolo è la cima del cordino */
+  transform-origin: 50% calc(var(--cordino) * -1);
+  z-index: var(--livello-cartellino, 9);
+  animation: oscilla 1.6s cubic-bezier(0.3, 0.7, 0.4, 1) 0.35s both;
+}
+
+/* Oscillazione smorzata: −7°, +4°, −2°, +1°, ferma */
+@keyframes oscilla {
+  0% {
+    rotate: -7deg;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  35% {
+    rotate: 4deg;
+  }
+  58% {
+    rotate: -2deg;
+  }
+  80% {
+    rotate: 1deg;
+  }
+  100% {
+    rotate: 0deg;
+  }
+}
+
+/* Cordino: dal foro verso l'alto, disegnato sopra la carta */
+.appeso::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--cordino) * -1);
+  left: 50%;
+  width: 2px;
+  height: calc(var(--cordino) + var(--foro));
+  margin-left: -1px;
+  border-radius: 1px;
+  background: linear-gradient(#c9b48a, #a8946c);
+}
+
+/* ---------- Carta: sagoma, foro, texture ---------- */
+.carta {
+  box-sizing: border-box;
+  max-height: calc(100dvh - 220px);
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: calc(var(--foro) + 22px) 22px 20px;
+  color: var(--inchiostro);
+  font:
+    400 clamp(13px, 0.95vw, 15px) / 1.55 "Courier Prime",
+    ui-monospace,
+    monospace;
+  padding: calc(var(--foro) + 26px) 26px 24px;
+  /* Carta: leggera grana orizzontale sul colore crema */
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgb(0 0 0 / 0.018) 0 1px,
+      transparent 1px 3px
+    ),
+    var(--carta);
+  /* Angoli in alto smussati */
+  clip-path: polygon(
+    22px 0,
+    calc(100% - 22px) 0,
+    100% 22px,
+    100% 100%,
+    0 100%,
+    0 22px
+  );
+  /* Foro: un cerchio trasparente al centro, in alto */
+  mask: radial-gradient(circle at 50% var(--foro), transparent 5.5px, #000 6px);
+}
+
+.carta::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Contenuto ---------- */
+.testata {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+/* Logo NOIA: la maschera dello sfondo, colorata dal CSS */
+.marchio {
+  width: 36px;
+  height: 36px;
+  background: var(--inchiostro);
+  mask: var(--logo) center / contain no-repeat;
+}
+
+.codice {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--tenue);
+}
+
+.nome {
+  margin: 0;
+  font:
+    700 clamp(20px, 1.7vw, 28px) / 1.15 "Courier Prime",
+    ui-monospace,
+    monospace;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.collezione {
+  margin: 6px 0 0;
+  color: var(--tenue);
+  font-size: 12px;
+}
+
+/* Perforazione: linea tratteggiata come il punto di strappo */
+.perforazione {
+  height: 1px;
+  margin: 18px -26px;
+  border: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--linea) 0 6px,
+    transparent 6px 11px
+  );
+}
+
+.descrizione {
+  margin: 0 0 14px;
+}
+
+.scheda {
+  display: grid;
+  gap: 4px 0;
+  margin: 0;
+}
+
+.scheda dt {
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tenue);
+}
+
+.scheda dd {
+  margin: 0;
+}
+
+.processo {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.software {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.software li {
+  padding: 2px 8px;
+  border: 1px solid var(--inchiostro);
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+/* Codice a barre decorativo: barre di spessori diversi in un gradiente */
+.codiceBarre {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  margin-top: 18px;
+}
+
+.codiceBarre span {
+  width: 100%;
+  height: 34px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--inchiostro) 0 2px,
+    transparent 2px 4px,
+    var(--inchiostro) 4px 5px,
+    transparent 5px 8px,
+    var(--inchiostro) 8px 11px,
+    transparent 11px 13px
+  );
+}
+
+.codiceBarre small {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--tenue);
+}
+
+/* Pulsante "Dettagli": solo su mobile */
+.apri {
+  display: none;
+}
+
+/* ---------- Mobile: pannello in basso ---------- */
+@media (max-width: 899px) {
+  /* In alto, dopo il pulsante "←" (44 px + margini) */
+  .appeso {
+    --foro: 16px;
+    top: calc(12px + env(safe-area-inset-top));
+    right: 12px;
+    bottom: auto;
+    left: 68px;
+    width: auto;
+    transform-origin: 50% 0;
+    animation: scende 0.3s ease-out 0.35s both;
+  }
+
+  .appeso::after {
+    display: none; /* niente cordino: non è appeso, è appoggiato */
+  }
+
+  .carta {
+    max-height: 60dvh;
+    padding: calc(var(--foro) + 16px) 18px 14px;
+    clip-path: polygon(
+      16px 0,
+      calc(100% - 16px) 0,
+      100% 16px,
+      100% 100%,
+      0 100%,
+      0 16px
+    );
+    mask: radial-gradient(
+      circle at 50% var(--foro),
+      transparent 4.5px,
+      #000 5px
+    );
+  }
+
+  .nome {
+    font-size: 17px;
+  }
+
+  .apri {
+    display: inline-flex;
+    margin-top: 10px;
+    padding: 6px 12px;
+    border: 1px solid var(--inchiostro);
+    border-radius: 999px;
+    background: none;
+    color: var(--inchiostro);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  /* Chiuso: solo intestazione */
+  .appeso:not(.espanso) .dettagli {
+    display: none;
+  }
+}
+
+@keyframes scende {
+  from {
+    opacity: 0;
+    translate: 0 -16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appeso {
+    animation: none;
+  }
+}
+
+/* Finestre desktop strette: cartellino più piccolo, il capo resta libero */
+@media (min-width: 900px) and (max-width: 1200px) {
+  .appeso {
+    width: 260px;
+  }
+}
+
+/*
+ * "Scopri NOIA →": link testuale in stile macchina da scrivere.
+ * Usa currentColor, quindi prende il colore d'inchiostro della carta.
+ * La freccia scorre di qualche pixel al passaggio del mouse.
+ */
+.scopri {
+  display: inline-block;
+  margin: 2px 0 10px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: none;
+  color: inherit;
+  font:
+    13px / 1.4 "Courier Prime",
+    "Courier New",
+    monospace;
+  cursor: pointer;
+  transition: letter-spacing 0.2s;
+}
+
+.scopri:hover,
+.scopri:focus-visible {
+  letter-spacing: 0.04em;
+  outline: none;
+}
+
+/*
+ * Riga delle azioni: "Scopri NOIA →" e "Dettagli".
+ * Il gap decide lo spazio tra i due, così nessuno dei due ha bisogno
+ * di margini propri. flex-wrap: se lo spazio non basta, vanno a capo
+ * invece di sovrapporsi.
+ */
+.azioni {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin: 2px 0 10px;
+}
+
+.azioni .scopri {
+  margin: 0;
+}

@@ -1,0 +1,60 @@
+/*
+ * Galleria di una raccolta (collezione o campagna).
+ * Intestazione: titolo enorme · barra nera che riempie lo spazio ·
+ * testi tecnici a destra, come i poster svizzeri delle reference.
+ * Griglia: tante colonne quante ne entrano (minimo 220px);
+ * grid-auto-flow: dense riempie i buchi lasciati dal pannello grande.
+ */
+.intestazione {
+  display: grid;
+  grid-template-columns: auto minmax(40px, 1fr) auto;
+  align-items: center;
+  gap: 8px clamp(16px, 2.5vw, 32px);
+  margin-bottom: clamp(28px, 4vw, 48px);
+}
+
+.titolo {
+  margin: 0;
+  font: 500 clamp(2.6rem, 7.5vw, 6.4rem) / 0.9 var(--font-noia);
+  letter-spacing: -0.03em;
+}
+
+.barra {
+  height: clamp(10px, 1.4vw, 18px);
+  background: var(--inchiostro);
+}
+
+.tecnico {
+  margin: 0;
+  font: 12px / 1.5 var(--font-macchina);
+  text-transform: uppercase;
+}
+
+.descrizione {
+  grid-column: 1 / -1;
+  max-width: 60ch;
+  margin: 8px 0 0;
+}
+
+.griglia {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+  grid-auto-flow: dense;
+  gap: 40px 24px;
+}
+
+/* Su telefono: titolo sopra, barra e testi sotto; due colonne */
+@media (max-width: 520px) {
+  .griglia {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 12px;
+  }
+
+  .intestazione {
+    grid-template-columns: minmax(40px, 1fr) auto;
+  }
+
+  .titolo {
+    grid-column: 1 / -1;
+  }
+}
