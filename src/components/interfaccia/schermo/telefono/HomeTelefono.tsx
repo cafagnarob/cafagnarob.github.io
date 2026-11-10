@@ -16,6 +16,8 @@ import stili from "./HomeTelefono.module.css"
 import { useAppDispatch } from "../../../../store/hooks"
 import { BarraHome } from "./BarraHome"
 import { esci } from "../../../../store/azioniScena"
+import { apriNoia } from "../../../../store/sliceNoia"
+import { IconaAppNoia } from "./IconaAppNoia"
 
 export function HomeTelefono() {
   const dispatch = useAppDispatch()
@@ -30,6 +32,9 @@ export function HomeTelefono() {
             <IconaApp progetto={progetto} onApri={setAperto} />
           </li>
         ))}
+        <li>
+          <IconaAppNoia onApri={() => dispatch(apriNoia("manifesto"))} />
+        </li>
       </ul>
 
       {aperto && (

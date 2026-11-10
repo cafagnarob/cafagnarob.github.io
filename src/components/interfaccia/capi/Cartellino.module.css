@@ -305,3 +305,30 @@
     width: 260px;
   }
 }
+
+/*
+ * "Scopri NOIA →": link testuale in stile macchina da scrivere.
+ * Usa currentColor, quindi prende il colore d'inchiostro della carta.
+ * La freccia scorre di qualche pixel al passaggio del mouse.
+ */
+.scopri {
+  display: inline-block;
+  margin: 2px 0 10px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: none;
+  color: inherit;
+  font:
+    13px / 1.4 "Courier Prime",
+    "Courier New",
+    monospace;
+  cursor: pointer;
+  transition: letter-spacing 0.2s;
+}
+
+.scopri:hover,
+.scopri:focus-visible {
+  letter-spacing: 0.04em;
+  outline: none;
+}

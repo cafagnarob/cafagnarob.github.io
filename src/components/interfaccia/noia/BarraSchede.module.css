@@ -1,0 +1,50 @@
+/*
+ * Linguette delle schede: un solo angolo molto arrotondato, come le
+ * cartelle delle tavole. Attiva = crema piena; le altre = solo bordo.
+ * Su mobile scorrono in orizzontale invece di andare a capo.
+ */
+.barra {
+  display: flex;
+  gap: 8px;
+  padding: 0 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.linguetta {
+  flex: none;
+  padding: 9px 20px 8px;
+  border: 1px solid var(--crema);
+  border-radius: 18px 4px 4px 4px;
+  background: transparent;
+  color: var(--crema);
+  font: 500 15px / 1 var(--font-noia);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.linguetta:hover {
+  background: rgb(236 228 212 / 0.15);
+}
+
+.linguetta[aria-selected="true"] {
+  background: var(--crema);
+  color: var(--inchiostro);
+}
+
+.linguetta:focus-visible {
+  outline: 2px solid var(--inchiostro);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .barra {
+    padding: 0 12px;
+  }
+
+  .linguetta {
+    padding: 8px 14px 7px;
+    font-size: 14px;
+  }
+}

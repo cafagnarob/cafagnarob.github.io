@@ -17,11 +17,13 @@ import {
 } from "@reduxjs/toolkit"
 import scenaReducer from "./sliceScena"
 import audioReducer from "./sliceAudio"
+import noiaReducer from "./sliceNoia"
 
 export const store = configureStore({
   reducer: {
     scena: scenaReducer,
     audio: audioReducer,
+    noia: noiaReducer,
   },
 })
 

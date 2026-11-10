@@ -20,6 +20,8 @@ import { BarraApplicazioni } from "./BarraApplicazioni"
 import { MenuStart } from "./MenuStart"
 import { Browser } from "../comuni/browser/Browser"
 import stili from "./Desktop.module.css"
+import { IconaCartella } from "./IconaCartella"
+import { apriNoia } from "../../../../store/sliceNoia"
 
 export function Desktop() {
   const dispatch = useAppDispatch()
@@ -52,6 +54,9 @@ export function Desktop() {
             <IconaDesktop progetto={progetto} onApri={apri} />
           </li>
         ))}
+        <li>
+          <IconaCartella onApri={() => dispatch(apriNoia("manifesto"))} />
+        </li>
       </ul>
 
       {aperto && (

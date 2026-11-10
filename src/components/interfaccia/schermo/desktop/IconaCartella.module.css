@@ -1,0 +1,44 @@
+/*
+ * Cartella disegnata con due pseudo-elementi:
+ * ::after  = la linguetta in alto a sinistra (più scura, dietro)
+ * ::before = il corpo della cartella
+ * La mosca sta sopra entrambi (z-index 1).
+ * Le dimensioni arrivano da .immagine di IconaDesktop.
+ */
+.cartella {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.cartella::after {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 6%;
+  width: 40%;
+  height: 12%;
+  background: #9e3214;
+  border-radius: 6px 10px 0 0;
+  z-index: 0;
+}
+
+.cartella::before {
+  content: "";
+  position: absolute;
+  inset: 16% 6% 8% 6%;
+  background: #c4441d;
+  border-radius: 4px 12px 6px 6px;
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 0.3),
+    0 3px 6px rgb(0 0 0 / 0.35);
+  z-index: 0;
+}
+
+.mosca {
+  position: relative;
+  z-index: 1;
+  width: 38%;
+  height: auto;
+  margin-top: 8%;
+}

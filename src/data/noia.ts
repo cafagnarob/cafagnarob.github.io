@@ -59,7 +59,8 @@ export const SCHEDE_NOIA: { id: IdScheda; etichetta: string }[] = [
   { id: "identita", etichetta: "Identità" },
   { id: "fw22", etichetta: "FW22-23" },
   { id: "ss24", etichetta: "SS24" },
-  { id: "campagne", etichetta: "Campagne" },
+  // Da riattivare quando arrivano le foto delle campagne
+  // { id: "campagne", etichetta: "Campagne" },
 ]
 
 /* ── Manifesto ────────────────────────────────────────────────────── */
@@ -124,29 +125,18 @@ export const MANIFESTO_NOIA: BloccoManifesto[] = [
 export const IDENTITA_NOIA = {
   /** logo condensato: è la stessa maschera usata per lo sfondo animato */
   logo: "/images/sfondo/noia_maschera.png",
-  mosca: immagine(
-    "mosca",
-    "fly_print.png",
-    "La mosca, firma di NOIA",
-    216,
-    241,
-  ),
+  mosca: immagine("mosca", "fly_print.png", "La mosca, firma di NOIA", 216, 241),
+  /** colori del brand; gli stessi valori sono i token in FinestraNoia.module.css */
+  palette: [
+    { nome: "arancio", hex: "#c4441d" },
+    { nome: "crema", hex: "#ece4d4" },
+    { nome: "inchiostro", hex: "#1a1714" },
+    { nome: "oliva", hex: "#6f6a45" },
+  ],
   /** dettagli dei nastri e delle etichette sui capi */
   dettagli: [
-    immagine(
-      "fw22_jungle_mask_etichetta",
-      "orange_tape.png",
-      "Nastro arancio metallizzato con la scritta noia",
-      1000,
-      1600,
-    ),
-    immagine(
-      "fw22_zaino_etichetta",
-      "metal_tape.png",
-      "Etichetta noia sul nastro arancio dello zaino",
-      1005,
-      1600,
-    ),
+    immagine("fw22_jungle_mask_etichetta", "orange_tape.png", "Nastro arancio metallizzato con la scritta noia", 1000, 1600),
+    immagine("fw22_zaino_etichetta", "metal_tape.png", "Etichetta noia sul nastro arancio dello zaino", 1005, 1600),
   ],
 }
 
@@ -158,55 +148,13 @@ export const COLLEZIONI_NOIA: Record<IdCollezione, CollezioneNoia> = {
     sigla: "FW22-23",
     titolo: "Fall Winter 22-23",
     immagini: [
-      immagine(
-        "fw22_felpa_rossa",
-        "hoodie.png",
-        "Felpa rossa con cappuccio e etichetta noia",
-        1600,
-        1349,
-      ),
-      immagine(
-        "fw22_jungle_mask_fronte",
-        "jungle_mask.png",
-        "Jungle mask vista di fronte",
-        1439,
-        1600,
-      ),
-      immagine(
-        "fw22_jungle_mask_profilo",
-        "jungle_mask_side.png",
-        "Jungle mask di profilo",
-        1271,
-        1600,
-      ),
-      immagine(
-        "fw22_jungle_mask_lato",
-        "jungle_mask_back.png",
-        "Jungle mask dall'altro lato",
-        1290,
-        1600,
-      ),
-      immagine(
-        "fw22_jungle_mask_dettaglio",
-        "jungle_mask_detail.png",
-        "Dettaglio del laccio della jungle mask",
-        1045,
-        1600,
-      ),
-      immagine(
-        "fw22_zaino_fronte",
-        "tactical_backpack.png",
-        "Zaino tattico nero, fronte",
-        1030,
-        1600,
-      ),
-      immagine(
-        "fw22_zaino_lato",
-        "tactical_backpack_side.png",
-        "Zaino tattico nero, di lato",
-        1079,
-        1600,
-      ),
+      immagine("fw22_felpa_rossa", "hoodie.png", "Felpa rossa con cappuccio e etichetta noia", 1600, 1349),
+      immagine("fw22_jungle_mask_fronte", "jungle_mask.png", "Jungle mask vista di fronte", 1439, 1600),
+      immagine("fw22_jungle_mask_profilo", "jungle_mask_side.png", "Jungle mask di profilo", 1271, 1600),
+      immagine("fw22_jungle_mask_lato", "jungle_mask_back.png", "Jungle mask dall'altro lato", 1290, 1600),
+      immagine("fw22_jungle_mask_dettaglio", "jungle_mask_detail.png", "Dettaglio del laccio della jungle mask", 1045, 1600),
+      immagine("fw22_zaino_fronte", "tactical_backpack.png", "Zaino tattico nero, fronte", 1030, 1600),
+      immagine("fw22_zaino_lato", "tactical_backpack_side.png", "Zaino tattico nero, di lato", 1079, 1600),
     ],
   },
   ss24: {
@@ -214,48 +162,12 @@ export const COLLEZIONI_NOIA: Record<IdCollezione, CollezioneNoia> = {
     sigla: "SS24",
     titolo: "Spring Summer 24",
     immagini: [
-      immagine(
-        "ss24_outfit_modello",
-        "walk_outfit.png",
-        "Outfit SS24 indossato: bomber, t-shirt e pantaloncino",
-        754,
-        1600,
-      ),
-      immagine(
-        "ss24_bomber_pelle",
-        "leather_bomber.png",
-        "Bomber in pelle crema",
-        1533,
-        1430,
-      ),
-      immagine(
-        "ss24_outfit_bomber",
-        "bomber_tee.png",
-        "Bomber, t-shirt e pantaloncino",
-        855,
-        1600,
-      ),
-      immagine(
-        "ss24_tshirt_logo",
-        "white_t-shirt_logo.png",
-        "T-shirt bianca con logo noia",
-        894,
-        1007,
-      ),
-      immagine(
-        "ss24_pantaloncino",
-        "shorts.png",
-        "Pantaloncino con pinces",
-        1069,
-        962,
-      ),
-      immagine(
-        "ss24_borsa_imbottita",
-        "puffer_bag.png",
-        "Borsa imbottita in nylon crema",
-        939,
-        1587,
-      ),
+      immagine("ss24_outfit_modello", "walk_outfit.png", "Outfit SS24 indossato: bomber, t-shirt e pantaloncino", 754, 1600),
+      immagine("ss24_bomber_pelle", "leather_bomber.png", "Bomber in pelle crema", 1533, 1430),
+      immagine("ss24_outfit_bomber", "bomber_tee.png", "Bomber, t-shirt e pantaloncino", 855, 1600),
+      immagine("ss24_tshirt_logo", "white_t-shirt_logo.png", "T-shirt bianca con logo noia", 894, 1007),
+      immagine("ss24_pantaloncino", "shorts.png", "Pantaloncino con pinces", 1069, 962),
+      immagine("ss24_borsa_imbottita", "puffer_bag.png", "Borsa imbottita in nylon crema", 939, 1587),
     ],
   },
 }

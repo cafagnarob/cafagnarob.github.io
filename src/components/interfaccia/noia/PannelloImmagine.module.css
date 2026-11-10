@@ -1,0 +1,52 @@
+/*
+ * Pannello crema con angolo arrotondato in alto a sinistra e una
+ * cornice sottile interna (outline con offset negativo: non occupa
+ * spazio e non sposta il contenuto).
+ * .grande occupa due colonne e due righe nella griglia.
+ */
+.pannello {
+  position: relative;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  padding: 38px 14px 14px;
+  background: var(--crema);
+  border-radius: 32px 4px 4px 4px;
+  outline: 1px solid rgb(26 23 20 / 0.25);
+  outline-offset: -7px;
+}
+
+.etichetta {
+  position: absolute;
+  top: 14px;
+  left: 22px;
+  font: 12px / 1 var(--font-macchina);
+}
+
+.pannello img {
+  width: 100%;
+  height: auto;
+  max-height: 360px;
+  object-fit: contain;
+}
+
+.grande {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.grande img {
+  max-height: 640px;
+}
+
+/* Su telefono una colonna sola: il grande non deve "sfondare" */
+@media (max-width: 520px) {
+  .grande {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .grande img {
+    max-height: 420px;
+  }
+}

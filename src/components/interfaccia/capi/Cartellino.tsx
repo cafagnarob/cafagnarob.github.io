@@ -15,6 +15,9 @@ import { useState, type CSSProperties } from "react"
 import { codiceDi, type LavoroModa } from "../../../data/lavoriModa"
 import { PERCORSO_MASCHERA } from "../../../config/sfondo"
 import stili from "./Cartellino.module.css"
+import { useAppDispatch } from "../../../store/hooks"
+import { SCHEDA_DEL_CAPO } from "../../../data/noia"
+import { apriNoia } from "../../../store/sliceNoia"
 
 type Props = { id: string; lavoro: LavoroModa }
 
@@ -30,6 +33,10 @@ export function Cartellino({ id, lavoro }: Props) {
     .filter(Boolean)
     .join(" · ")
 
+  const dispatch = useAppDispatch()
+  // I capi non presenti nelle tavole aprono la storia di NOIA
+  const scheda = SCHEDA_DEL_CAPO[id] ?? "manifesto"
+
   return (
     <aside
       className={`${stili.appeso} ${espanso ? stili.espanso : ""}`}
@@ -44,6 +51,16 @@ export function Cartellino({ id, lavoro }: Props) {
 
         <h2 className={stili.nome}>{lavoro.titolo}</h2>
         <p className={stili.collezione}>{sottotitolo}</p>
+
+        <p className={stili.collezione}>{sottotitolo}</p>
+
+        <button
+          type="button"
+          className={stili.scopri}
+          onClick={() => dispatch(apriNoia(scheda))}
+        >
+          Scopri NOIA →
+        </button>
 
         <button
           type="button"
