@@ -52,23 +52,25 @@ export function Cartellino({ id, lavoro }: Props) {
         <h2 className={stili.nome}>{lavoro.titolo}</h2>
         <p className={stili.collezione}>{sottotitolo}</p>
 
-        <button
-          type="button"
-          className={stili.scopri}
-          onClick={() => dispatch(apriNoia(scheda))}
-        >
-          Scopri NOIA →
-        </button>
+        <div className={stili.azioni}>
+          <button
+            type="button"
+            className={stili.scopri}
+            onClick={() => dispatch(apriNoia(scheda))}
+          >
+            Scopri NOIA →
+          </button>
 
-        <button
-          type="button"
-          className={stili.apri}
-          aria-expanded={espanso}
-          aria-controls={idDettagli}
-          onClick={() => setEspanso((e) => !e)}
-        >
-          {espanso ? "Chiudi" : "Dettagli"}
-        </button>
+          <button
+            type="button"
+            className={stili.apri}
+            aria-expanded={espanso}
+            aria-controls={idDettagli}
+            onClick={() => setEspanso((e) => !e)}
+          >
+            {espanso ? "Chiudi" : "Dettagli"}
+          </button>
+        </div>
 
         <div id={idDettagli} className={stili.dettagli}>
           <hr className={stili.perforazione} />

@@ -332,3 +332,21 @@
   letter-spacing: 0.04em;
   outline: none;
 }
+
+/*
+ * Riga delle azioni: "Scopri NOIA →" e "Dettagli".
+ * Il gap decide lo spazio tra i due, così nessuno dei due ha bisogno
+ * di margini propri. flex-wrap: se lo spazio non basta, vanno a capo
+ * invece di sovrapporsi.
+ */
+.azioni {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin: 2px 0 10px;
+}
+
+.azioni .scopri {
+  margin: 0;
+}
