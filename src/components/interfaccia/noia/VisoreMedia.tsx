@@ -40,6 +40,7 @@ export function VisoreMedia({ titolo, media, iniziale, onChiudi }: Props) {
     (dialogo: HTMLDialogElement | null) => {
       if (!dialogo || dialogo.open) return
       dialogo.showModal()
+      dialogo.focus() // le frecce della tastiera funzionano subito
       const pista = pistaRef.current
       if (pista) pista.scrollLeft = iniziale * pista.clientWidth
     },
@@ -82,6 +83,7 @@ export function VisoreMedia({ titolo, media, iniziale, onChiudi }: Props) {
       ref={apri}
       className={stili.visore}
       aria-label={`${titolo}: visore`}
+      tabIndex={-1}
       onClose={onChiudi}
       onKeyDown={tasti}
     >

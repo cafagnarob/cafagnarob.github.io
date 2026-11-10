@@ -36,6 +36,10 @@
   }
 }
 
+.visore:focus {
+  outline: none;
+}
+
 .visore::backdrop {
   background: transparent;
 }
@@ -128,10 +132,7 @@
   color: var(--crema);
   font-size: 20px;
   cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s,
-    opacity 0.15s;
+  transition: background 0.15s, color 0.15s, opacity 0.15s;
 }
 
 .freccia:hover:not(:disabled),

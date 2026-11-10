@@ -11,7 +11,7 @@ export function SchedaCampagne() {
   return (
     <div className={stili.campagne}>
       {CAMPAGNE_NOIA.map((campagna) => (
-        <GalleriaRaccolta key={campagna.id} raccolta={campagna} />
+        <GalleriaRaccolta key={campagna.id} raccolta={campagna} variante="campagna" />
       ))}
     </div>
   )

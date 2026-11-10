@@ -1,0 +1,349 @@
+/*
+ * Scheda Noia — impaginazione editoriale
+ * Griglie a colonne, tipografia grande, un solo colore di accento.
+ * Le misure usano clamp(): crescono con la finestra senza media query.
+ */
+.noia {
+  display: grid;
+  gap: clamp(64px, 9vw, 120px);
+}
+
+/* ═══ 1. Apertura ═══ */
+.copertina {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) auto;
+  align-items: center;
+  gap: clamp(16px, 3vw, 40px);
+  min-height: min(620px, 72dvh);
+}
+
+.colonnaTesto {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  padding-block: 12px;
+  z-index: 1;
+}
+
+.logo {
+  --colore-logo: var(--inchiostro);
+  width: clamp(170px, 24vw, 330px);
+}
+
+.tecnico {
+  margin: 0;
+  font: 13px / 1.5 var(--font-macchina);
+}
+
+.discipline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: 12px / 1.7 var(--font-macchina);
+  text-transform: uppercase;
+}
+
+.discipline li::before {
+  content: "// ";
+  color: var(--arancio);
+}
+
+/* L'immagine protagonista con il blocco arancio dietro */
+.protagonista {
+  position: relative;
+  margin: 0;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.blocco {
+  position: absolute;
+  inset: 40% -6% 20% -14%;
+  background: var(--arancio);
+}
+
+.protagonista img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-height: 600px;
+  object-fit: contain;
+}
+
+/* Frase in verticale, letta dal basso come le reference */
+.verticale {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  writing-mode: vertical-rl;
+  font: 600 13px / 1.2 var(--font-noia);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding-left: 10px;
+  border-left: 2px solid var(--inchiostro);
+}
+
+/* Il quadrato arancio con la freccia, in basso a destra */
+.giu {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  background: var(--arancio);
+  color: var(--crema);
+  font-size: 22px;
+  text-decoration: none;
+  transition: translate 0.2s ease;
+}
+
+.giu:hover,
+.giu:focus-visible {
+  translate: 0 4px;
+  outline: none;
+}
+
+/* ═══ Intestazione delle sezioni: etichetta + barra nera ═══ */
+.intestazione {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: clamp(28px, 4vw, 48px);
+}
+
+.etichetta {
+  font: 13px / 1 var(--font-macchina);
+  text-transform: uppercase;
+}
+
+.barra {
+  height: 14px;
+  width: min(320px, 40%);
+  background: var(--inchiostro);
+}
+
+/* ═══ 2. Manifesto ═══ */
+.manifesto {
+  scroll-margin-top: 16px;
+}
+
+.aperturaManifesto {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: end;
+  gap: clamp(24px, 4vw, 64px);
+  margin-bottom: clamp(48px, 7vw, 96px);
+}
+
+.righe {
+  margin: 0;
+  font: 500 clamp(2rem, 5.4vw, 4.6rem) / 0.98 var(--font-noia);
+  letter-spacing: -0.02em;
+}
+
+.righe span {
+  display: block;
+}
+
+.introduzione {
+  margin: 0;
+  max-width: 42ch;
+  font-size: clamp(15px, 1.4vw, 17px);
+  line-height: 1.6;
+}
+
+/* La mosca che ronza sopra le righe */
+.mosca {
+  position: absolute;
+  top: -48px;
+  right: 0;
+  width: clamp(36px, 5vw, 56px);
+  height: auto;
+  animation: ronza 7s ease-in-out infinite;
+}
+
+@keyframes ronza {
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  20% { translate: -14px 6px; rotate: -12deg; }
+  22% { translate: -12px 4px; rotate: 8deg; }
+  50% { translate: 6px 14px; rotate: 20deg; }
+  52% { translate: 8px 12px; rotate: -4deg; }
+  80% { translate: -4px -6px; rotate: 6deg; }
+}
+
+/* Sezioni numerate in colonne, ognuna aperta da una linea nera */
+.sezioni {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 40px clamp(20px, 3vw, 40px);
+}
+
+.sezione {
+  padding-top: 14px;
+  border-top: 1px solid var(--inchiostro);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.sezione p {
+  margin: 0 0 10px;
+}
+
+.numero {
+  display: block;
+  margin-bottom: 20px;
+  font: 12px / 1 var(--font-macchina);
+  color: var(--arancio);
+}
+
+.titoloSezione {
+  margin: 0 0 12px;
+  font: 600 13px / 1.2 var(--font-noia);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.chiusa {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+/* ═══ 3. Identità ═══ */
+.griglia {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  gap: 40px 24px;
+}
+
+.tessera {
+  margin: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--inchiostro);
+}
+
+.tessera figcaption {
+  font: 11px / 1 var(--font-macchina);
+}
+
+/* Il contenuto di ogni tessera sta in un riquadro quadrato */
+.tessera > :last-child {
+  aspect-ratio: 1;
+  width: 100%;
+  background: var(--crema-scura);
+}
+
+.scura > :last-child {
+  background-color: var(--inchiostro);
+}
+
+/* Il logo è disegnato con una maschera: il fondo scuro sta su un
+   contenitore a parte, altrimenti la maschera ritaglierebbe anche lui */
+.fondoLogo {
+  display: grid;
+  place-items: center;
+}
+
+.logoTessera {
+  --colore-logo: var(--crema);
+  width: 46%;
+}
+
+.macchina {
+  display: grid;
+  place-items: center;
+  font: 700 clamp(2.4rem, 5vw, 3.4rem) / 1 var(--font-macchina);
+}
+
+.moscaTessera {
+  height: auto;
+  object-fit: contain;
+  padding: 24%;
+  box-sizing: border-box;
+}
+
+.palette {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.palette li {
+  display: grid;
+  align-content: end;
+  gap: 2px;
+  padding: 10px;
+  background: var(--colore);
+  color: var(--crema);
+  font: 11px / 1.2 var(--font-macchina);
+}
+
+/* La crema su crema non si leggerebbe */
+.palette li:nth-child(2) {
+  color: var(--inchiostro);
+  box-shadow: inset 0 0 0 1px rgb(26 23 20 / 0.2);
+}
+
+.palette code {
+  font: inherit;
+  opacity: 0.8;
+}
+
+/* ═══ Mobile ═══ */
+@media (max-width: 760px) {
+  .copertina {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 24px;
+  }
+
+  .colonnaTesto {
+    gap: 20px;
+  }
+
+  .protagonista {
+    height: auto;
+  }
+
+  .protagonista img {
+    max-height: 420px;
+  }
+
+  .verticale {
+    display: none;
+  }
+
+  .giu {
+    width: 48px;
+    height: 48px;
+  }
+
+  .aperturaManifesto {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mosca {
+    animation: none;
+  }
+
+  .giu {
+    transition: none;
+  }
+}

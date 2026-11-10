@@ -14,7 +14,8 @@
 
 export type IdCollezione = "fw22" | "ss24"
 
-export type IdScheda = "manifesto" | "identita" | IdCollezione | "campagne"
+/** "manifesto" è la scheda Noia: manifesto e identità insieme */
+export type IdScheda = "manifesto" | IdCollezione | "campagne"
 
 export interface ImmagineNoia {
   tipo?: "immagine"
@@ -51,7 +52,7 @@ export type MediaNoia = ImmagineNoia | VideoNoia
  */
 export interface RaccoltaNoia {
   id: string
-  /** sigla mostrata sul badge: "FW22-23" */
+  /** testo piccolo accanto al titolo: "fall / winter", "desert" */
   sigla: string
   titolo: string
   /** frase breve sotto il titolo */
@@ -98,8 +99,7 @@ function video(
 /* ── Schede della finestra, nell'ordine in cui compaiono ──────────── */
 
 export const SCHEDE_NOIA: { id: IdScheda; etichetta: string }[] = [
-  { id: "manifesto", etichetta: "Manifesto" },
-  { id: "identita", etichetta: "Identità" },
+  { id: "manifesto", etichetta: "Noia" },
   { id: "fw22", etichetta: "FW22-23" },
   { id: "ss24", etichetta: "SS24" },
   { id: "campagne", etichetta: "Campagne" },
@@ -164,6 +164,23 @@ export const MANIFESTO_NOIA: BloccoManifesto[] = [
 
 /* ── Identità ─────────────────────────────────────────────────────── */
 
+/**
+ * Apertura della scheda Noia: l'immagine protagonista (con il blocco
+ * arancio), i testi tecnici e la frase in verticale.
+ * Le frasi riprendono le parole del manifesto.
+ */
+export const COPERTINA_NOIA = {
+  immagine: immagine(
+    "fw22_jungle_mask_profilo",
+    "jungle_mask_side.png",
+    "La jungle mask di profilo",
+    1271,
+    1600,
+  ),
+  discipline: ["abbigliamento", "quadri", "tappeti", "oggetti", "siti web"],
+  verticale: "La creatività in fase di ricarica",
+}
+
 export const IDENTITA_NOIA = {
   /** logo condensato: è la stessa maschera usata per lo sfondo animato */
   logo: "/images/sfondo/noia_maschera.png",
@@ -205,8 +222,8 @@ export const IDENTITA_NOIA = {
 export const COLLEZIONI_NOIA: Record<IdCollezione, RaccoltaNoia> = {
   fw22: {
     id: "fw22",
-    sigla: "FW22-23",
-    titolo: "Fall Winter 22-23",
+    sigla: "fall / winter",
+    titolo: "FW22—23",
     media: [
       immagine(
         "fw22_felpa_rossa",
@@ -261,8 +278,8 @@ export const COLLEZIONI_NOIA: Record<IdCollezione, RaccoltaNoia> = {
   },
   ss24: {
     id: "ss24",
-    sigla: "SS24",
-    titolo: "Spring Summer 24",
+    sigla: "spring / summer",
+    titolo: "SS24",
     media: [
       immagine(
         "ss24_outfit_modello",
@@ -585,6 +602,6 @@ export const SCHEDA_DEL_CAPO: Record<string, IdScheda> = {
   capo_3: "ss24", // t-shirt logo + pantaloncino del look bomber
   capo_4: "fw22", // jungle mask
   capo_5: "fw22", // pantalone in gabardine del look puffer leather
-  capo_6: "manifesto", // scarpe NOIA, non presenti nelle tavole
+  capo_6: "manifesto", // scarpe NOIA, non presenti nelle tavole: apre la scheda Noia
   capo_7: "fw22", // tactical backpack
 }
