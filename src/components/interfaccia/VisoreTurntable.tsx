@@ -70,6 +70,7 @@ export function VisoreTurntable({
   titolo,
   turntable,
   partenza,
+  onRitorno,
   onChiuso,
 }: VisoreTurntableProps) {
   const fotogrammi = urlFotogrammi(turntable)

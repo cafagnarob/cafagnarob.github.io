@@ -16,8 +16,10 @@
   --cordino: 46px; /* lunghezza del cordino sopra la carta */
   position: fixed;
   top: calc(clamp(72px, 12vh, 120px) + var(--cordino));
-  right: clamp(16px, 5vw, 64px);
-  width: 264px;
+  left: clamp(24px, 5vw, 80px);
+  /* Più grande, e cresce con lo schermo: 300 px su un portatile,
+     fino a 380 px su un monitor grande */
+  width: clamp(300px, 22vw, 380px);
   filter: drop-shadow(6px 10px 14px rgb(0 0 0 / 0.45));
   /* Il perno del pendolo è la cima del cordino */
   transform-origin: 50% calc(var(--cordino) * -1);
@@ -70,9 +72,10 @@
   padding: calc(var(--foro) + 22px) 22px 20px;
   color: var(--inchiostro);
   font:
-    400 13px/1.5 "Courier Prime",
+    400 clamp(13px, 0.95vw, 15px) / 1.55 "Courier Prime",
     ui-monospace,
     monospace;
+  padding: calc(var(--foro) + 26px) 26px 24px;
   /* Carta: leggera grana orizzontale sul colore crema */
   background:
     repeating-linear-gradient(
@@ -108,8 +111,8 @@
 
 /* Logo NOIA: la maschera dello sfondo, colorata dal CSS */
 .marchio {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   background: var(--inchiostro);
   mask: var(--logo) center / contain no-repeat;
 }
@@ -123,7 +126,7 @@
 .nome {
   margin: 0;
   font:
-    700 20px/1.15 "Courier Prime",
+    700 clamp(20px, 1.7vw, 28px) / 1.15 "Courier Prime",
     ui-monospace,
     monospace;
   letter-spacing: 0.02em;
@@ -139,7 +142,7 @@
 /* Perforazione: linea tratteggiata come il punto di strappo */
 .perforazione {
   height: 1px;
-  margin: 16px -22px;
+  margin: 18px -26px;
   border: 0;
   background: repeating-linear-gradient(
     90deg,
@@ -299,6 +302,6 @@
 /* Finestre desktop strette: cartellino più piccolo, il capo resta libero */
 @media (min-width: 900px) and (max-width: 1200px) {
   .appeso {
-    width: 220px;
+    width: 260px;
   }
 }
