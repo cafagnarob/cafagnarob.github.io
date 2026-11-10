@@ -22,6 +22,7 @@ import { Browser } from "../comuni/browser/Browser"
 import stili from "./Desktop.module.css"
 import { IconaCartella } from "./IconaCartella"
 import { apriNoia } from "../../../../store/sliceNoia"
+import { apriAudioPanel } from "../../../../store/sliceAudioPanel"
 
 export function Desktop() {
   const dispatch = useAppDispatch()
@@ -55,7 +56,22 @@ export function Desktop() {
           </li>
         ))}
         <li>
-          <IconaCartella onApri={() => dispatch(apriNoia("manifesto"))} />
+          <IconaCartella
+            nome="noia"
+            titolo="Il mio brand: manifesto e collezioni"
+            tono="arancio"
+            simbolo="/images/noia/mosca.webp"
+            onApri={() => dispatch(apriNoia("manifesto"))}
+          />
+        </li>
+        <li>
+          <IconaCartella
+            nome="audio panel"
+            titolo="Caso studio: il pannello audio"
+            tono="metallo"
+            simbolo="/images/audio/manopola.webp"
+            onApri={() => dispatch(apriAudioPanel())}
+          />
         </li>
       </ul>
 

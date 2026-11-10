@@ -1,0 +1,72 @@
+/*
+ * Icona disegnata in CSS, senza file per la forma.
+ * I toni definiscono tre colori: --corpo, --linguetta, --grana (opacità
+ * del rumore). La forma usa quei colori.
+ * .cartella: ::after = linguetta (dietro), ::before = corpo
+ * .app: un solo quadrato arrotondato
+ */
+.icona {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1; /* quadrata: l'altezza segue la larghezza */
+}
+
+/* ── Toni ── */
+.arancio {
+  --corpo: #c4441d;
+  --linguetta: #9e3214;
+  --scala-simbolo: 0.38;
+}
+
+.metallo {
+  --corpo: linear-gradient(160deg, #e9ebee 0%, #b9bdc3 55%, #8e9298 100%);
+  --linguetta: #8e9298;
+  --scala-simbolo: 0.5;
+}
+
+.simbolo {
+  position: relative;
+  z-index: 1;
+  width: calc(var(--scala-simbolo) * 100%);
+  height: auto;
+}
+
+/* ── Cartella ── */
+.cartella::after {
+  content: "";
+  position: absolute;
+  top: 8%;
+  left: 6%;
+  width: 40%;
+  height: 12%;
+  background: var(--linguetta);
+  border-radius: 6px 10px 0 0;
+}
+
+.cartella::before {
+  content: "";
+  position: absolute;
+  inset: 16% 6% 8% 6%;
+  background: var(--corpo);
+  border-radius: 4px 12px 6px 6px;
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 0.3),
+    0 3px 6px rgb(0 0 0 / 0.35);
+}
+
+.cartella .simbolo {
+  margin-top: 8%;
+}
+
+/* ── App ── */
+.app {
+  border-radius: var(--raggio, 22%);
+  background: var(--corpo);
+  box-shadow: inset 0 1px rgb(255 255 255 / 0.3);
+}
+
+.app .simbolo {
+  width: calc(var(--scala-simbolo) * 130%);
+}

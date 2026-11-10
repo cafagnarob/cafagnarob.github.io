@@ -18,12 +18,14 @@ import {
 import scenaReducer from "./sliceScena"
 import audioReducer from "./sliceAudio"
 import noiaReducer from "./sliceNoia"
+import audioPanelReducer from "./sliceAudioPanel"
 
 export const store = configureStore({
   reducer: {
     scena: scenaReducer,
     audio: audioReducer,
     noia: noiaReducer,
+    audioPanel: audioPanelReducer,
   },
 })
 

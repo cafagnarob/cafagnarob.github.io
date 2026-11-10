@@ -22,6 +22,7 @@ import { ModaleProfilo } from "./components/interfaccia/profilo/ModaleProfilo"
 import { PannelloAudio } from "./components/interfaccia/audio/PannelloAudio"
 import { CartellinoCapo } from "./components/interfaccia/capi/CartellinoCapo"
 import { FinestraNoia } from "./components/interfaccia/noia/FinestraNoia"
+import { FinestraAudioPanel } from "./components/interfaccia/audioPanel/FinestraAudioPanel"
 
 export default function App() {
   const dispatch = useAppDispatch()
@@ -52,6 +53,7 @@ export default function App() {
       )}
       <Ingresso />
       <FinestraNoia />
+      <FinestraAudioPanel />
     </>
   )
 }
