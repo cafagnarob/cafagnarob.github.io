@@ -2,30 +2,36 @@
  * Conversione dei turntable di CLO in WebP trasparenti
  *
  * Uso:
- *   node scripts/converti-turntable.mjs <cartella-png> <id-capo>
- * Esempio:
- *   node scripts/converti-turntable.mjs "C:/Users/cafag/Desktop/render/giubbotto" capo_2
+ *   node scripts/converti-turntable.mjs "<cartella-png>" <id-capo> [modo]
+ * Esempi:
+ *   node scripts/converti-turntable.mjs "C:/Users/cafag/Downloads/borsa" capo_1
+ *   node scripts/converti-turntable.mjs "C:/Users/cafag/Downloads/pantalone" capo_5 verde
+ * (in Git Bash: barre "/" e percorso tra virgolette se contiene spazi)
+ *
+ * Tre tipi di render, riconosciuti così:
+ *  - TRASPARENTE (automatico): se gli angoli del primo fotogramma sono già
+ *    trasparenti, CLO ha esportato senza sfondo → si tiene la sua alfa,
+ *    niente scontorno
+ *  - COLORE (predefinito): sfondo a tinta unita di qualsiasi colore
+ *    (lime, magenta, nero…) → trasparente ciò che è vicino al colore
+ *    misurato negli angoli
+ *  - VERDE (terzo argomento "verde"): sfondo verde anche SFUMATO →
+ *    trasparente ciò che è molto più verde che rosso e blu.
+ *    NON per capi verdi o gialli
  *
  * Cosa fa:
  *  1. legge i PNG in ordine NUMERICO di fotogramma
  *     (CLO li chiama 00_0, 00_1… senza zeri iniziali, quindi
  *     l'ordine alfabetico sarebbe sbagliato: 00_10 prima di 00_2)
- *  2. MISURA LO SFONDO: media dei quattro angoli del primo fotogramma.
- *     Funziona con qualsiasi sfondo a tinta unita (lime, verde, magenta…)
- *     purché diverso dai colori del capo
- *  3. SCONTORNO: per ogni pixel calcola quanto il suo colore è distante
- *     da quello dello sfondo:
- *       vicino → sfondo (trasparente)
- *       lontano → capo (opaco)
- *       in mezzo → bordo semitrasparente (contorni morbidi)
- *  *  4. DESPILL: sui pixel di bordo toglie la parte di colore dello sfondo,
- *     così sulla stanza non resta un alone colorato. In più un
- *     LIMITATORE DEL VERDE su tutto il capo toglie la luce verde che lo
- *     sfondo lime riflette sul tessuto (non usarlo per capi verdi/gialli)
- *  5. RITAGLIO COMUNE: calcola il rettangolo che contiene il capo in
- *     TUTTI i fotogrammi e ritaglia tutti con lo stesso rettangolo,
- *     così il capo non "salta" né cambia grandezza mentre ruota
- *   *  6. salva due versioni di ogni fotogramma (00.webp, 01.webp…):
+ *  2. capisce il tipo di render (vedi sopra)
+ *  3. SCONTORNO (solo colore/verde): alfa 0 sullo sfondo, 255 sul capo,
+ *     sfumata sui bordi per contorni morbidi
+ *  4. DESPILL (solo colore/verde): toglie dai bordi il colore dello
+ *     sfondo e limita il verde riflesso sul tessuto
+ *  5. RITAGLIO COMUNE: il rettangolo che contiene il capo in TUTTI i
+ *     fotogrammi, uguale per tutti, così il capo non "salta" né cambia
+ *     grandezza mentre ruota
+ *  6. salva due versioni di ogni fotogramma (00.webp, 01.webp…):
  *     - public/images/moda/<id-capo>/turntable/     → alta ALTEZZA_NORMALE,
  *       leggera, per rotazione e volo
  *     - public/images/moda/<id-capo>/turntable_hd/  → piena risoluzione,
@@ -40,53 +46,38 @@ import sharp from "sharp"
 /* ------------------------------------------------------------
  * CONFIGURAZIONE
  * ------------------------------------------------------------ */
-
-/*
- * Modo di scontorno:
- *  "colore" → distanza dal colore degli angoli (sfondi a tinta unita di
- *             qualsiasi colore)
- *  "verde"  → quanto il pixel è più verde che rosso e blu: funziona anche
- *             con lo sfondo verde sfumato. NON per capi verdi
- */
-const MODO = "verde"
-const ECCESSO_CAPO = 25 // verde in più sotto cui è capo → opaco
-const ECCESSO_SFONDO = 85 // verde in più sopra cui è sfondo → trasparente
-
 const QUALITA = 82 // qualità WebP del colore (0–100)
 const QUALITA_ALFA = 90 // qualità WebP della trasparenza (0–100)
+const QUALITA_HD = 88 // la versione HD si guarda da vicino
+const ALTEZZA_NORMALE = 1100 // px: versione leggera per rotazione e volo
 
-// Distanza di colore dallo sfondo (0 = identico, ~440 = opposto)
+// Modo COLORE: distanza dal colore dello sfondo (0 = identico, ~440 = opposto)
 const DISTANZA_SFONDO = 40 // sotto: è sfondo → trasparente
 const DISTANZA_CAPO = 110 // sopra: è capo → opaco (in mezzo: bordo sfumato)
 
+// Modo VERDE: quanto il verde supera il massimo tra rosso e blu
+const ECCESSO_CAPO = 25 // sotto: è capo → opaco
+const ECCESSO_SFONDO = 85 // sopra: è sfondo → trasparente
+
 const MARGINE = 0.03 // margine attorno al ritaglio (3% del lato)
 const LATO_ANGOLO = 20 // lato (px) dei riquadri d'angolo per misurare lo sfondo
-
-const ALTEZZA_NORMALE = 1100 // px: versione leggera per rotazione e volo
-const QUALITA_HD = 88 // la versione HD si guarda da vicino
+const ALFA_VISIBILE = 10 // sopra questa alfa un pixel conta come capo
 
 /* ------------------------------------------------------------
  * ARGOMENTI
  * ------------------------------------------------------------ */
-const [cartellaPng, idCapo] = process.argv.slice(2)
-if (!cartellaPng || !idCapo) {
+const [cartellaPng, idCapo, modoScelto = "colore"] = process.argv.slice(2)
+
+if (!cartellaPng || !idCapo || !["colore", "verde"].includes(modoScelto)) {
   console.error(
-    "Uso: node scripts/converti-turntable.mjs <cartella-png> <id-capo>",
+    'Uso: node scripts/converti-turntable.mjs "<cartella-png>" <id-capo> [colore|verde]',
   )
   process.exit(1)
 }
 
-const cartellaUscita = path.join(
-  "public",
-  "images",
-  "moda",
-  idCapo,
-  "turntable",
-)
+const cartellaUscita = path.join("public", "images", "moda", idCapo, "turntable")
+const cartellaHd = `${cartellaUscita}_hd` // versione HD per lo zoom
 await mkdir(cartellaUscita, { recursive: true })
-
-// Versione HD (per lo zoom) in una cartella gemella: turntable_hd
-const cartellaHd = `${cartellaUscita}_hd`
 await mkdir(cartellaHd, { recursive: true })
 
 /* ------------------------------------------------------------
@@ -96,14 +87,14 @@ await mkdir(cartellaHd, { recursive: true })
 /* Numero del fotogramma: cifre finali prima di ".png" ("00_12.png" → 12) */
 const numeroFotogramma = (nome) => Number(nome.match(/(\d+)\.png$/i)?.[1] ?? -1)
 
-/* Colore dello sfondo: media dei quattro angoli del primo fotogramma,
-   dove c'è sicuramente solo sfondo */
-async function misuraSfondo(percorso) {
-  const { data, info } = await sharp(percorso)
-    .removeAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true })
+/* Legge un PNG come pixel grezzi RGBA (4 valori per pixel) */
+const leggiRgba = (percorso) =>
+  sharp(percorso).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
 
+/* Colore e alfa medi dei quattro angoli del primo fotogramma.
+   Restituisce null se gli angoli sono già trasparenti: PNG senza sfondo */
+async function misuraSfondo(percorso) {
+  const { data, info } = await leggiRgba(percorso)
   const L = LATO_ANGOLO
   const angoli = [
     [0, 0],
@@ -112,84 +103,30 @@ async function misuraSfondo(percorso) {
     [info.width - L, info.height - L],
   ]
 
-  let r = 0,
-    g = 0,
-    b = 0,
-    n = 0
+  let r = 0, g = 0, b = 0, a = 0, n = 0
   for (const [x0, y0] of angoli) {
     for (let y = y0; y < y0 + L; y++) {
       for (let x = x0; x < x0 + L; x++) {
-        const i = (y * info.width + x) * 3
+        const i = (y * info.width + x) * 4
         r += data[i]
         g += data[i + 1]
         b += data[i + 2]
+        a += data[i + 3]
         n++
       }
     }
   }
+
+  if (a / n < ALFA_VISIBILE) return null
   return [r / n, g / n, b / n]
 }
 
-/* Scontorno + despill di un fotogramma.
-   Restituisce i pixel RGBA e il rettangolo che contiene il capo. */
-async function scontorna(percorso, sfondo) {
-  const { data, info } = await sharp(percorso)
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true })
-
-  const [sr, sg, sb] = sfondo
-  let minX = info.width,
-    minY = info.height,
-    maxX = -1,
-    maxY = -1
-
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i],
-      g = data[i + 1],
-      b = data[i + 2]
-
-    // Quanto il pixel è diverso dal colore dello sfondo
-    const distanza = Math.hypot(r - sr, g - sg, b - sb)
-
-    // Alfa: 0 sullo sfondo, 255 sul capo, sfumato sul bordo
-    let t
-    if (MODO === "verde") {
-      // Quanto il pixel è "più verde" del suo rosso e del suo blu
-      const eccesso = g - Math.max(r, b)
-      t = 1 - (eccesso - ECCESSO_CAPO) / (ECCESSO_SFONDO - ECCESSO_CAPO)
-    } else {
-      const distanza = Math.hypot(r - sr, g - sg, b - sb)
-      t = (distanza - DISTANZA_SFONDO) / (DISTANZA_CAPO - DISTANZA_SFONDO)
-    }
-    const alfa = Math.round(255 * Math.min(Math.max(t, 0), 1))
-    data[i + 3] = alfa
-
-    // Despill sui soli bordi: un pixel di bordo è un miscuglio di capo e
-    // sfondo; togliendo la parte di sfondo si ricava il colore del capo.
-    // Il capo opaco (alfa 255) non viene toccato.
-    if (alfa > 0 && alfa < 255) {
-      const a = alfa / 255
-      const pulisci = (c, s) =>
-        Math.round(Math.min(255, Math.max(0, (c - s * (1 - a)) / a)))
-      data[i] = pulisci(r, sr)
-      data[i + 1] = pulisci(g, sg)
-      data[i + 2] = pulisci(b, sb)
-    }
-
-    // Limitatore del verde su tutto il capo: toglie la luce verde che lo
-    // sfondo lime riflette sul tessuto (il motore di CLO la calcola come
-    // luce vera). Sui colori neutri non cambia nulla, perché il verde è
-    // già ≤ del rosso. NON usarlo per capi verdi o gialli: per quelli
-    // renderizza con sfondo magenta e togli questo blocco.
-    if (alfa > 0) {
-      const tetto = Math.max(data[i], data[i + 2])
-      if (data[i + 1] > tetto) data[i + 1] = tetto
-    }
-
-    // Aggiorna il rettangolo del capo (ignora i pixel quasi trasparenti)
-    if (alfa > 10) {
-      const pixel = i / 4
+/* Rettangolo che contiene i pixel visibili */
+function rettangoloDiAlfa(data, info) {
+  let minX = info.width, minY = info.height, maxX = -1, maxY = -1
+  for (let i = 3; i < data.length; i += 4) {
+    if (data[i] > ALFA_VISIBILE) {
+      const pixel = (i - 3) / 4
       const x = pixel % info.width
       const y = Math.floor(pixel / info.width)
       if (x < minX) minX = x
@@ -198,8 +135,67 @@ async function scontorna(percorso, sfondo) {
       if (y > maxY) maxY = y
     }
   }
+  return { minX, minY, maxX, maxY }
+}
 
-  return { data, info, rettangolo: { minX, minY, maxX, maxY } }
+/* Alfa di un pixel (0–255) secondo il modo scelto */
+function alfaDi(r, g, b, sfondo, modo) {
+  let t
+  if (modo === "verde") {
+    // Quanto il pixel è "più verde" del suo rosso e del suo blu:
+    // uno sfondo verde, chiaro o scuro, lo è sempre; un tessuto neutro no
+    const eccesso = g - Math.max(r, b)
+    t = 1 - (eccesso - ECCESSO_CAPO) / (ECCESSO_SFONDO - ECCESSO_CAPO)
+  } else {
+    // Quanto il pixel è lontano dal colore dello sfondo
+    const [sr, sg, sb] = sfondo
+    const distanza = Math.hypot(r - sr, g - sg, b - sb)
+    t = (distanza - DISTANZA_SFONDO) / (DISTANZA_CAPO - DISTANZA_SFONDO)
+  }
+  return Math.round(255 * Math.min(Math.max(t, 0), 1))
+}
+
+/* Scontorno + despill di un fotogramma.
+   Con sfondo null (PNG già trasparente) tiene l'alfa originale. */
+async function scontorna(percorso, sfondo, modo) {
+  const { data, info } = await leggiRgba(percorso)
+
+  if (sfondo === null) {
+    return { data, info, rettangolo: rettangoloDiAlfa(data, info) }
+  }
+
+  const [sr, sg, sb] = sfondo
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i + 1], b = data[i + 2]
+
+    // L'alfa calcolata non può superare quella originale del file
+    const alfa = Math.min(alfaDi(r, g, b, sfondo, modo), data[i + 3])
+    data[i + 3] = alfa
+
+    // Despill sui bordi: un pixel di bordo è un miscuglio di capo e
+    // sfondo; togliendo la parte di sfondo resta il colore del capo.
+    // In modo verde lo sfondo è sfumato, quindi basta il limitatore sotto.
+    if (modo === "colore" && alfa > 0 && alfa < 255) {
+      const a = alfa / 255
+      const pulisci = (c, s) =>
+        Math.round(Math.min(255, Math.max(0, (c - s * (1 - a)) / a)))
+      data[i] = pulisci(r, sr)
+      data[i + 1] = pulisci(g, sg)
+      data[i + 2] = pulisci(b, sb)
+    }
+
+    // Limitatore del verde: toglie la luce verde che uno sfondo verde
+    // riflette sul tessuto. Sui colori neutri non cambia nulla.
+    // Solo se lo sfondo è verde: con altri sfondi non serve.
+    const sfondoVerde = modo === "verde" || sg > Math.max(sr, sb) + 40
+    if (sfondoVerde && alfa > 0) {
+      const tetto = Math.max(data[i], data[i + 2])
+      if (data[i + 1] > tetto) data[i + 1] = tetto
+    }
+  }
+
+  return { data, info, rettangolo: rettangoloDiAlfa(data, info) }
 }
 
 /* ------------------------------------------------------------
@@ -216,19 +212,26 @@ if (file.length === 0) {
   process.exit(1)
 }
 
-// Colore dello sfondo, misurato sul primo fotogramma
+// Tipo di render, deciso sul primo fotogramma
 const sfondo = await misuraSfondo(path.join(cartellaPng, file[0]))
-console.log(`Sfondo rilevato: RGB(${sfondo.map(Math.round).join(", ")})`)
+if (sfondo === null) {
+  console.log("PNG già trasparenti: nessuno scontorno, solo ritaglio")
+} else if (modoScelto === "verde") {
+  console.log("Modo verde: sfondo verde, anche sfumato")
+} else {
+  console.log(`Sfondo a tinta unita: RGB(${sfondo.map(Math.round).join(", ")})`)
+}
 
 // Passo 1: scontorna tutti i fotogrammi e calcola il rettangolo comune
 const scontornati = []
 const comune = { minX: Infinity, minY: Infinity, maxX: -1, maxY: -1 }
 
 for (const nome of file) {
-  const risultato = await scontorna(path.join(cartellaPng, nome), sfondo)
+  const risultato = await scontorna(path.join(cartellaPng, nome), sfondo, modoScelto)
   scontornati.push(risultato)
 
   const r = risultato.rettangolo
+  if (r.maxX < 0) continue // fotogramma vuoto: non allarga il rettangolo
   comune.minX = Math.min(comune.minX, r.minX)
   comune.minY = Math.min(comune.minY, r.minY)
   comune.maxX = Math.max(comune.maxX, r.maxX)
@@ -236,10 +239,8 @@ for (const nome of file) {
 }
 
 if (comune.maxX < 0) {
-  console.error(
-    "Nessun capo trovato: tutti i pixel sono stati presi per sfondo.",
-  )
-  console.error("Prova ad abbassare DISTANZA_CAPO.")
+  console.error("Nessun capo trovato: tutti i pixel sono stati presi per sfondo.")
+  console.error("Prova ad abbassare DISTANZA_CAPO (o ECCESSO_CAPO in modo verde).")
   process.exit(1)
 }
 
@@ -256,8 +257,16 @@ const ritaglio = {
   height: Math.min(H - 1, comune.maxY + margine) - top + 1,
 }
 
-// Passo 2: ritaglia tutti allo stesso modo e salva due versioni WebP
-// trasparenti: normale (rotazione e volo) e HD (zoom)
+// Avviso: se il ritaglio è grande quanto l'immagine, lo sfondo non è
+// stato tolto (modo sbagliato o soglie da regolare)
+if (ritaglio.width >= W - 2 && ritaglio.height >= H - 2) {
+  console.warn(
+    "⚠ Il ritaglio è grande quanto l'immagine: lo sfondo potrebbe non essere stato tolto.",
+  )
+  console.warn('  Sfondo verde sfumato? Rilancia aggiungendo "verde" in fondo al comando.')
+}
+
+// Passo 2: ritaglia tutti allo stesso modo e salva le due versioni
 let pesoPrima = 0
 let pesoDopo = 0
 let pesoHd = 0
@@ -289,9 +298,9 @@ for (const [indice, { data, info }] of scontornati.entries()) {
   console.log(`✔ ${file[indice]} → ${nomeFile}`)
 }
 
-// Riepilogo (fuori dal ciclo: una sola volta)
+// Riepilogo
 const mb = (byte) => (byte / 1024 / 1024).toFixed(1)
 console.log(`\n${file.length} fotogrammi in ${cartellaUscita} e ${cartellaHd}`)
-console.log(`Ritaglio comune: ${ritaglio.width}×${ritaglio.height} px`)
+console.log(`Ritaglio comune: ${ritaglio.width}×${ritaglio.height} px (originale ${W}×${H})`)
 console.log(`Peso: ${mb(pesoPrima)} MB → ${mb(pesoDopo)} MB`)
 console.log(`Versione HD (caricata solo con lo zoom): ${mb(pesoHd)} MB`)

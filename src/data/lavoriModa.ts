@@ -87,10 +87,20 @@ export const LAVORI_MODA: Record<string, LavoroModa> = {
     categoria: "Accessori",
     ...SS24,
     descrizione:
-      "Una borsa morbida come un cuscino: quattro volumi imbottiti in nylon e una tracolla lunga annodata. Leggera, capiente, da portare a spalla senza pensarci.",
+      "Una borsa morbida come un cuscino: quattro volumi imbottiti in nylon crema, cuciti a croce, che si gonfiano dove la borsa si riempie. Si chiude con una zip in alto e si porta a spalla con una tracolla lunga, annodata sopra la spalla.",
     immagini: [],
-    materiali: ["Nylon imbottito", "Tracolla in nylon", "Etichetta noia"],
-    processo: PROCESSO,
+    turntable: {
+      cartella: "/images/moda/capo_1/turntable",
+      fotogrammi: 32,
+      fotogrammaArmadio: 28,
+    },
+    materiali: [
+      "Nylon imbottito crema",
+      "Zip in alto",
+      "Tracolla in nylon con nodo",
+      "Etichetta noia arancio",
+    ],
+    processo: PROCESSO_TURNTABLE,
     software: SOFTWARE,
   },
 

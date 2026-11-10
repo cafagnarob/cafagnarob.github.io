@@ -177,7 +177,10 @@ export const COPERTINA_NOIA = {
     1271,
     1600,
   ),
-  discipline: ["abbigliamento", "quadri", "tappeti", "oggetti", "siti web"],
+  discipline: [
+    "abbigliamento",
+    // , "quadri", "tappeti", "oggetti", "siti web"
+  ],
   verticale: "La creatività in fase di ricarica",
 }
 
@@ -237,6 +240,13 @@ export const COLLEZIONI_NOIA: Record<IdCollezione, RaccoltaNoia> = {
         "denim_nylon_look.png",
         "Completo nero: giacca in denim a strati con impunture chiare e pantalone in nylon",
         592,
+        1600,
+      ),
+      immagine(
+        "fw22_outfit_pantalone_logo",
+        "logo_pant_look.png",
+        "Look con camicia oversize grigio antracite, t-shirt a maniche lunghe e il pantalone con il logo noia stampato",
+        686,
         1600,
       ),
       immagine(
