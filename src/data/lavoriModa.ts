@@ -13,6 +13,13 @@
  *   fotogrammi: quanti sono (il primo, 00, deve essere frontale).
  * I lavori senza turntable usano l'ispezione 3D.
  */
+
+/*
+ * Cartellino (campi facoltativi): tutti i capi sono del brand NOIA.
+ *   codice: codice del cartellino (se manca: NOIA-<numero del capo>)
+ *   collezione, stagione: sotto il nome
+ *   materiali, processo, software: la scheda del capo
+ */
 export type Turntable = {
   cartella: string
   fotogrammi: number
@@ -26,7 +33,19 @@ export type LavoroModa = {
   descrizione: string
   immagini: string[]
   turntable?: Turntable
+  // Cartellino
+  codice?: string
+  collezione?: string
+  stagione?: string
+  materiali?: string[]
+  processo?: string[]
+  software?: string[]
 }
+
+/* Codice del cartellino: quello scritto, oppure ricavato dall'id
+   ("capo_2" → "NOIA-02") */
+export const codiceDi = (id: string, lavoro: LavoroModa) =>
+  lavoro.codice ?? `NOIA-${id.replace(/\D/g, "").padStart(2, "0")}`
 
 const SEGNAPOSTO =
   "Descrizione del progetto: concept, materiali, processo creativo e risultato finale."
@@ -50,7 +69,17 @@ export const LAVORI_MODA: Record<string, LavoroModa> = {
       fotogrammi: 32,
       fotogrammaArmadio: 24,
     },
+    collezione: "Collezione Zero",
+    stagione: "A/I",
+    materiali: ["Pelle di agnello", "Fodera in raso", "Zip in metallo"],
+    processo: [
+      "Cartamodello in CLO3D",
+      "Simulazione e fit sull'avatar",
+      "Render 360° in CLO3D",
+    ],
+    software: ["CLO3D", "Photoshop", "Illustrator"],
   },
+
   capo_3: {
     titolo: "Camicia in jersey",
     categoria: "Collezione",

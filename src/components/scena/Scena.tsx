@@ -35,6 +35,7 @@ import { eTouch } from "../../utils/dispositivo"
 import { Effetti } from "./Effetti"
 import { adattaAlloSchermo } from "./adattamento"
 import { lazy } from "react"
+import { SfondoAnimato } from "./SfondoAnimato"
 
 /* Caricato solo se serve: non finisce nel pacchetto del sito pubblicato */
 const Perf = lazy(() =>
@@ -101,6 +102,7 @@ export function Scena() {
           grigia). Stesso colore dello sfondo della pagina. */}
       <color attach="background" args={[COLORE_SFONDO]} />
       <Suspense fallback={null}>
+        <SfondoAnimato />
         <Stanza />
         <Armadio
           aperto={armadioAperto}

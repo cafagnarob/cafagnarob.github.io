@@ -13,13 +13,14 @@ import { Scena } from "./components/scena/Scena"
 import { VisoreTurntable } from "./components/interfaccia/VisoreTurntable"
 import { LAVORI_MODA } from "./data/lavoriModa"
 import { useAppDispatch, useAppSelector } from "./store/hooks"
-import { chiudiVetrina } from "./store/azioniScena"
+import { chiudiVetrina, rimettiCapo } from "./store/azioniScena"
 import { PulsanteIndietro } from "./components/interfaccia/PulsanteIndietro"
 import { InterfacciaSchermo } from "./components/interfaccia/InterfacciaSchermo"
 import { ControlliAudio } from "./components/interfaccia/ControlliAudio"
 import { Ingresso } from "./components/interfaccia/Ingresso"
 import { ModaleProfilo } from "./components/interfaccia/profilo/ModaleProfilo"
 import { PannelloAudio } from "./components/interfaccia/audio/PannelloAudio"
+import { CartellinoCapo } from "./components/interfaccia/capi/CartellinoCapo"
 
 export default function App() {
   const dispatch = useAppDispatch()
@@ -36,6 +37,7 @@ export default function App() {
       <InterfacciaSchermo />
 
       <ModaleProfilo />
+      <CartellinoCapo />
 
       {lavoro?.turntable && partenzaVetrina && (
         <VisoreTurntable
@@ -44,6 +46,7 @@ export default function App() {
           turntable={lavoro.turntable}
           partenza={partenzaVetrina}
           onChiuso={() => dispatch(chiudiVetrina())}
+          onRitorno={() => dispatch(rimettiCapo())}
         />
       )}
       <Ingresso />

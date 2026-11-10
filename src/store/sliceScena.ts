@@ -7,7 +7,8 @@
  * Stato:
  * - armadioAperto: ante aperte, LED acceso
  * - capoInIspezione: id del lavoro in primo piano (o null)
- * - ritornoCapo: il capo 3D (senza turntable) sta tornando al suo posto
+ *  * - ritornoCapo: il capo sta tornando nell'armadio (ispezione 3D o
+ *   vetrina 360°): il cartellino sparisce subito
  * - partenzaVetrina: rettangolo a schermo del capo cliccato, punto di
  *   partenza del volo del render di CLO (null = vetrina chiusa)
  *
@@ -85,6 +86,7 @@ const sliceScena = createSlice({
     chiusuraVetrina(stato) {
       stato.partenzaVetrina = null
       stato.capoInIspezione = null
+      stato.ritornoCapo = false
     },
 
     ingressoSchermo(stato, azione: PayloadAction<NomeSchermo>) {

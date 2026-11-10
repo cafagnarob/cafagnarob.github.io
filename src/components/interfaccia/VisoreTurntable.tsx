@@ -50,6 +50,7 @@ type VisoreTurntableProps = {
   titolo: string
   turntable: Turntable
   partenza: Rettangolo
+  onRitorno: () => void // il render inizia a tornare (il cartellino sparisce)
   onChiuso: () => void
 }
 
@@ -88,7 +89,10 @@ export function VisoreTurntable({
 
   /* Ritorno nell'armadio (ignorato se il capo è ancora in volo) */
   const chiudi = () => {
-    if (avviaRitorno(fotogramma, onChiuso)) setInUscita(true)
+    if (avviaRitorno(fotogramma, onChiuso)) {
+      setInUscita(true)
+      onRitorno()
+    }
   }
 
   /* Rotella: listener nativo non passivo (vedi commento in cima) */
