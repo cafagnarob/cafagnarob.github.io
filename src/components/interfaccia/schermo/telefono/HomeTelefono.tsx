@@ -4,20 +4,23 @@
  * - sfondo verticale (lo stesso del telefono 3D)
  * - barra di stato in alto: ora, segnale, batteria
  * - griglia di app a 4 colonne, una per progetto
- * - toccando un'app si apre il browser a tutto schermo sul progetto;
+ * - in fondo alla griglia le app speciali (NOIA, Audio Panel), che
+ *   aprono una finestra dedicata invece del browser
+ * - toccando un progetto si apre il browser a tutto schermo;
  *   "‹" in basso torna alla home (la barra di stato resta visibile)
  */
 import { useState } from "react"
 import { PROGETTI, type Progetto } from "../../../../data/progetti"
-import { BarraStato } from "./BarraStato"
-import { IconaApp } from "./IconaApp"
-import { Browser } from "../comuni/browser/Browser"
-import stili from "./HomeTelefono.module.css"
 import { useAppDispatch } from "../../../../store/hooks"
-import { BarraHome } from "./BarraHome"
 import { esci } from "../../../../store/azioniScena"
 import { apriNoia } from "../../../../store/sliceNoia"
-import { IconaAppNoia } from "./IconaAppNoia"
+import { apriAudioPanel } from "../../../../store/sliceAudioPanel"
+import { BarraStato } from "./BarraStato"
+import { BarraHome } from "./BarraHome"
+import { IconaApp } from "./IconaApp"
+import { IconaAppCartella } from "./IconaAppCartella"
+import { Browser } from "../comuni/browser/Browser"
+import stili from "./HomeTelefono.module.css"
 
 export function HomeTelefono() {
   const dispatch = useAppDispatch()
@@ -33,7 +36,20 @@ export function HomeTelefono() {
           </li>
         ))}
         <li>
-          <IconaAppNoia onApri={() => dispatch(apriNoia("manifesto"))} />
+          <IconaAppCartella
+            nome="noia"
+            tono="arancio"
+            simbolo="/images/noia/mosca.webp"
+            onApri={() => dispatch(apriNoia("manifesto"))}
+          />
+        </li>
+        <li>
+          <IconaAppCartella
+            nome="audio panel"
+            tono="metallo"
+            simbolo="/images/audio/manopola.webp"
+            onApri={() => dispatch(apriAudioPanel())}
+          />
         </li>
       </ul>
 
