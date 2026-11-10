@@ -13,7 +13,10 @@ type Props = { forma: "cartella" | "app"; className?: string }
 
 export function IconaNoia({ forma, className = "" }: Props) {
   return (
-    <span className={`${stili.icona} ${stili[forma]} ${className}`} aria-hidden="true">
+    <span
+      className={`${stili.icona} ${stili[forma]} ${className}`}
+      aria-hidden="true"
+    >
       <img className={stili.mosca} src="/images/noia/mosca.webp" alt="" />
     </span>
   )
