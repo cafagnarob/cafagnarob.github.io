@@ -54,33 +54,33 @@ export const anteprimeDi = (p: Progetto, quante: number) =>
   )
 
 export const PROGETTI: Progetto[] = [
-  {
-    id: "muma-gin",
-    nome: "MUMA GIN",
-    sottotitolo: "E-commerce per un gin artigianale pugliese",
-    descrizione: [
-      // DA CONFERMARE: testo di bozza, riscrivilo con parole tue
-      "Negozio online per MUMA GIN, marchio di gin della Puglia: il mio primo progetto per un cliente reale, destinato alla messa in produzione.",
-      "Catalogo navigabile senza registrazione, carrello lato client, verifica della maggiore età e accesso con email per ordini e profilo. Backend a monolite modulare organizzato per dominio.",
-      "In arrivo: una bottiglia 3D modellata in Blender e mostrata con React Three Fiber.",
-    ],
-    tecnologie: [
-      "React",
-      "Spring Boot",
-      "Java 21",
-      "PostgreSQL",
-      "JWT",
-      "Three.js",
-    ],
-    stato: "in corso",
-    link: {
-      // DA CONFERMARE: aggiungi i link quando ci sono (o lasciali vuoti)
-      // demo: "https://…",
-      codice: "https://github.com/cafagnarob/muma-gin-frontend",
-    },
-    colore: "#1f3a34", // DA CONFERMARE: prendilo dall'icona
-    indirizzo: "mumagin.it", // DA CONFERMARE
-  },
+  // {
+  //   id: "muma-gin",
+  //   nome: "MUMA GIN",
+  //   sottotitolo: "E-commerce per un gin artigianale pugliese",
+  //   descrizione: [
+  //     // DA CONFERMARE: testo di bozza, riscrivilo con parole tue
+  //     "Negozio online per MUMA GIN, marchio di gin della Puglia: il mio primo progetto per un cliente reale, destinato alla messa in produzione.",
+  //     "Catalogo navigabile senza registrazione, carrello lato client, verifica della maggiore età e accesso con email per ordini e profilo. Backend a monolite modulare organizzato per dominio.",
+  //     "In arrivo: una bottiglia 3D modellata in Blender e mostrata con React Three Fiber.",
+  //   ],
+  //   tecnologie: [
+  //     "React",
+  //     "Spring Boot",
+  //     "Java 21",
+  //     "PostgreSQL",
+  //     "JWT",
+  //     "Three.js",
+  //   ],
+  //   stato: "in corso",
+  //   link: {
+  //     // DA CONFERMARE: aggiungi i link quando ci sono (o lasciali vuoti)
+  //     // demo: "https://…",
+  //     codice: "https://github.com/cafagnarob/muma-gin-frontend",
+  //   },
+  //   colore: "#1f3a34", // DA CONFERMARE: prendilo dall'icona
+  //   indirizzo: "mumagin.it", // DA CONFERMARE
+  // },
 
   {
     id: "the-worst-date",
