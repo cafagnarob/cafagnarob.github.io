@@ -68,3 +68,39 @@
 .grande video {
   max-height: 640px;
 }
+
+/*
+ * Pulsante trasparente steso su tutto il pannello: lo rende cliccabile
+ * senza mettere l'immagine dentro un <button>.
+ * Al passaggio l'immagine si avvicina appena (scale), come una lente.
+ */
+.apri {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.apri:focus-visible {
+  outline: 2px solid var(--inchiostro);
+  outline-offset: -4px;
+}
+
+.pannello img,
+.pannello video {
+  transition: scale 0.3s ease;
+}
+
+.pannello:has(.apri:hover) img,
+.pannello:has(.apri:hover) video {
+  scale: 1.03;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pannello img,
+  .pannello video {
+    transition: none;
+  }
+}

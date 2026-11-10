@@ -5,13 +5,19 @@
  * width/height reali: il browser riserva lo spazio prima del download.
  * loading="lazy": le immagini più in basso si scaricano solo quando
  * servono.
+ * Se riceve onApri, tutto il pannello diventa cliccabile (un pulsante
+ * trasparente steso sopra) e apre il visore a tutto schermo.
  */
 import type { ImmagineNoia } from "../../../data/noia"
 import stili from "./PannelloImmagine.module.css"
 
-type Props = { immagine: ImmagineNoia; grande?: boolean }
+type Props = {
+  immagine: ImmagineNoia
+  grande?: boolean
+  onApri?: () => void
+}
 
-export function PannelloImmagine({ immagine, grande = false }: Props) {
+export function PannelloImmagine({ immagine, grande = false, onApri }: Props) {
   return (
     <figure className={`${stili.pannello} ${grande ? stili.grande : ""}`}>
       <figcaption className={stili.etichetta}>{immagine.nomeFile}</figcaption>
@@ -23,6 +29,14 @@ export function PannelloImmagine({ immagine, grande = false }: Props) {
         loading="lazy"
         decoding="async"
       />
+      {onApri && (
+        <button
+          type="button"
+          className={stili.apri}
+          onClick={onApri}
+          aria-label={`Ingrandisci: ${immagine.alt}`}
+        />
+      )}
     </figure>
   )
 }

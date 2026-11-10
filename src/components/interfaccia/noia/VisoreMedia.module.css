@@ -1,0 +1,172 @@
+/*
+ * Visore media a tutto schermo
+ * Fondo inchiostro quasi pieno, l'immagine al centro il più grande
+ * possibile senza tagli (object-fit: contain).
+ * La pista scorre in orizzontale con scroll-snap: ogni diapositiva è
+ * larga quanto il visore e si "aggancia" al centro.
+ * I colori arrivano dai token della finestra NOIA (il visore è suo figlio
+ * nel DOM, quindi eredita le variabili CSS anche nel top layer).
+ */
+.visore {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgb(26 23 20 / 0.94);
+  color: var(--crema);
+  font-family: var(--font-noia);
+  overflow: hidden;
+
+  opacity: 1;
+  transition: opacity 0.22s ease;
+}
+
+.visore[open] {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+@starting-style {
+  .visore[open] {
+    opacity: 0;
+  }
+}
+
+.visore::backdrop {
+  background: transparent;
+}
+
+/* ── Barra in alto: nome file, contatore, chiudi ── */
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: max(14px, env(safe-area-inset-top)) 20px 10px;
+  font: 13px / 1 var(--font-macchina);
+}
+
+.nomeFile {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contatore {
+  opacity: 0.75;
+}
+
+.chiudi {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--crema);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--crema);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.chiudi:hover,
+.chiudi:focus-visible {
+  background: var(--crema);
+  color: var(--inchiostro);
+  outline: none;
+}
+
+/* ── Pista orizzontale con aggancio ── */
+.pista {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  min-height: 0;
+}
+
+.pista::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+ * minmax(0, 1fr): senza, una cella di griglia non scende sotto la misura
+ * naturale dell'immagine (1200px) e la foto uscirebbe dallo schermo.
+ */
+.diapositiva {
+  flex: 0 0 100%;
+  min-width: 0;
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  padding: 8px clamp(16px, 7vw, 96px);
+  scroll-snap-align: center;
+  scroll-snap-stop: always; /* una diapositiva per volta, anche con swipe veloci */
+}
+
+/* L'immagine riempie la cella e si adatta senza tagli né deformazioni */
+.diapositiva img,
+.diapositiva video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ── Frecce ai lati ── */
+.freccia {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--crema);
+  border-radius: 50%;
+  background: rgb(26 23 20 / 0.5);
+  color: var(--crema);
+  font-size: 20px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    opacity 0.15s;
+}
+
+.freccia:hover:not(:disabled),
+.freccia:focus-visible {
+  background: var(--crema);
+  color: var(--inchiostro);
+  outline: none;
+}
+
+.freccia:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.precedente {
+  left: 20px;
+}
+
+.successiva {
+  right: 20px;
+}
+
+/* ── Mobile: si scorre solo col dito, niente frecce ── */
+@media (max-width: 640px) {
+  .diapositiva {
+    padding: 4px 8px;
+  }
+
+  .freccia {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .visore {
+    transition: none;
+  }
+}
