@@ -32,7 +32,7 @@ export const PROFILO = {
   ruolo: "Sviluppatore full-stack · 3D e UI · ex fashion designer",
 
   chiSono: [
-    "Sono cresciuto tra stoffe e cartamodelli, nel laboratorio dei miei genitori. La passione per la tecnologia è arrivata con i videogiochi ed è cresciuta con il 3D.",
+    "Sono cresciuto tra stoffe e cartamodelli. La passione per la tecnologia è arrivata con i videogiochi ed è cresciuta con il 3D.",
     "Per anni ho disegnato capi e collezioni, tra Milano e la Cina, dove ho anche insegnato fashion design. Poi ho scelto lo sviluppo web, per portare un progetto dall'idea al prodotto finito con le mie mani: dal design in Figma e Blender fino al codice e alla pubblicazione.",
     "Mi piace costruire siti chiari e semplici da usare. Lavoro per piccoli passi, con revisioni frequenti, e credo che il confronto con il team sia la parte più importante della progettazione.",
     "Oggi cerco il mio primo ruolo da sviluppatore, front-end o full-stack, in un team con cui crescere.",
