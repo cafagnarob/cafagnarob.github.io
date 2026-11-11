@@ -51,6 +51,7 @@ Un portfolio classico è una pagina che scorre. Io volevo un posto in cui **entr
 - **Camera isometrica** che si muove di pochi gradi, senza mostrare cosa c'è dietro i muri, e vola verso l'oggetto cliccato.
 - **Sfondo animato** con il logo NOIA che scorre lentamente, scritto come shader.
 - **Schermi vivi**: monitor e telefono mostrano lo sfondo del desktop, applicato con UV calcolate sul piano dello schermo.
+- **Invito al clic**: nella panoramica gli oggetti cliccabili si illuminano piano uno dopo l'altro, come un respiro. Riparte ogni volta che si torna alla vista della stanza, e si ferma con "riduci movimento".
 
 ### L'armadio e NOIA
 
@@ -129,25 +130,33 @@ La scena 3D e le interfacce HTML vivono in due mondi diversi ma leggono lo **ste
 ```text
 src/
 ├── components/
-│   ├── scena/          # la scena 3D: camera, sfondo animato
-│   ├── stanza/         # la stanza: materiali, texture baked, schermi
+│   ├── scena/          # camera, regia dei movimenti, sfondo animato, effetti
+│   ├── stanza/         # la stanza: materiali, texture baked, luci, interazioni
+│   ├── armadio/        # armadio, ante, ispezione 3D dei capi
 │   └── interfaccia/    # tutto ciò che è HTML sopra la scena
 │       ├── audio/      # pannello audio (LED, manopola, mute)
 │       ├── capi/       # cartellino dei capi
+│       ├── profilo/    # il modale "Chi sono" del letto
 │       ├── schermo/    # desktop, telefono, browser "Sonda", README
 │       ├── finestra/   # guscio comune delle finestre modali
+│       ├── cartelle/   # icone disegnate delle cartelle (NOIA, Audio Panel)
 │       ├── noia/       # finestra NOIA: manifesto, collezioni, campagne
 │       └── audioPanel/ # finestra del caso studio Audio Panel
-├── config/             # numeri e nomi: schermi, armadio, giradischi, sfondo
-├── data/               # contenuti: progetti, capi, NOIA, Audio Panel
-├── store/              # Redux: slice e azioni
-├── audio/              # Web Audio: uscita, analisi dello spettro
-└── materials/          # shader personalizzati
-scripts/
-└── converti-turntable.mjs  # da PNG di CLO3D a WebP trasparenti
+├── config/             # numeri e nomi: camera, armadio, giradischi, invito…
+├── data/               # contenuti: progetti, capi, profilo, NOIA, Audio Panel
+├── store/              # Redux: slice e azioni (thunk)
+├── audio/              # Web Audio: contesto, musica, analisi dello spettro
+├── materials/          # shader personalizzati (bake, sfondo, pioggia, fumo)
+├── hook/               # hook condivisi (invito al clic, riduci movimento)
+└── utils/              # funzioni pure: UV, sfarfallio, respiro, turntable…
+scripts/                # conversione di immagini, icone, texture e turntable
 public/
-├── models/             # la stanza in .glb
-└── images/             # texture, capi, turntable, NOIA
+├── models/             # stanza e armadio in .glb (compressi con Draco)
+├── textures/           # texture baked di stanza e armadio
+├── images/             # capi, turntable, NOIA, profilo, schermi
+├── audio/              # la musica del giradischi
+├── draco/ · basis/     # decodificatori per modelli e texture compressi
+└── progetti/           # immagini del caso studio Audio Panel
 ```
 
 ---
@@ -157,8 +166,8 @@ public/
 **Serve:** [Node.js](https://nodejs.org/) 20 o più recente.
 
 ```bash
-git clone https://github.com/UTENTE/protfolio-cameretta.git
-cd protfolio-cameretta
+git clone https://github.com/cafagnarob/cafagnarob.github.io.git
+cd cafagnarob.github.io
 npm install
 npm run dev
 ```
@@ -166,10 +175,11 @@ npm run dev
 Poi apri l'indirizzo che compare nel terminale (di solito `http://localhost:5173`).
 
 | Comando           | Cosa fa                                               |
-| ----------------- | ----------------------------------------------------- |
+| ----------------- | ----------------------------------------------------- | --- |
 | `npm run dev`     | avvia il sito in sviluppo, con ricarica automatica    |
 | `npm run build`   | crea la versione da pubblicare nella cartella `dist/` |
 | `npm run preview` | prova in locale la versione di `dist/`                |
+| `npm run lint`    | controlla il codice con ESLint                        |     |
 
 **Per gli sviluppatori:** aggiungi `?perf` all'indirizzo (`http://localhost:5173/?perf`) per vedere FPS, chiamate di disegno e memoria della scena.
 
@@ -194,16 +204,11 @@ Aggiungi un oggetto in `src/data/progetti.ts`: nome, sottotitolo, indirizzo, ico
 
 ## Pubblicazione
 
-Il sito è pubblicato su **GitHub Pages** con **GitHub Actions**: a ogni push sul ramo principale il sito viene ricostruito e pubblicato da solo.
+Il sito è pubblicato su **GitHub Pages** con **GitHub Actions**, nella radice del dominio: [cafagnarob.github.io](https://cafagnarob.github.io/). A ogni push sul ramo `main` il sito viene ricostruito e pubblicato da solo; i push sugli altri rami non pubblicano niente.
 
-1. In `vite.config.ts` il percorso base deve essere il nome della repository:
-   ```ts
-   base: "/protfolio-cameretta/",
-   ```
+1. La repository si chiama `cafagnarob.github.io`: GitHub la pubblica nella radice, quindi `vite.config.ts` usa `base: "/"` e i percorsi dei file in `public/` (es. `/images/noia/mosca.webp`) funzionano senza modifiche.
 2. Su GitHub: **Settings → Pages → Source: GitHub Actions**.
-3. Il workflow in `.github/workflows/` fa `npm ci`, `npm run build` e pubblica `dist/`.
-
----
+3. Il workflow `.github/workflows/deploy.yml` fa `npm ci`, `npm run build` e pubblica `dist/`. Se la build fallisce, il sito online resta quello di prima.
 
 ## Cosa ho imparato
 
