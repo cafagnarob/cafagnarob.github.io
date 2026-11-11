@@ -16,5 +16,11 @@ export const INVITO = {
   RITARDO_S: 0.4, // attesa dopo l'arrivo della camera, prima del primo respiro
   INTENSITA: 0.55, // forza massima del respiro (1 = come l'hover)
   /** nomi delle viste, nell'ordine in cui si accendono */
-  ORDINE: ["armadio", "pc", "letto", "giradischi"] as readonly string[],
+  ORDINE: [
+    "armadio",
+    "pc",
+    "telefono",
+    "letto",
+    "giradischi",
+  ] as readonly string[],
 }
