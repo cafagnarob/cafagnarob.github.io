@@ -16,8 +16,9 @@
  * - useFrame, a ogni fotogramma:
  *     neon → sfarfallio continuo
  *     LED  → acceso se aperto, spento se chiuso
- *     evidenziazione → alone dell'armadio o del capo sotto il mouse,
- *                      LUMINOSITA_ISPEZIONE per il capo in ispezione 3D
+ *     evidenziazione → alone dell'armadio (hover o respiro dell'invito)
+ *                      o del capo sotto il mouse, LUMINOSITA_ISPEZIONE
+ *                      per il capo in ispezione 3D
  *     visibilità → gli originali del capo in ispezione sono nascosti
  */
 
@@ -43,6 +44,8 @@ import {
 } from "../../config/armadio"
 import { LUMINOSITA_ISPEZIONE } from "../../config/ispezione"
 import { PERCORSO_DRACO } from "../../config/texture"
+import { useInvito } from "../../hook/useInvito"
+import { indiceInvito, intensitaRespiro } from "../../utils/respiro"
 
 const PERCORSO_MODELLO = "/models/armadio.glb"
 
@@ -88,6 +91,9 @@ export function Armadio({
   const armadioSottoMouse = useRef(false)
   const inIspezione = capoInIspezione !== null
 
+  // Respiro dell'invito, condiviso con la stanza (vedi useInvito)
+  const tempoInvito = useInvito()
+
   /* Oggetti 3D dei capi: cercati per nome al primo fotogramma e poi
      conservati in un ref. Un ref (e non useMemo) perché li modifichiamo
      a ogni fotogramma (visibilità): sono oggetti three.js mutabili,
@@ -101,6 +107,13 @@ export function Armadio({
     const frazioneEvidenziazione =
       1 - Math.exp(-VELOCITA_EVIDENZIAZIONE * delta)
     const obiettivoLed = aperto ? 1 : 0
+
+    // Respiro dell'armadio chiuso: uguale per tutti i suoi materiali
+    const invito = tempoInvito(clock.elapsedTime)
+    const respiro =
+      !aperto && invito !== null
+        ? intensitaRespiro(invito, indiceInvito("armadio"))
+        : 0
 
     for (const [nomeOggetto, materiale] of Object.entries(materiali)) {
       const {
@@ -116,9 +129,10 @@ export function Armadio({
       if (lavoro !== undefined && lavoro === capoInIspezione) {
         // Capo in ispezione 3D: più luminoso
         obiettivo = LUMINOSITA_ISPEZIONE
-      } else if (!aperto && armadioSottoMouse.current) {
-        // Armadio CHIUSO sotto il mouse: alone su tutto l'armadio
-        obiettivo = ALONE_ARMADIO
+      } else if (!aperto) {
+        // Armadio CHIUSO: alone pieno sotto il mouse, altrimenti il respiro
+        const hover = armadioSottoMouse.current ? 1 : 0
+        obiettivo = Math.max(hover, respiro) * ALONE_ARMADIO
       } else if (
         aperto &&
         !inIspezione &&

@@ -18,9 +18,15 @@
  * pistaRef è già pronto. useCallback lo rende stabile: React non lo
  * richiama a ogni render (altrimenti la pista tornerebbe indietro).
  */
-import { useCallback, useRef, useState, type KeyboardEvent, type MouseEvent } from "react"
+import {
+  useCallback,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react"
 import type { MediaNoia } from "../../../data/noia"
-import { useMenoMovimento } from "./useMenoMovimento"
+import { useMenoMovimento } from "../../../hook/useMenoMovimento"
 import stili from "./VisoreMedia.module.css"
 
 type Props = {

@@ -9,7 +9,7 @@
  * a tutto schermo.
  */
 import type { VideoNoia } from "../../../data/noia"
-import { useMenoMovimento } from "./useMenoMovimento"
+import { useMenoMovimento } from "../../../hook/useMenoMovimento"
 import stili from "./PannelloImmagine.module.css"
 
 type Props = {
@@ -21,11 +21,19 @@ type Props = {
   onApri?: () => void
 }
 
-export function PannelloVideo({ video, numero, grande = false, piena = false, onApri }: Props) {
+export function PannelloVideo({
+  video,
+  numero,
+  grande = false,
+  piena = false,
+  onApri,
+}: Props) {
   const menoMovimento = useMenoMovimento()
 
   return (
-    <figure className={`${stili.pannello} ${grande ? stili.grande : ""} ${piena ? stili.piena : ""}`}>
+    <figure
+      className={`${stili.pannello} ${grande ? stili.grande : ""} ${piena ? stili.piena : ""}`}
+    >
       <figcaption className={stili.etichetta}>
         {numero !== undefined && <span>{String(numero).padStart(2, "0")}</span>}
         {video.nomeFile}
