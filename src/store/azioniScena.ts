@@ -6,9 +6,9 @@
  * dispatch: si usa con dispatch(apriArmadio()).
  *
  * Ingresso e uscita:
- *   "Entra" → dentro la stanza, l'ambiente parte (o risale)
+ *   "Entra" → dentro la stanza, l'audio viene sbloccato (in silenzio)
  *   "Exit"  → di nuovo davanti alla porta: camera in panoramica, disco
- *             fermo, ambiente che sfuma
+ *             fermo
  *
  * Capo CON turntable (nessun modello 3D in volo):
  *   apertura armadio → precarica i render di tutti i capi
@@ -24,7 +24,7 @@ import type { NomeSchermo } from "../config/schermi"
 import { LAVORI_MODA } from "../data/lavoriModa"
 import { precaricaTurntable } from "../utils/turntable"
 import type { Rettangolo } from "../utils/rettangoloSchermo"
-import { avviaAmbiente, impostaPresenzaAmbiente } from "../audio/ambiente"
+import { sbloccaAudio } from "../audio/contesto"
 import {
   impostaSpazioModale,
   liberaLimiti,
@@ -56,21 +56,21 @@ import { VISTA_PROFILO } from "../config/profilo"
 import { puntoFoto } from "../components/stanza/puntoFoto"
 
 /* --- Ingresso e uscita --- */
-/* Clic su "Entra": è un gesto dell'utente, quindi qui si può sbloccare
-   l'audio. La prima volta avvia l'ambiente, le volte dopo lo riporta su. */
+/* Clic su "Entra": è un gesto dell'utente, quindi qui il browser
+   permette di sbloccare l'audio. Il sito resta in silenzio finché non
+   si alza il volume o si clicca il giradischi, ma il contesto audio è
+   già pronto. */
 export const entra = (): AppThunk => (dispatch) => {
   dispatch(ingresso())
-  avviaAmbiente()
-  impostaPresenzaAmbiente(true)
+  sbloccaAudio()
 }
 
 /* Clic sull'Exit: si torna davanti alla porta. La camera torna alla
-   panoramica, il disco si ferma, l'ambiente si abbassa piano. */
+   panoramica e il disco si ferma. */
 export const esciDallaStanza = (): AppThunk => (dispatch, getState) => {
   const { scena, audio } = getState()
   if (scena.vista !== "panoramica") dispatch(vaiA("panoramica"))
   if (audio.discoInRiproduzione) dispatch(alternaDisco())
-  impostaPresenzaAmbiente(false)
   dispatch(uscitaDallaStanza())
 }
 

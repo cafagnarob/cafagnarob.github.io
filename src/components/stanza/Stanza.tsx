@@ -6,10 +6,10 @@
  *   letti dal modello (empty vista_… / guarda_…, mesh degli schermi)
  * - interazioni: alone e clic (useInterazioniStanza.ts)
  * - luci animate: neon e alone (useLuciStanza.ts)
- * - giradischi (useGiradischi.ts) e audio d'ambiente (useAudioAmbiente.ts)
+ * -  giradischi (useGiradischi.ts)
  * - auto e luce lampeggiante fuori dalla finestra (FuoriFinestra.tsx)
  *
- * L'ordine conta: useAudioAmbiente e FuoriFinestra leggono le viste,
+ *  L'ordine conta: FuoriFinestra legge le viste,
  * registrate nello useMemo qui sotto.
  * fumo_tazza resta un segnaposto per il fumo, più avanti.
  */
@@ -23,7 +23,7 @@ import { assegnaMaterialiStanza } from "./materialiStanza"
 import { useInterazioniStanza } from "./useInterazioniStanza"
 import { useLuciStanza } from "./useLuciStanza"
 import { useGiradischi } from "./useGiradischi"
-// import { useAudioAmbiente } from "./useAudioAmbiente"
+
 import { FuoriFinestra } from "./FuoriFinestra"
 import { Fumo } from "./Fumo"
 import { usePioggia } from "./usePioggia"
@@ -53,7 +53,6 @@ export function Stanza() {
   const { sottoMouse, gestori } = useInterazioniStanza()
   useLuciStanza(materiali, sottoMouse)
   useGiradischi(scene)
-  // useAudioAmbiente(scene)
   usePioggia(materiali.pioggia)
 
   return (
